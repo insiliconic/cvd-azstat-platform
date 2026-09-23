@@ -18,3 +18,13 @@
   file in `raw_data/`; `001_5_1en.xls` is excluded and documented as a
   context source.
 - Confirmed: COVID flag rule (2019 baseline, ±10 %, both directions).
+- Added: `parser.py --download` (re-fetches `TARGET_LINKS`, rejects non-.xls
+  responses); `parser.py` now exits non-zero when a target file no longer
+  contains the circulatory pattern; each file entry carries an `indicator`
+  display name.
+- Added: `compare_data.py`, a value-level diff of `data/circulatory_data.json`
+  against the last commit.
+- Added: `.github/workflows/update-data.yml`, which runs daily at 06:00 UTC and
+  on demand, commits and pushes changed data, and e-mails the changes or the
+  failure (SMTP credentials from GitHub Secrets).
+- Added: `README.md` (workflow description, secret setup).

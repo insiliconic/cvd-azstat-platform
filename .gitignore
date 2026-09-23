@@ -4,6 +4,10 @@
 *.key
 secrets.*
 
+# compare_data.py outputs (used only inside the workflow run)
+changes.json
+changes.md
+
 # Python
 __pycache__/
 *.pyc

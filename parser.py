@@ -9,11 +9,17 @@ Two table layouts are handled, and every sheet is parsed independently
 * column-oriented (001_5_2-3, one sheet per year): regions in rows, disease
   groups in columns; a count block is followed by a per-10 000 block.
 
-Usage: python parser.py [raw_dir] [out_json]
+Usage: python parser.py [--download] [raw_dir] [out_json]
+
+--download re-fetches every TARGET_LINKS file into raw_dir before parsing.
+Exits non-zero if a download fails or a target file no longer contains the
+circulatory pattern (i.e. the source layout changed).
 """
+import argparse
 import json
 import re
 import sys
+import urllib.request
 from datetime import date
 from pathlib import Path
 
@@ -21,21 +27,21 @@ import xlrd
 
 SOURCE_BASE = "https://www.stat.gov.az/source/healthcare/en/"
 
-# Tables parsed for the circulatory series. 001_5_1en.xls (health-system
-# resources by region) has no disease rows; it stays in raw_data/ as a context
-# source only (see docs/data_sources.md).
-TARGET_LINKS = {
-    name: SOURCE_BASE + name
-    for name in (
-        "001_3en.xls",        # main causes of deaths
-        "001_2_1en.xls",      # morbidity, total population
-        "001_2_2en.xls",      # morbidity, <18
-        "001_2_3en.xls",      # morbidity, 0-13
-        "001_2_4en.xls",      # morbidity, 14-29
-        "001_2_5en.xls",      # morbidity, >=30
-        "001_5_2-3en.xls",    # morbidity by disease group, by region
-    )
+# Tables parsed for the circulatory series: file name -> indicator name.
+# 001_5_1en.xls (health-system resources by region) has no disease rows; it
+# stays in raw_data/ as a context source only (see docs/data_sources.md).
+INDICATORS = {
+    "001_3en.xls": "Deaths — main causes",
+    "001_2_1en.xls": "Morbidity — total population",
+    "001_2_2en.xls": "Morbidity — children under 18",
+    "001_2_3en.xls": "Morbidity — children 0-13",
+    "001_2_4en.xls": "Morbidity — youths 14-29",
+    "001_2_5en.xls": "Morbidity — population 30+",
+    "001_5_2-3en.xls": "Morbidity — by economic region",
 }
+TARGET_LINKS = {name: SOURCE_BASE + name for name in INDICATORS}
+
+XLS_MAGIC = b"\xd0\xcf\x11\xe0"  # OLE2 header of legacy .xls files
 
 # Patterns are compared after normalize(), so they must be normalized too.
 ROW_PATTERNS = {"diseases of the circulatory system"}
@@ -256,6 +262,7 @@ def parse_file(path):
                 flag_covid(entry, base["regions"].get(name))
 
     return {
+        "indicator": INDICATORS[path.name],
         "source_url": TARGET_LINKS[path.name],
         "sheet_names": wb.sheet_names(),
         "sheets": sheets,
@@ -263,15 +270,42 @@ def parse_file(path):
     }
 
 
+def download(raw_dir):
+    """Fetch every target file; refuse anything that is not an .xls workbook
+    (e.g. an HTML error page served with status 200)."""
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    for name, url in TARGET_LINKS.items():
+        req = urllib.request.Request(url, headers={"User-Agent": "cvd-azstat-platform"})
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            data = resp.read()
+        if not data.startswith(XLS_MAGIC):
+            raise RuntimeError(f"{url}: response is not an .xls workbook")
+        (raw_dir / name).write_bytes(data)
+        print(f"downloaded {name} ({len(data)} bytes)")
+
+
 def main():
-    raw_dir = Path(sys.argv[1] if len(sys.argv) > 1 else "raw_data")
-    out = Path(sys.argv[2] if len(sys.argv) > 2 else "data/circulatory_data.json")
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--download", action="store_true", help="re-fetch source files first")
+    ap.add_argument("raw_dir", nargs="?", default="raw_data")
+    ap.add_argument("out", nargs="?", default="data/circulatory_data.json")
+    args = ap.parse_args()
+    raw_dir, out = Path(args.raw_dir), Path(args.out)
+
+    if args.download:
+        download(raw_dir)
+    files = {name: parse_file(raw_dir / name) for name in TARGET_LINKS}
+    broken = [name for name, f in files.items() if not f["sheets"]]
+    if broken:
+        sys.exit(f"circulatory pattern not found in: {', '.join(broken)} "
+                 "(source layout changed?)")
+
     result = {
         "generated": date.today().isoformat(),
         "patterns": {"row": sorted(ROW_PATTERNS), "column": sorted(COL_PATTERNS)},
         "covid_rule": {"years": COVID_YEARS, "baseline": COVID_BASELINE,
                        "threshold": COVID_THRESHOLD},
-        "files": {name: parse_file(raw_dir / name) for name in TARGET_LINKS},
+        "files": files,
     }
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")

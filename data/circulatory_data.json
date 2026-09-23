@@ -18,6 +18,7 @@
   },
   "files": {
     "001_3en.xls": {
+      "indicator": "Deaths — main causes",
       "source_url": "https://www.stat.gov.az/source/healthcare/en/001_3en.xls",
       "sheet_names": [
         "Sheet1"
@@ -195,6 +196,7 @@
       "sheets_without_match": []
     },
     "001_2_1en.xls": {
+      "indicator": "Morbidity — total population",
       "source_url": "https://www.stat.gov.az/source/healthcare/en/001_2_1en.xls",
       "sheet_names": [
         "1.2.1"
@@ -450,6 +452,7 @@
       "sheets_without_match": []
     },
     "001_2_2en.xls": {
+      "indicator": "Morbidity — children under 18",
       "source_url": "https://www.stat.gov.az/source/healthcare/en/001_2_2en.xls",
       "sheet_names": [
         "1.2.2"
@@ -608,6 +611,7 @@
       "sheets_without_match": []
     },
     "001_2_3en.xls": {
+      "indicator": "Morbidity — children 0-13",
       "source_url": "https://www.stat.gov.az/source/healthcare/en/001_2_3en.xls",
       "sheet_names": [
         "1.2.3"
@@ -758,6 +762,7 @@
       "sheets_without_match": []
     },
     "001_2_4en.xls": {
+      "indicator": "Morbidity — youths 14-29",
       "source_url": "https://www.stat.gov.az/source/healthcare/en/001_2_4en.xls",
       "sheet_names": [
         "1.2.4"
@@ -904,6 +909,7 @@
       "sheets_without_match": []
     },
     "001_2_5en.xls": {
+      "indicator": "Morbidity — population 30+",
       "source_url": "https://www.stat.gov.az/source/healthcare/en/001_2_5en.xls",
       "sheet_names": [
         "1.2.5"
@@ -1054,6 +1060,7 @@
       "sheets_without_match": []
     },
     "001_5_2-3en.xls": {
+      "indicator": "Morbidity — by economic region",
       "source_url": "https://www.stat.gov.az/source/healthcare/en/001_5_2-3en.xls",
       "sheet_names": [
         "2024",

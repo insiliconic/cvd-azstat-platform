@@ -1,0 +1,85 @@
+name: Update circulatory data
+
+on:
+  schedule:
+    - cron: "0 6 * * *"   # daily, 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write   # needed to push the updated JSON
+
+concurrency:
+  group: update-data
+  cancel-in-progress: false
+
+env:
+  NOTIFY_TO: insiliconic@gmail.com
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # A non-zero exit (download error, non-.xls response, missing pattern,
+      # any exception) fails the job and triggers the failure e-mail below.
+      - name: Download sources and parse
+        run: python parser.py --download
+
+      - name: Compare with last committed version
+        id: compare
+        run: python compare_data.py --out-json changes.json --out-md changes.md
+
+      - name: Commit and push updated data
+        if: steps.compare.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/circulatory_data.json raw_data/
+          git commit -m "Data update: ${{ steps.compare.outputs.count }} value(s) changed"
+          git push
+
+      - name: E-mail the changes
+        if: steps.compare.outputs.changed == 'true'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.SMTP_USER }}
+          password: ${{ secrets.SMTP_PASS }}
+          from: CVD AzStat bot <${{ secrets.SMTP_USER }}>
+          to: ${{ env.NOTIFY_TO }}
+          subject: "[cvd-azstat] ${{ steps.compare.outputs.count }} value(s) changed on stat.gov.az"
+          html_body: file://changes.md
+          convert_markdown: true
+          attachments: changes.json
+
+      - name: E-mail the failure
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.SMTP_USER }}
+          password: ${{ secrets.SMTP_PASS }}
+          from: CVD AzStat bot <${{ secrets.SMTP_USER }}>
+          to: ${{ env.NOTIFY_TO }}
+          subject: "[cvd-azstat] data update FAILED"
+          body: |
+            The scheduled data update failed.
+
+            Workflow: ${{ github.workflow }}
+            Trigger:  ${{ github.event_name }}
+            Commit:   ${{ github.sha }}
+            Logs:     ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

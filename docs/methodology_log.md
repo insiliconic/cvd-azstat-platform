@@ -204,3 +204,29 @@ naming changes (1.5.2 → 1.5.1 from 2021), one sheet name has a trailing space
 No missing values occurred within the extracted rows. The national total in
 the regional workbook matches table 1.2.1 in every year (2023 = 212 206.4 vs
 212 206; rates agree to one decimal place).
+
+## 2026-09-23 — Automated updating and revision tracking
+
+SSC revises and extends published tables in place under the same URL. To keep
+the dataset current and to document revisions:
+
+- A GitHub Actions workflow re-downloads the seven target tables daily
+  (06:00 UTC), re-runs the extraction and compares every published value
+  (count, per 10 000, per 100 000; per indicator × region × year) with the
+  last committed version (`compare_data.py`). Metadata are excluded, so only
+  real data revisions produce a commit.
+- Each revision becomes a separate commit that contains the new raw files and
+  the new JSON. The git history is therefore an audit trail of what SSC
+  changed and when. The notification e-mail lists every changed value
+  (old → new).
+- Robustness checks that fail the run instead of silently producing wrong
+  data: a downloaded file must be an OLE2 `.xls` workbook, not an HTML error
+  page, and every target file must still contain the circulatory row or
+  column.
+- *Validation (local, 2026-09-23):* a run against the live site reproduced the
+  committed values with zero differences. A simulated revision of two values
+  was reported exactly (indicator, region, year, old → new), and a simulated
+  layout change stopped the run with a non-zero exit before any output was
+  written.
+- The workflow reads SMTP credentials only from GitHub Secrets
+  (`SMTP_USER`, `SMTP_PASS`).
