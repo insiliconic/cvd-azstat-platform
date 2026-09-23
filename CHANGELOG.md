@@ -28,3 +28,7 @@
   on demand, commits and pushes changed data, and e-mails the changes or the
   failure (SMTP credentials from GitHub Secrets).
 - Added: `README.md` (workflow description, secret setup).
+
+### 2026-09-24
+- Added (temporary): SMTP test e-mail step ("Test: SMTP connection OK")
+  running on every workflow run; to be removed after the connection is verified.
