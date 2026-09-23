@@ -1,0 +1,11 @@
+# Secrets: SMTP/API keys come only from GitHub Secrets / environment variables
+.env
+.env.*
+*.key
+secrets.*
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
