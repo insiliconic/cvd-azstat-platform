@@ -5,10 +5,11 @@ Qan dövranı xəstəlikləri interaktiv platforması
 Extracts the **"Diseases of the circulatory system"** (ICD-10 I00–I99) series
 from the health tables of the State Statistical Committee of Azerbaijan
 (<https://www.stat.gov.az/source/healthcare/?lang=en>). A daily GitHub Actions
-job keeps the data up to date and republishes it on GitHub Pages at a fixed
-public URL:
+job keeps the data up to date and republishes both the data and a small
+frontend on GitHub Pages at fixed public URLs:
 
-**<https://insiliconic.github.io/cvd-azstat-platform/data/circulatory_data.json>**
+- Site: **<https://insiliconic.github.io/cvd-azstat-platform/>**
+- Data: **<https://insiliconic.github.io/cvd-azstat-platform/data/circulatory_data.json>**
 
 | Path | Purpose |
 |---|---|
@@ -63,16 +64,22 @@ checkout → install deps → parser.py --download ──fail──► failure e
   [`dawidd6/action-send-mail`](https://github.com/dawidd6/action-send-mail).
   The change table is in the body and `changes.json` is attached.
 
-## Public data endpoint (GitHub Pages)
+## Public site and data endpoint (GitHub Pages)
 
-After every successful `update` run, a second job (`deploy`) publishes
-`data/circulatory_data.json` on GitHub Pages, so any client (the native app,
-a web frontend) can fetch a fixed URL instead of reading a specific git
-commit through the GitHub API:
+After every successful `update` run, a second job (`deploy`) publishes the
+site and the data together on GitHub Pages, from one artifact:
 
 ```
-https://insiliconic.github.io/cvd-azstat-platform/data/circulatory_data.json
+https://insiliconic.github.io/cvd-azstat-platform/                              (frontend/)
+https://insiliconic.github.io/cvd-azstat-platform/data/circulatory_data.json    (data/circulatory_data.json)
 ```
+
+The "Build Pages site" step just copies both into place
+(`frontend/index.html`, `style.css`, `app.js` to the site root;
+`data/circulatory_data.json` to `data/`) — `frontend/` has no bundler, so
+there's no build tool to run. The frontend fetches the data URL as an
+absolute URL (`frontend/app.js`, `DATA_URL`), so the two halves don't need to
+know about each other's paths.
 
 This requires the repository's Pages source to be set to **GitHub Actions**
 once, in **Settings → Pages → Build and deployment → Source**. If it is still
@@ -83,9 +90,9 @@ fixes it — no code change needed.
 
 ## Frontend
 
-`frontend/` is a small static site (KPI cards, a trend chart, a sortable
-table, a methodology section) that fetches the public JSON above at runtime —
-see `frontend/README.md` for how to run it locally. Not deployed yet.
+`frontend/` is the static site above (KPI cards, a trend chart, a sortable
+table, a methodology section) — see `frontend/README.md` for how to run it
+locally instead of against the deployed one.
 
 ## Secrets
 

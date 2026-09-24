@@ -259,3 +259,47 @@ particular git commit through the API), the workflow now publishes
   Because the `deploy` job needs `update` to succeed, a broken source layout
   (§4) blocks the Pages update the same way it blocks the data commit — Pages
   never serves an extraction that failed its own consistency check.
+  (The placeholder `index.html` described here was replaced by the real
+  frontend the same day — see the next entry.)
+
+## 2026-09-24 — Public frontend (`frontend/`)
+
+Built a small static site (plain HTML/CSS/JS + Chart.js, no bundler) so the
+dataset has a human-readable presentation, not just raw JSON: a KPI row
+(latest-year death and morbidity rates with the % change and an up/down
+arrow, colored by whether the change is the wanted direction — a rise in a
+disease/death rate is colored as the bad outcome), a trend line chart per
+indicator (real gaps in the source, e.g. deaths 2001–2004, render as a
+visible break, never interpolated), a sortable table of all six national
+indicators × years, and a methodology section reading the dataset's own
+`generated` date. Design follows the project's data-viz method: a single
+categorical hue for the (single-series) trend line, the fixed status pair for
+KPI deltas, arrow + percentage + color together rather than color alone.
+
+**Nothing on the page is hardcoded or fetched at build time.** `app.js`
+`fetch()`es the public Pages URL at page load, every load — the "build" step
+that assembles the site is a plain file copy (see below), not a data fetch.
+
+**Bug found in local testing, fixed before commit:** the trend chart's
+container card started `hidden` (`display:none`) and the code un-hid it
+*after* constructing the Chart.js instance. Chart.js measures its canvas's
+container at construction time, reads zero width from a `display:none`
+ancestor, and locks in a squashed canvas that CSS then stretches — the chart
+rendered with all its data crushed into the left ~15% of the plot. Fix:
+un-hide the container before creating the chart, not after. Verified with a
+screenshot in both states.
+
+**Deploying it (same day):** the `deploy` job's "Build Pages site" step now
+also copies `frontend/index.html`, `frontend/style.css` and `frontend/app.js`
+into the site root, alongside `site/data/circulatory_data.json` — the same
+Pages artifact, same domain, two fixed paths:
+
+- Site: `https://insiliconic.github.io/cvd-azstat-platform/`
+- Data: `https://insiliconic.github.io/cvd-azstat-platform/data/circulatory_data.json`
+  (unchanged)
+
+`frontend/app.js` fetches the data URL as an absolute URL, so which step
+copies which file into the shared artifact doesn't matter — the two halves
+don't need to know about each other's paths. Because `frontend/` has no
+bundler (Chart.js loads from a CDN), "build" is the same one-line `cp` a
+local run would use — no Node, no `npm install`, in the deploy job.

@@ -83,10 +83,11 @@ jobs:
             Commit:   ${{ github.sha }}
             Logs:     ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
-  # Publishes data/circulatory_data.json on GitHub Pages so a fixed public
-  # URL always serves the latest committed data (see docs/methodology_log.md).
-  # Runs after every successful "update" job, whether or not the data
-  # changed, so Pages is populated from the very first run too.
+  # Publishes frontend/ (the site) and data/circulatory_data.json (the data
+  # it reads) together on GitHub Pages, so both live at fixed public URLs
+  # under the same domain (see docs/methodology_log.md). Runs after every
+  # successful "update" job, whether or not the data changed, so Pages is
+  # populated from the very first run too.
   deploy:
     needs: update
     if: needs.update.result == 'success'
@@ -106,22 +107,17 @@ jobs:
         with:
           ref: main
 
+      # frontend/ has no bundler (plain HTML/CSS/JS, Chart.js from a CDN), so
+      # "build" is just assembling the site root next to the published data —
+      # nothing here needs Node. The frontend fetches data/circulatory_data.json
+      # by its absolute URL (frontend/app.js, DATA_URL), so it doesn't matter
+      # that the two are copied by separate steps into the same artifact.
       - name: Build Pages site
         run: |
           set -e
           mkdir -p site/data
           cp data/circulatory_data.json site/data/circulatory_data.json
-          cat > site/index.html <<'HTML'
-          <!doctype html>
-          <html lang="en">
-          <head><meta charset="utf-8"><title>cvd-azstat-platform data</title></head>
-          <body>
-            <h1>cvd-azstat-platform</h1>
-            <p>Circulatory-disease data extracted from stat.gov.az:</p>
-            <p><a href="data/circulatory_data.json">data/circulatory_data.json</a></p>
-          </body>
-          </html>
-          HTML
+          cp frontend/index.html frontend/style.css frontend/app.js site/
 
       - uses: actions/configure-pages@v5
 

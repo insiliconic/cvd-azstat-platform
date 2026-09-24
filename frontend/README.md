@@ -59,6 +59,8 @@ python -m http.server 3000 --directory frontend
 - If `DATA_URL` in `app.js` is unreachable (offline, or the Pages deploy is
   down), the page shows an explicit error with a retry button rather than a
   blank screen.
-- Not deployed yet — this is the local-preview step. Deploying (GitHub
-  Pages under `/frontend`, a separate Pages project, Vercel/Netlify, etc.) is
-  a follow-up decision, not made here.
+- Deployed at <https://insiliconic.github.io/cvd-azstat-platform/> — the
+  `deploy` job in `.github/workflows/update-data.yml` copies this folder's
+  three files into the same Pages artifact as `data/circulatory_data.json`
+  after every successful daily run. This local setup is for previewing
+  changes before they're pushed, not a separate deployment.

@@ -39,3 +39,11 @@
 - Added: repository made public; `deploy` job in `update-data.yml` publishes
   `data/circulatory_data.json` on GitHub Pages after every successful `update`
   run, at `https://insiliconic.github.io/cvd-azstat-platform/data/circulatory_data.json`.
+- Added: `frontend/` — a static site (HTML/CSS/JS + Chart.js, no build step)
+  with a KPI row, a trend chart, a sortable table and a methodology section,
+  all read from the public JSON at page load. Verified locally; fixed a
+  chart-squash bug found in that verification (see `docs/methodology_log.md`).
+- Changed: `deploy` job's "Build Pages site" step now also copies
+  `frontend/{index.html,style.css,app.js}` into the Pages artifact, so the
+  site and the data are published together at
+  `https://insiliconic.github.io/cvd-azstat-platform/`.
