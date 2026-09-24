@@ -1,5 +1,7 @@
 # cvd-azstat-platform
 
+Qan dövranı xəstəlikləri interaktiv platforması
+
 Extracts the **"Diseases of the circulatory system"** (ICD-10 I00–I99) series
 from the health tables of the State Statistical Committee of Azerbaijan
 (<https://www.stat.gov.az/source/healthcare/?lang=en>). A daily GitHub Actions
