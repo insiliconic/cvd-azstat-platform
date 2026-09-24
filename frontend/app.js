@@ -7,9 +7,9 @@ const REPO_URL = "https://github.com/insiliconic/cvd-azstat-platform";
 
 // File key -> Azerbaijani display label. Order here also drives the
 // indicator <select> and the KPI row. The regional breakdown
-// (001_5_2-3en.xls) is left out of this UI: it is a region x year grid
-// with ~99 rows per year, a different shape from the other six
-// national year-series, and is better explored as raw JSON for now.
+// (001_5_2-3en.xls) has a different shape (region x year, not a plain year
+// series) and gets its own map + bar chart in region-map.js instead of a
+// place in this list or the sortable table.
 const INDICATORS = [
   { key: "001_3en.xls",   label: "Ölüm (əsas səbəblər)" },
   { key: "001_2_1en.xls", label: "Xəstələnmə — ümumi əhali" },
@@ -39,6 +39,7 @@ function initTheme() {
     document.documentElement.setAttribute("data-theme", next);
     try { localStorage.setItem("cvd-theme", next); } catch (e) { /* private mode: ignore */ }
     if (chartInstance) renderChart(chartInstance._indicatorKey);
+    window.dispatchEvent(new Event("cvd-theme-changed")); // region-map.js redraws its colors
   });
 }
 
@@ -320,6 +321,7 @@ async function load() {
     buildKpis(dataset);
     buildIndicatorSelect(dataset);
     renderChart(DEFAULT_TREND_KEY);
+    if (typeof initRegionalSection === "function") initRegionalSection(dataset);
     tableRows = buildTableRows(dataset);
     initTableSorting();
     renderTable();

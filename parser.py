@@ -192,8 +192,14 @@ def parse_row_sheet(sh):
 # ------------------------------------------------------------- column layout
 
 def parse_col_sheet(sh):
+    # Every sheet holds two side-by-side tables sharing the same disease-group
+    # columns: absolute counts first, then a rate table introduced by its own
+    # title row (e.g. "Number of diseases per 10 000 population"). unit_labels
+    # records each table's own source label, so a value can always be traced
+    # back to the physical table it came from -- not just its unit key.
     title, table_number = None, None
     unit, col, blocks, regions = "count", None, [], {}
+    unit_labels = {}
     for r in range(sh.nrows):
         row = sh.row_values(r)
         for v in row:
@@ -215,6 +221,7 @@ def parse_col_sheet(sh):
         u = unit_of(label)
         if u:
             unit = u
+            unit_labels[u] = raw.strip()
             continue
         if col is None:
             continue
@@ -230,6 +237,9 @@ def parse_col_sheet(sh):
         return None
     for entry in regions.values():
         flag_non_integer(entry)
+    # The first (count) table has no dedicated title row of its own -- it's
+    # simply what the sheet's main title describes -- so it falls back to that.
+    unit_labels.setdefault("count", title)
     m = re.search(r"\b((?:19|20)\d{2})\b", title or "")
     return {
         "layout": "column",
@@ -237,6 +247,7 @@ def parse_col_sheet(sh):
         "title": title,
         "reference_year": m.group(1) if m else None,
         "blocks": blocks,
+        "unit_labels": unit_labels,
         "regions": regions,
     }
 

@@ -117,7 +117,7 @@ jobs:
           set -e
           mkdir -p site/data
           cp data/circulatory_data.json site/data/circulatory_data.json
-          cp frontend/index.html frontend/style.css frontend/app.js site/
+          cp frontend/index.html frontend/style.css frontend/app.js frontend/region-map.js site/
 
       - uses: actions/configure-pages@v5
 

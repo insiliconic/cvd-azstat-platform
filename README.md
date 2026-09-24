@@ -90,9 +90,10 @@ fixes it — no code change needed.
 
 ## Frontend
 
-`frontend/` is the static site above (KPI cards, a trend chart, a sortable
-table, a methodology section) — see `frontend/README.md` for how to run it
-locally instead of against the deployed one.
+`frontend/` is the static site above (KPI cards, a trend chart, a regional
+heatmap + bar chart, a sortable table, a methodology section) — see
+`frontend/README.md` for how to run it locally instead of against the
+deployed one.
 
 ## Secrets
 

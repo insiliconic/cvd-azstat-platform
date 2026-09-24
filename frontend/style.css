@@ -20,6 +20,10 @@
   --badge-covid-fg:  #9a3412;
   --badge-est-bg:    #f0efec;
   --badge-est-fg:    #52514e;
+  /* Sequential (one hue) heatmap ramp for the regional map/bar chart — safe
+     by construction for every vision type, varying only in lightness. */
+  --heat-low:        #fdeeea;
+  --heat-high:       #a11d1d;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -42,6 +46,8 @@
     --badge-covid-fg:  #f0b090;
     --badge-est-bg:    #2c2c2a;
     --badge-est-fg:    #c3c2b7;
+    --heat-low:        #3a2620;
+    --heat-high:       #e66767;
   }
 }
 :root[data-theme="dark"] {
@@ -63,6 +69,8 @@
   --badge-covid-fg:  #f0b090;
   --badge-est-bg:    #2c2c2a;
   --badge-est-fg:    #c3c2b7;
+  --heat-low:        #3a2620;
+  --heat-high:       #e66767;
 }
 
 * { box-sizing: border-box; }
@@ -169,7 +177,7 @@ main {
   flex-direction: column;
   gap: 4px;
 }
-#indicator-select {
+#indicator-select, #region-year-select {
   font: inherit;
   padding: 6px 10px;
   border-radius: 8px;
@@ -178,11 +186,71 @@ main {
   color: var(--text-primary);
 }
 .chart-wrap { position: relative; height: 340px; }
+.chart-wrap--bar { height: 420px; margin-top: 16px; }
 .table-jump {
   display: inline-block;
   margin-top: 12px;
   font-size: 0.85rem;
   color: var(--series-1);
+}
+
+/* Regional section */
+.regional-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 12px 0;
+}
+.tab-group { display: flex; gap: 6px; }
+.tab-btn {
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--page);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.tab-btn[aria-selected="true"] {
+  background: var(--series-1);
+  border-color: var(--series-1);
+  color: #ffffff;
+  font-weight: 600;
+}
+.map-wrap { position: relative; }
+#region-map { width: 100%; height: auto; display: block; }
+.region-tile { cursor: pointer; outline: none; }
+.region-tile:focus rect, .region-tile:hover rect { stroke: var(--series-1); stroke-width: 2; }
+.region-tooltip {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  box-shadow: 0 2px 8px var(--border);
+  white-space: nowrap;
+}
+.scale-legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 4px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.scale-legend__bar {
+  flex: 1;
+  max-width: 240px;
+  height: 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
 }
 
 /* Table */
@@ -253,4 +321,6 @@ footer {
 @media (max-width: 560px) {
   .site-header { flex-direction: column; }
   .chart-wrap { height: 280px; }
+  .chart-wrap--bar { height: 380px; }
+  .regional-controls { align-items: stretch; }
 }

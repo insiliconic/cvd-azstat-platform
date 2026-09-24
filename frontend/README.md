@@ -19,12 +19,23 @@ hardcoded; if the dataset changes, reloading the page shows the new numbers.
    Years missing in the source (see `docs/methodology_log.md`, e.g.
    2001–2004 for deaths) show as a real gap in the line, not an interpolated
    guess.
-3. **Table** — every national indicator (excludes the region-by-year
-   breakdown, which is a different shape — see the comment in `app.js`), one
-   row per indicator × year, with count, rate, unit and a badge for COVID /
-   non-integer notes carried over from the dataset. Click a column header to
-   sort by it; click again to reverse.
-4. **Methodology** — source, last-updated date (the dataset's own `generated`
+3. **Regional section** (`region-map.js`) — a schematic tile map of
+   Azerbaijan's 14 economic regions (not a geographically accurate boundary
+   map — see the note at the top of `region-map.js` for why) plus a synced
+   horizontal bar chart, both reading `001_5_2-3en.xls`'s region × year data.
+   Two tabs switch both the map and the bar chart between the count table and
+   the per-10k-population table; a year dropdown (2015–2024) selects the
+   sheet. Colors are a single-hue sequential heatmap (light → dark red,
+   `--heat-low`/`--heat-high`), recomputed from that year+table's own
+   min/max, so the same color never means the same absolute number across
+   different tabs or years. Hover (or tap, or focus+arrow-keys) a tile for
+   the exact value.
+4. **Table** — every national year-series indicator (excludes the regional
+   breakdown above, which is a different shape), one row per indicator ×
+   year, with count, rate, unit and a badge for COVID / non-integer notes
+   carried over from the dataset. Click a column header to sort by it; click
+   again to reverse.
+5. **Methodology** — source, last-updated date (the dataset's own `generated`
    field), a link to the raw JSON, and a link to the repo's
    `docs/methodology_log.md` for the full write-up.
 
@@ -61,6 +72,7 @@ python -m http.server 3000 --directory frontend
   blank screen.
 - Deployed at <https://insiliconic.github.io/cvd-azstat-platform/> — the
   `deploy` job in `.github/workflows/update-data.yml` copies this folder's
-  three files into the same Pages artifact as `data/circulatory_data.json`
-  after every successful daily run. This local setup is for previewing
-  changes before they're pushed, not a separate deployment.
+  four files (`index.html`, `style.css`, `app.js`, `region-map.js`) into the
+  same Pages artifact as `data/circulatory_data.json` after every successful
+  daily run. This local setup is for previewing changes before they're
+  pushed, not a separate deployment.
