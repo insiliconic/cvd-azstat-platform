@@ -303,3 +303,67 @@ copies which file into the shared artifact doesn't matter — the two halves
 don't need to know about each other's paths. Because `frontend/` has no
 bundler (Chart.js loads from a CDN), "build" is the same one-line `cp` a
 local run would use — no Node, no `npm install`, in the deploy job.
+
+## 2026-09-24 — Regional map and a source-labeled regional dataset
+
+**Verification requested:** does `parser.py` extract both tables in
+`001_5_2-3en.xls` (each year's sheet holds an absolute-count table and a
+per-10k-population table, one after the other, sharing the same disease-group
+columns)? Confirmed yes — `parse_col_sheet` already merges both into the same
+per-region entry (`count` and `per_10k` keys) for every region in every year
+2015–2024; this was true before today's change and was already covered by the
+2026-09-23 extraction-run summary above (`per10k=99` for every year in that
+table). No parsing bug; nothing to fix there.
+
+**Added:** `unit_labels` per column-oriented sheet, pairing each unit key with
+the *literal text* of the source table it came from — not just the unit key
+name. The per-10k table has its own title row in the source
+(`"Number of diseases per 10 000 population"`, sometimes with a trailing
+footnote marker); the count table has no separate title of its own, so it
+falls back to the sheet's main title (e.g. `"1.5.3. Distribution of
+population by main disease groups…"`). Re-ran the parser: the diff against
+the previously committed `data/circulatory_data.json` is additive only
+(`unit_labels` plus the refreshed `generated` date) — no existing value
+changed.
+
+**Region-name stability check (before building the map):** the 14 economic
+regions in `001_5_2-3en.xls` (12 "X economic region - total" rows, plus "Baku
+city - total" and "Nakhchivan autonomous republic - total") use the *exact
+same* normalised keys in every sheet from 2015 through 2024, even though the
+table number (§4: 1.5.4 → 1.5.3 → 1.5.2 → 1.5.3), the disease-group wording
+and the header-row position all change year to year. Only the country-total
+row's own key differs (`"republic of azerbaijan"` in 2015–2018 vs `"…- total"`
+in 2019–2024, per the footnote-stripping rule in §2) — irrelevant to the map,
+which only ever reads the 14 regional keys. This stability is what makes a
+single static region→tile mapping in the frontend safe across every year in
+the dropdown, without per-year special-casing.
+
+**Regional map (`frontend/region-map.js`, new):** a tile map of the 14
+economic regions plus a synced horizontal bar chart, both reading
+`001_5_2-3en.xls` directly from the already-fetched dataset (no extra
+request). Two tabs switch both visualisations between the count table and the
+per-10k table; a year dropdown covers 2015–2024. Colour is a single-hue
+sequential heatmap (light → dark red) recomputed from that year+table's own
+min/max — deliberately not a fixed absolute scale, so 2015 and 2024 are each
+readable on their own terms rather than 2015 washing out under 2024's much
+higher range. In-fill label colour (white vs ink) is chosen by each tile's
+own fill luminance, and legend/scale-bar text stays in text tokens — both per
+the project's data-viz method already used for the trend chart and KPI
+deltas. A single-hue sequential ramp needs no CVD-pair validation (varying
+only in lightness, it is safe by construction for every vision type), so the
+palette validator was not run for it, unlike a multi-hue categorical palette.
+
+**No real geographic map used, by design.** No reliable open GeoJSON/SVG of
+Azerbaijan's *economic regions* (an official statistical regionalisation,
+distinct from generic ADM1 province boundaries most open geodata covers) was
+found. Sourcing and verifying one was judged higher-risk than useful given the
+map only needs 14 independently addressable areas — so the map is a schematic
+grid of rounded boxes, positioned in a rough west-to-east, north-to-south
+approximation of each region's real location, not surveyed coordinates. This
+was pre-approved as an acceptable fallback before building it.
+
+**Deploying it (same day):** the `deploy` job's "Build Pages site" step now
+also copies `frontend/region-map.js` into the site root alongside the other
+three frontend files. Verified on the live site after a manual
+`workflow_dispatch` run (`update` + `deploy` both green): tab switching, year
+changes, tooltips and both themes match the local preview.
