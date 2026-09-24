@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="az">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ürək-damar xəstəlikləri — Azərbaycan statistikası</title>
+<meta name="description" content="stat.gov.az mənbəyindən çıxarılan qan dövranı sistemi xəstəlikləri göstəriciləri: ölüm, xəstələnmə, yaş qrupları üzrə tendensiyalar.">
+<!-- Set the theme before first paint so there is no flash of the wrong colors. -->
+<script>
+  (function () {
+    var saved = null;
+    try { saved = localStorage.getItem("cvd-theme"); } catch (e) {}
+    if (saved === "light" || saved === "dark") {
+      document.documentElement.setAttribute("data-theme", saved);
+    }
+  })();
+</script>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" defer></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__title">
+    <h1>Ürək-damar xəstəlikləri statistikası</h1>
+    <p class="subtitle">Qan dövranı sistemi xəstəlikləri (ICD-10 I00–I99) üzrə göstəricilər</p>
+  </div>
+  <button id="theme-toggle" type="button" aria-label="İşıqlı/qaranlıq rejimi dəyiş">
+    <span aria-hidden="true">🌓</span>
+  </button>
+</header>
+
+<main>
+
+  <p id="status-message" role="status" aria-live="polite">Data yüklənir…</p>
+
+  <section id="kpi-section" class="kpi-row" aria-label="Əsas göstəricilər" hidden></section>
+
+  <section class="card chart-card" aria-labelledby="chart-heading" hidden id="chart-section">
+    <div class="chart-card__header">
+      <div>
+        <h2 id="chart-heading">İllər üzrə tendensiya</h2>
+        <p class="muted">Göstərici üzrə illik nisbət (10 000 və ya 100 000 nəfərə görə)</p>
+      </div>
+      <label class="select-label">
+        Göstərici
+        <select id="indicator-select"></select>
+      </label>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="trend-chart" role="img" aria-label="Seçilmiş göstəricinin illər üzrə nisbət tendensiyası"></canvas>
+    </div>
+    <a class="table-jump" href="#table-section">Cədvəl kimi bax ↓</a>
+  </section>
+
+  <section class="card table-section" id="table-section" aria-labelledby="table-heading" hidden>
+    <h2 id="table-heading">Bütün göstəricilər, illər üzrə</h2>
+    <p class="muted">Sütun başlığına klikləyin — sıralama üçün</p>
+    <div class="table-wrap">
+      <table id="data-table">
+        <thead>
+          <tr>
+            <th data-key="indicatorLabel">Göstərici</th>
+            <th data-key="year" data-type="num" aria-sort="descending">İl</th>
+            <th data-key="count" data-type="num">Say (nəfər)</th>
+            <th data-key="rate" data-type="num">Nisbət</th>
+            <th data-key="unit">Vahid</th>
+            <th data-key="notes">Qeyd</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card methodology" id="methodology-section" aria-labelledby="methodology-heading" hidden>
+    <h2 id="methodology-heading">Metodologiya</h2>
+    <dl>
+      <dt>Mənbə</dt>
+      <dd><a href="https://www.stat.gov.az/source/healthcare/?lang=en" target="_blank" rel="noopener">Azərbaycan Respublikasının Dövlət Statistika Komitəsi (Azstat)</a></dd>
+      <dt>Son yenilənmə</dt>
+      <dd id="last-updated">—</dd>
+      <dt>Xam data</dt>
+      <dd><a id="data-link" href="#" target="_blank" rel="noopener">circulatory_data.json</a></dd>
+      <dt>Layihə</dt>
+      <dd><a href="https://github.com/insiliconic/cvd-azstat-platform" target="_blank" rel="noopener">GitHub reposu</a> — ətraflı metodologiya <code>docs/methodology_log.md</code> faylında</dd>
+    </dl>
+    <details>
+      <summary>Qeydlərin izahı</summary>
+      <ul>
+        <li><span class="badge badge-covid">COVID</span> — 2020–2021-ci illərdə dəyər 2019-cu ilə nisbətən ≥10% dəyişib (artım və ya azalma).</li>
+        <li><span class="badge badge-est">təxmini</span> — mənbədə kəsr (tam olmayan) ədəd dərc edilib; ehtimal ki, təxmini/əvvəlcədən qiymətləndirilmiş göstəricidir.</li>
+      </ul>
+    </details>
+  </section>
+
+  <section class="card error-card" id="error-section" hidden>
+    <h2>Data yüklənmədi</h2>
+    <p id="error-message" class="muted"></p>
+    <button id="retry-button" type="button">Yenidən cəhd et</button>
+  </section>
+
+</main>
+
+<footer>
+  <p>Data mənbəyi: <a href="https://www.stat.gov.az/source/healthcare/?lang=en" target="_blank" rel="noopener">stat.gov.az</a> · Sayt statik HTML + Chart.js ilə qurulub, data build zamanı deyil, hər səhifə yüklənişində GitHub Pages-dən oxunur.</p>
+</footer>
+
+</body>
+</html>

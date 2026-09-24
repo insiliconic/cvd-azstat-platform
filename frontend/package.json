@@ -1,0 +1,13 @@
+{
+  "name": "cvd-azstat-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Static site (plain HTML/CSS/JS + Chart.js) for the cvd-azstat-platform public dataset. No build step — the data is fetched at runtime from GitHub Pages.",
+  "scripts": {
+    "dev": "serve . -l 3000",
+    "start": "serve . -l 3000"
+  },
+  "devDependencies": {
+    "serve": "^14.2.1"
+  }
+}

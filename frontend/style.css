@@ -1,0 +1,256 @@
+/* Color tokens — see ../docs for the data-viz method these follow.
+   Light values first; dark values are redefined twice so both the OS
+   setting and the manual toggle (#theme-toggle -> [data-theme]) win. */
+:root {
+  color-scheme: light;
+  --page:            #f9f9f7;
+  --surface:         #fcfcfb;
+  --text-primary:    #0b0b0b;
+  --text-secondary:  #52514e;
+  --text-muted:      #898781;
+  --grid:            #e1e0d9;
+  --axis:            #c3c2b7;
+  --border:          rgba(11, 11, 11, 0.10);
+  --series-1:        #2a78d6;
+  --series-1-wash:   rgba(42, 120, 214, 0.10);
+  --status-good:     #0ca30c;
+  --status-good-text:#006300;
+  --status-critical: #d03b3b;
+  --badge-covid-bg:  #fdeee9;
+  --badge-covid-fg:  #9a3412;
+  --badge-est-bg:    #f0efec;
+  --badge-est-fg:    #52514e;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --page:            #0d0d0d;
+    --surface:         #1a1a19;
+    --text-primary:    #ffffff;
+    --text-secondary:  #c3c2b7;
+    --text-muted:      #898781;
+    --grid:            #2c2c2a;
+    --axis:            #383835;
+    --border:          rgba(255, 255, 255, 0.10);
+    --series-1:        #3987e5;
+    --series-1-wash:   rgba(57, 135, 229, 0.10);
+    --status-good:     #0ca30c;
+    --status-good-text:#0ca30c;
+    --status-critical: #e66767;
+    --badge-covid-bg:  #3a241a;
+    --badge-covid-fg:  #f0b090;
+    --badge-est-bg:    #2c2c2a;
+    --badge-est-fg:    #c3c2b7;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page:            #0d0d0d;
+  --surface:         #1a1a19;
+  --text-primary:    #ffffff;
+  --text-secondary:  #c3c2b7;
+  --text-muted:      #898781;
+  --grid:            #2c2c2a;
+  --axis:            #383835;
+  --border:          rgba(255, 255, 255, 0.10);
+  --series-1:        #3987e5;
+  --series-1-wash:   rgba(57, 135, 229, 0.10);
+  --status-good:     #0ca30c;
+  --status-good-text:#0ca30c;
+  --status-critical: #e66767;
+  --badge-covid-bg:  #3a241a;
+  --badge-covid-fg:  #f0b090;
+  --badge-est-bg:    #2c2c2a;
+  --badge-est-fg:    #c3c2b7;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  line-height: 1.5;
+}
+
+main {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 16px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.muted { color: var(--text-secondary); font-size: 0.9rem; margin: 4px 0 0; }
+
+/* Header */
+.site-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 24px 16px 8px;
+}
+.site-header h1 { margin: 0; font-size: 1.5rem; }
+.site-header .subtitle { margin: 4px 0 0; color: var(--text-secondary); font-size: 0.95rem; }
+#theme-toggle {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+#theme-toggle:hover { background: var(--page); }
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+}
+.card h2 { margin: 0 0 4px; font-size: 1.15rem; }
+
+/* KPI row */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
+}
+.kpi-tile {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+.kpi-tile__label { margin: 0; font-size: 0.85rem; color: var(--text-secondary); }
+.kpi-tile__value {
+  margin: 6px 0 0;
+  font-size: 1.9rem;
+  font-weight: 600;
+  font-variant-numeric: proportional-nums;
+}
+.kpi-tile__unit { font-size: 0.8rem; color: var(--text-muted); font-weight: 400; }
+.kpi-tile__delta {
+  margin: 8px 0 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.kpi-tile__delta[data-dir="up"]   { color: var(--status-critical); }
+.kpi-tile__delta[data-dir="down"] { color: var(--status-good-text); }
+.kpi-tile__delta[data-dir="flat"] { color: var(--text-muted); }
+.kpi-tile__count { margin: 4px 0 0; font-size: 0.8rem; color: var(--text-muted); }
+
+/* Chart card */
+.chart-card__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.select-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+#indicator-select {
+  font: inherit;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--page);
+  color: var(--text-primary);
+}
+.chart-wrap { position: relative; height: 340px; }
+.table-jump {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 0.85rem;
+  color: var(--series-1);
+}
+
+/* Table */
+.table-wrap { overflow-x: auto; }
+#data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+#data-table th, #data-table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--grid);
+  white-space: nowrap;
+}
+#data-table th {
+  cursor: pointer;
+  user-select: none;
+  color: var(--text-secondary);
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+}
+#data-table th:hover { color: var(--text-primary); }
+#data-table th[aria-sort="ascending"]::after  { content: " \25B2"; }
+#data-table th[aria-sort="descending"]::after { content: " \25BC"; }
+#data-table td[data-type="num"], #data-table th[data-type="num"] {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 999px;
+  margin-left: 4px;
+}
+.badge-covid { background: var(--badge-covid-bg); color: var(--badge-covid-fg); }
+.badge-est   { background: var(--badge-est-bg);   color: var(--badge-est-fg); }
+
+/* Methodology */
+.methodology dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 12px 0; }
+.methodology dt { color: var(--text-secondary); font-size: 0.85rem; }
+.methodology dd { margin: 0; }
+.methodology details { margin-top: 12px; font-size: 0.9rem; }
+.methodology summary { cursor: pointer; color: var(--text-secondary); }
+.methodology ul { margin: 8px 0 0; padding-left: 20px; }
+
+/* Error state */
+.error-card button {
+  font: inherit;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--page);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+footer {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 16px 32px;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+@media (max-width: 560px) {
+  .site-header { flex-direction: column; }
+  .chart-wrap { height: 280px; }
+}

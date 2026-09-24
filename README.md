@@ -18,6 +18,7 @@ public URL:
 | `raw_data/` | Source `.xls` files as downloaded |
 | `docs/methodology_log.md` | Decisions, problems and solutions (for Materials and Methods) |
 | `docs/data_sources.md` | Source URLs, access dates, checksums |
+| `frontend/` | Static site (HTML/CSS/JS + Chart.js) that reads the public JSON at runtime — see `frontend/README.md` |
 
 ## Local use
 
@@ -79,6 +80,12 @@ set to "Deploy from a branch", the `deploy` job's `actions/deploy-pages` step
 fails with an error naming the Pages source/environment; switching the
 setting and re-running the workflow (or waiting for the next scheduled run)
 fixes it — no code change needed.
+
+## Frontend
+
+`frontend/` is a small static site (KPI cards, a trend chart, a sortable
+table, a methodology section) that fetches the public JSON above at runtime —
+see `frontend/README.md` for how to run it locally. Not deployed yet.
 
 ## Secrets
 
