@@ -19,17 +19,20 @@ hardcoded; if the dataset changes, reloading the page shows the new numbers.
    Years missing in the source (see `docs/methodology_log.md`, e.g.
    2001–2004 for deaths) show as a real gap in the line, not an interpolated
    guess.
-3. **Regional section** (`region-map.js`) — a schematic tile map of
-   Azerbaijan's 14 economic regions (not a geographically accurate boundary
-   map — see the note at the top of `region-map.js` for why) plus a synced
-   horizontal bar chart, both reading `001_5_2-3en.xls`'s region × year data.
-   Two tabs switch both the map and the bar chart between the count table and
-   the per-10k-population table; a year dropdown (2015–2024) selects the
-   sheet. Colors are a single-hue sequential heatmap (light → dark red,
-   `--heat-low`/`--heat-high`), recomputed from that year+table's own
-   min/max, so the same color never means the same absolute number across
-   different tabs or years. Hover (or tap, or focus+arrow-keys) a tile for
-   the exact value.
+3. **Regional section** (`region-map.js`, [D3](https://d3js.org/)) — a real
+   choropleth map of Azerbaijan's 14 economic regions, drawn from
+   `az-economic-regions.geojson`, plus a synced horizontal bar chart, both
+   reading `001_5_2-3en.xls`'s region × year data. That GeoJSON isn't hand
+   drawn: `scripts/build_region_geojson.py` dissolves open district-level
+   boundaries (geoBoundaries) into the 14 regions per the 2021
+   reorganisation — see that script and `docs/methodology_log.md` for the
+   sourcing and how to rebuild it. Two tabs switch both the map and the bar
+   chart between the count table and the per-10k-population table; a year
+   dropdown (2015–2024) selects the sheet. Colors are a single-hue sequential
+   heatmap (light → dark blue, `--heat-low`/`--heat-high`), recomputed from
+   that year+table's own min/max, so the same color never means the same
+   absolute number across different tabs or years. Hover (or tap, or
+   focus+arrow-keys) a region for the exact value.
 4. **Table** — every national year-series indicator (excludes the regional
    breakdown above, which is a different shape), one row per indicator ×
    year, with count, rate, unit and a badge for COVID / non-integer notes
@@ -64,15 +67,20 @@ python -m http.server 3000 --directory frontend
 - **Dark mode** follows the OS setting by default; the 🌓 button in the
   header overrides it (saved in `localStorage`, per-browser only).
 - **Colors** follow the project's data-viz method: one categorical hue for
-  the single-series trend line, and the fixed status pair (green = good,
-  red = critical) for KPI deltas — never color alone, every delta also has
-  an arrow and a percentage.
+  the single-series trend line, the fixed status pair (green = good, red =
+  critical) for KPI deltas, and a single-hue sequential heatmap for the
+  regional map/bar chart — never color alone, every delta also has an arrow
+  and a percentage, and the map has a tooltip plus the bar chart as its table
+  equivalent.
 - If `DATA_URL` in `app.js` is unreachable (offline, or the Pages deploy is
   down), the page shows an explicit error with a retry button rather than a
-  blank screen.
+  blank screen. If only `az-economic-regions.geojson` fails to load, the
+  regional section is skipped (logged to the console) and the rest of the
+  page still works.
 - Deployed at <https://insiliconic.github.io/cvd-azstat-platform/> — the
   `deploy` job in `.github/workflows/update-data.yml` copies this folder's
-  four files (`index.html`, `style.css`, `app.js`, `region-map.js`) into the
-  same Pages artifact as `data/circulatory_data.json` after every successful
-  daily run. This local setup is for previewing changes before they're
-  pushed, not a separate deployment.
+  five files (`index.html`, `style.css`, `app.js`, `region-map.js`,
+  `az-economic-regions.geojson`) into the same Pages artifact as
+  `data/circulatory_data.json` after every successful daily run. This local
+  setup is for previewing changes before they're pushed, not a separate
+  deployment.

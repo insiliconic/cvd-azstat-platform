@@ -360,10 +360,84 @@ found. Sourcing and verifying one was judged higher-risk than useful given the
 map only needs 14 independently addressable areas — so the map is a schematic
 grid of rounded boxes, positioned in a rough west-to-east, north-to-south
 approximation of each region's real location, not surveyed coordinates. This
-was pre-approved as an acceptable fallback before building it.
+was pre-approved as an acceptable fallback before building it. (Superseded
+the same day once a viable source was found after all — see the next entry.)
 
 **Deploying it (same day):** the `deploy` job's "Build Pages site" step now
 also copies `frontend/region-map.js` into the site root alongside the other
 three frontend files. Verified on the live site after a manual
 `workflow_dispatch` run (`update` + `deploy` both green): tab switching, year
 changes, tooltips and both themes match the local preview.
+
+## 2026-09-24 — Real region boundaries, and a blue heatmap
+
+Two follow-up requests on the regional map: switch the heatmap from red to
+blue, and replace the schematic grid with real geographic boundaries if a
+usable source could be found (with an explanation if not).
+
+**Colour:** `--heat-low`/`--heat-high` changed from a red pair to the
+project's own validated sequential blue ramp from `palette.md` — step 100
+(`#cde2fb`) and step 700 (`#0d366b`) in light mode, a matching dark-mode pair
+(`#1e3a5f` → `#6fb1f0`). No other change: the map, the bar chart and the
+scale legend all already read these two custom properties, so retinting
+was a two-value CSS edit, not a code change.
+
+**Real boundaries, found this time.** The search that failed a day earlier
+(§ above) was for Azerbaijan's *economic regions* specifically — a 2021
+statistical reorganisation, not a standard admin level most open geodata
+ships. The fix was to stop looking for that exact boundary and instead
+combine two things that do exist openly:
+
+1. **geoBoundaries' AZE ADM2** layer — 79 open district/city (rayon)
+   boundaries, CC-BY-4.0, fetched from a pinned commit:
+   `github.com/wmgeolab/geoBoundaries` `releaseData/gbOpen/AZE/ADM2`
+   (`geoBoundaries-AZE-ADM2_simplified.geojson`).
+2. **Wikipedia's "Economic regions of Azerbaijan"** article, which lists
+   every district belonging to each of the 14 regions per the 2021 decree.
+
+`scripts/build_region_geojson.py` maps each of the 79 district shapes to its
+economic region by name, dissolves (unions) the districts within each region
+into a single polygon with `shapely`, simplifies the result
+(`simplify(0.004, preserve_topology=True)`, chosen after a visual check that
+it doesn't visibly change the shape at map-tile scale) and rounds coordinates
+to 5 decimal places (~1.1 m — far finer than needed, just avoids bloating the
+file with meaningless precision). Output: `frontend/az-economic-regions.geojson`
+(14 features, one per region, 40 KB — down from 159 KB unsimplified).
+
+**Two data-quality quirks in the source, handled explicitly (see the
+script's comments):** geoBoundaries publishes two separate features both
+named exactly "Lankaran District" (most likely a duplicate or a
+mislabeled city/district split), and a further "Lankaran City" feature; the
+script maps all three to Lənkəran-Astara regardless, since that's the correct
+region for any of them. No other district name was ambiguous.
+
+**Verification before wiring it into the frontend:**
+- The script reports any source district it can't map and any region that
+  ends up with zero districts — both were empty on the final run (all 79
+  districts matched, all 14 regions populated).
+- Rendered the output with `matplotlib` (offline, not part of the site) and
+  visually compared it against the country's known outline: the Absheron
+  peninsula and Baku, the Caspian coastline, and the Nakhchivan exclave all
+  read correctly, and the 14 regions tile the country with no gaps or
+  overlaps.
+- Loaded it in the actual frontend against the live dataset and re-checked
+  the KPI/tooltip numbers already spot-checked in the previous entry — same
+  values, now on real shapes.
+
+**Frontend changed to match:** `region-map.js` now fetches
+`az-economic-regions.geojson` once in `initRegionalSection` and renders it
+with D3 (`d3.geoMercator().fitExtent(...)` + `d3.geoPath`) instead of drawing
+a fixed grid of boxes. The always-on in-tile name/value labels were dropped
+(real district shapes are too irregular and too small in places like Bakı or
+Abşeron-Xızı to fit text reliably); the value is now available on
+hover/tap/focus via the tooltip, and by name in the bar chart below, which
+remains the map's full accessible/table equivalent. If
+`az-economic-regions.geojson` fails to load, `initRegionalSection` logs the
+error and returns — the regional section stays hidden, but the rest of the
+page (KPIs, trend chart, table) is unaffected.
+
+**Deploying it:** the `deploy` job's "Build Pages site" step now also copies
+`frontend/az-economic-regions.geojson`, alongside the four existing frontend
+files. Verified on the live site after a manual `workflow_dispatch` run
+(`update` + `deploy` both green): real map renders correctly, blue heatmap
+matches on map/bar/legend, tooltips and dark mode both checked.

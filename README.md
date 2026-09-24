@@ -19,7 +19,8 @@ frontend on GitHub Pages at fixed public URLs:
 | `raw_data/` | Source `.xls` files as downloaded |
 | `docs/methodology_log.md` | Decisions, problems and solutions (for Materials and Methods) |
 | `docs/data_sources.md` | Source URLs, access dates, checksums |
-| `frontend/` | Static site (HTML/CSS/JS + Chart.js) that reads the public JSON at runtime — see `frontend/README.md` |
+| `frontend/` | Static site (HTML/CSS/JS + Chart.js + D3) that reads the public JSON at runtime — see `frontend/README.md` |
+| `scripts/build_region_geojson.py` | One-off script that built `frontend/az-economic-regions.geojson` (the regional map's boundaries) — see its docstring and `docs/methodology_log.md` |
 
 ## Local use
 

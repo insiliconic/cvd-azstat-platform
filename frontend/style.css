@@ -22,8 +22,8 @@
   --badge-est-fg:    #52514e;
   /* Sequential (one hue) heatmap ramp for the regional map/bar chart — safe
      by construction for every vision type, varying only in lightness. */
-  --heat-low:        #fdeeea;
-  --heat-high:       #a11d1d;
+  --heat-low:        #cde2fb;
+  --heat-high:       #0d366b;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -46,8 +46,8 @@
     --badge-covid-fg:  #f0b090;
     --badge-est-bg:    #2c2c2a;
     --badge-est-fg:    #c3c2b7;
-    --heat-low:        #3a2620;
-    --heat-high:       #e66767;
+    --heat-low:        #1e3a5f;
+    --heat-high:       #6fb1f0;
   }
 }
 :root[data-theme="dark"] {
@@ -69,8 +69,8 @@
   --badge-covid-fg:  #f0b090;
   --badge-est-bg:    #2c2c2a;
   --badge-est-fg:    #c3c2b7;
-  --heat-low:        #3a2620;
-  --heat-high:       #e66767;
+  --heat-low:        #1e3a5f;
+  --heat-high:       #6fb1f0;
 }
 
 * { box-sizing: border-box; }
@@ -221,9 +221,9 @@ main {
   font-weight: 600;
 }
 .map-wrap { position: relative; }
-#region-map { width: 100%; height: auto; display: block; }
-.region-tile { cursor: pointer; outline: none; }
-.region-tile:focus rect, .region-tile:hover rect { stroke: var(--series-1); stroke-width: 2; }
+#region-map { width: 100%; height: auto; display: block; max-height: 480px; }
+.region-shape { cursor: pointer; outline: none; transition: fill-opacity 0.1s; }
+.region-shape:focus, .region-shape:hover { stroke: var(--text-primary); stroke-width: 1.5; fill-opacity: 0.85; }
 .region-tooltip {
   position: absolute;
   z-index: 2;
