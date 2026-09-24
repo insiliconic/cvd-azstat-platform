@@ -8,8 +8,10 @@ const REPO_URL = "https://github.com/insiliconic/cvd-azstat-platform";
 // File key -> Azerbaijani display label. Order here also drives the
 // indicator <select> and the KPI row. The regional breakdown
 // (001_5_2-3en.xls) has a different shape (region x year, not a plain year
-// series) and gets its own map + bar chart in region-map.js instead of a
-// place in this list or the sortable table.
+// series) and gets its own map + bar chart in region-map.js as well as
+// separate rows in the sortable table (see buildTableRows below) — it's not
+// part of this particular list, which only drives the trend-chart dropdown
+// and the KPI tiles.
 const INDICATORS = [
   { key: "001_3en.xls",   label: "Ölüm (əsas səbəblər)" },
   { key: "001_2_1en.xls", label: "Xəstələnmə — ümumi əhali" },
@@ -235,6 +237,14 @@ function renderChart(key) {
 
 // ---- table ------------------------------------------------------------------
 
+// Crude "some words - total" -> "Some Words - Total" title-casing for the
+// ~99 raw region/district keys in 001_5_2-3en.xls. Good enough to browse and
+// sort by for now; a proper Azerbaijani name per row (like region-map.js's
+// curated list for the 14 top-level regions) is follow-up work, not this pass.
+function titleCase(s) {
+  return s.replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 function buildTableRows(dataset) {
   const rows = [];
   for (const { key, label } of INDICATORS) {
@@ -250,6 +260,28 @@ function buildTableRows(dataset) {
       });
     }
   }
+
+  // Regional distribution (001_5_2-3en.xls): every region/district x every
+  // year, both the count and the per-10k tables in the same row -- same
+  // shape as the national rows above, just keyed by region instead of year
+  // range. Not curated/grouped yet (all ~99 rows per year, economic-region
+  // totals and their districts alike); see the comment above titleCase().
+  const regionalFile = dataset.files["001_5_2-3en.xls"];
+  if (regionalFile) {
+    for (const [yearStr, sheet] of Object.entries(regionalFile.sheets)) {
+      for (const [regionKey, entry] of Object.entries(sheet.regions)) {
+        rows.push({
+          indicatorLabel: `Regional bölgü — ${titleCase(regionKey)}`,
+          year: Number(yearStr),
+          count: entry.count,
+          rate: entry.per_10k,
+          unit: entry.per_10k != null ? "/ 10 000" : "—",
+          notes: entry.notes || [],
+        });
+      }
+    }
+  }
+
   return rows;
 }
 
@@ -266,7 +298,7 @@ function renderTable() {
     <tr>
       <td>${r.indicatorLabel}</td>
       <td data-type="num">${r.year}</td>
-      <td data-type="num">${numberFmt.format(r.count)}</td>
+      <td data-type="num">${r.count != null ? numberFmt.format(r.count) : "—"}</td>
       <td data-type="num">${r.rate != null ? r.rate.toFixed(1) : "—"}</td>
       <td>${r.unit}</td>
       <td>${noteBadges(r.notes)}</td>

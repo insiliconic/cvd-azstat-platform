@@ -33,11 +33,14 @@ hardcoded; if the dataset changes, reloading the page shows the new numbers.
    that year+table's own min/max, so the same color never means the same
    absolute number across different tabs or years. Hover (or tap, or
    focus+arrow-keys) a region for the exact value.
-4. **Table** — every national year-series indicator (excludes the regional
-   breakdown above, which is a different shape), one row per indicator ×
-   year, with count, rate, unit and a badge for COVID / non-integer notes
-   carried over from the dataset. Click a column header to sort by it; click
-   again to reverse.
+4. **Table** — every national year-series indicator, one row per indicator ×
+   year, plus (2026-09-25) every region/district × year from the regional
+   breakdown above, count and per-10k in the same row like the national
+   rows. The ~99 region/district labels are raw and uncurated for now (crude
+   title-casing, no economic-region-vs-district grouping) — see `titleCase()`
+   in `app.js`; refining that is follow-up work. Every row has count, rate,
+   unit and a badge for COVID / non-integer notes carried over from the
+   dataset. Click a column header to sort by it; click again to reverse.
 5. **Methodology** — source, last-updated date (the dataset's own `generated`
    field), a link to the raw JSON, and a link to the repo's
    `docs/methodology_log.md` for the full write-up.

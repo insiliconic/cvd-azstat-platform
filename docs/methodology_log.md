@@ -441,3 +441,52 @@ page (KPIs, trend chart, table) is unaffected.
 files. Verified on the live site after a manual `workflow_dispatch` run
 (`update` + `deploy` both green): real map renders correctly, blue heatmap
 matches on map/bar/legend, tooltips and dark mode both checked.
+
+## 2026-09-25 — Map/bar highlight sync, and regional rows in the table
+
+**Bidirectional highlight.** A single `highlightedKey` (plus `setHighlight()` /
+`clearHighlight()`) now drives both visuals: hovering, clicking or tapping a
+map region sets it and mirrors onto the matching bar (a heavier border, via
+per-index `borderWidth`/`borderColor` arrays on the Chart.js dataset);
+hovering, clicking or tapping a bar (Chart.js `onHover`/`onClick`) sets it the
+other way, mirrored onto the map (an `.is-active` CSS class). Neither element
+owns the state — both just react to it — which is what makes the sync
+bidirectional rather than one view driving the other one-way. Guarded against
+redundant `chart.update()` calls when the same key repeats (mousemove fires
+continuously) and reset on every year/table change (bar order changes with
+the data, so a stale index would point at the wrong row).
+Verified interactively: hovering a bar sets a thicker map border on the right
+shape (checked via the DOM's actual class list, not just visually); hovering
+a map shape sets the matching bar's border width in the Chart.js dataset —
+both directions confirmed with the exact same key.
+
+**Regional rows added to the sortable table.** `buildTableRows()` in `app.js`
+now also walks `001_5_2-3en.xls`'s `regions` object for every sheet (year) and
+appends one row per region/district, in the same shape as the six national
+rows (`count`, `rate` = the per-10k value, `unit`, `notes`) — so both tables
+(count and per-10k) that live side by side in the source sheet end up in a
+single row per region × year, exactly like the national indicators already
+do. This is deliberately not curated yet: all ~99 region/district keys per
+year go in (economic-region totals and their district breakdowns alike),
+labelled with a crude title-cased version of the raw key
+(`"binagadi district"` → `"Binagadi District"`) rather than the curated
+Azerbaijani names `region-map.js` uses for its 14 top-level regions.
+Table size: 129 → 1,111 rows. Grouping/filtering the regional rows (e.g. by
+economic region, or hiding districts by default) is follow-up work, not this
+pass.
+
+**Bug found and fixed during testing, not in the code:** an initial check
+showed 0 regional rows in the browser. Direct console inspection confirmed
+`app.js` on disk and even the freshly `fetch()`-ed copy already had the new
+code, and running the added logic by hand against the live dataset produced
+the expected 982 rows — so the *logic* was right. The browser's disk cache
+of the previously-loaded `app.js` `<script>` was serving a stale copy despite
+`fetch({cache:"no-store"})` proving the server had the new one. A hard reload
+(bypassing the cache) picked up the real file and the table was correct. No
+code changed as a result of this — noted here because it's a reminder that
+"the fetched dataset is proven fresh" doesn't mean "the script itself is,"
+which is otherwise easy to misdiagnose as a data or logic bug.
+
+**Deployed and verified live** after a manual `workflow_dispatch` run
+(`update` + `deploy` both green): map↔bar sync and the 1,111-row table both
+checked on `insiliconic.github.io`, not just locally.

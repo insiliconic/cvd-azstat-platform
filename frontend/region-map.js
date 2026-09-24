@@ -12,7 +12,8 @@ const GEOJSON_URL = "az-economic-regions.geojson";
 const TABLE_LABEL = { count: "nəfər", per_10k: "10 000 əhaliyə görə" };
 const MAP_W = 800, MAP_H = 500, MAP_PAD = 16;
 
-let regionalState = null; // { sheets, table, year, features, projection, path }
+let regionalState = null; // { sheets, table, year, features, projection, path, barRows }
+let highlightedKey = null; // region key highlighted from either the map or the bar chart
 
 function cssVar(name) {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -73,6 +74,36 @@ function hideTooltip() {
   document.getElementById("region-tooltip").hidden = true;
 }
 
+// ---- map <-> bar chart highlight sync --------------------------------------
+// A single piece of state (highlightedKey) drives both: hovering, clicking or
+// tapping a shape on the map highlights its bar, and vice versa.
+
+function setHighlight(key) {
+  if (key === highlightedKey) return; // mousemove fires continuously; skip redundant chart.update() calls
+  highlightedKey = key;
+  updateMapHighlight();
+  updateBarHighlight();
+}
+
+function clearHighlight() {
+  setHighlight(null);
+}
+
+function updateMapHighlight() {
+  d3.selectAll("#region-map path.region-shape")
+    .classed("is-active", (d) => highlightedKey != null && d.properties.key === highlightedKey);
+}
+
+function updateBarHighlight() {
+  if (!barChartInstance || !regionalState.barRows) return;
+  const n = regionalState.barRows.length;
+  const idx = highlightedKey == null ? -1 : regionalState.barRows.findIndex((r) => r.key === highlightedKey);
+  const activeColor = cssVar("--text-primary");
+  barChartInstance.data.datasets[0].borderWidth = Array.from({ length: n }, (_, i) => (i === idx ? 3 : 0));
+  barChartInstance.data.datasets[0].borderColor = Array.from({ length: n }, (_, i) => (i === idx ? activeColor : "transparent"));
+  barChartInstance.update("none"); // no animation: this must feel instant to sync with map hover
+}
+
 function renderMap() {
   const svg = d3.select("#region-map");
   svg.attr("viewBox", `0 0 ${MAP_W} ${MAP_H}`);
@@ -95,19 +126,22 @@ function renderMap() {
     .attr("class", "region-shape")
     .attr("tabindex", "0")
     .attr("role", "button")
-    .on("mousemove touchstart", function (event) {
+    .on("mousemove touchstart click", function (event) {
       const d = d3.select(this).datum();
       const value = regionValue(regionsData, d.properties.key, regionalState.table);
       showTooltip(event, d.properties.name, value);
+      setHighlight(d.properties.key);
     })
-    .on("mouseleave", hideTooltip)
+    .on("mouseleave", () => { hideTooltip(); clearHighlight(); })
     .on("focus", function (event) {
       const d = d3.select(this).datum();
       const value = regionValue(regionsData, d.properties.key, regionalState.table);
       showTooltip(event, d.properties.name, value);
+      setHighlight(d.properties.key);
     })
-    .on("blur", hideTooltip)
+    .on("blur", () => { hideTooltip(); clearHighlight(); })
     .merge(sel)
+    .classed("is-active", false) // cleared on every re-render; setHighlight() re-applies it if still valid
     .attr("d", path)
     .attr("stroke", cssVar("--border"))
     .attr("stroke-width", 1)
@@ -139,9 +173,10 @@ function renderBarChart() {
   const span = max - min || 1;
 
   const rows = regionalState.features
-    .map((f) => ({ label: f.properties.name, value: regionValue(regionsData, f.properties.key, regionalState.table) }))
+    .map((f) => ({ key: f.properties.key, label: f.properties.name, value: regionValue(regionsData, f.properties.key, regionalState.table) }))
     .filter((r) => r.value != null)
     .sort((a, b) => b.value - a.value);
+  regionalState.barRows = rows; // so setHighlight() can turn a region key into a bar index
 
   const colors = rows.map((r) => heatColor((r.value - min) / span));
   const textSecondary = cssVar("--text-secondary");
@@ -159,6 +194,8 @@ function renderBarChart() {
       datasets: [{
         data: rows.map((r) => r.value),
         backgroundColor: colors,
+        borderWidth: rows.map(() => 0),
+        borderColor: rows.map(() => "transparent"),
         borderRadius: 4,
         maxBarThickness: 22,
       }],
@@ -167,6 +204,15 @@ function renderBarChart() {
       indexAxis: "y",
       responsive: true,
       maintainAspectRatio: false,
+      // Hover previews the map highlight (mouse or touch-drag); click/tap
+      // pins it the same way clicking a map shape does — see setHighlight().
+      onHover: (_event, elements) => {
+        if (elements.length) setHighlight(rows[elements[0].index].key);
+        else clearHighlight();
+      },
+      onClick: (_event, elements) => {
+        if (elements.length) setHighlight(rows[elements[0].index].key);
+      },
       plugins: {
         legend: { display: false },
         tooltip: {
@@ -186,6 +232,7 @@ function renderBarChart() {
 }
 
 function renderRegional() {
+  highlightedKey = null; // bar order/positions change with year or table, so a stale selection would point at the wrong row
   renderMap();
   renderScaleLegend();
   renderBarChart();

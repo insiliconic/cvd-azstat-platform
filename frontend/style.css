@@ -223,7 +223,11 @@ main {
 .map-wrap { position: relative; }
 #region-map { width: 100%; height: auto; display: block; max-height: 480px; }
 .region-shape { cursor: pointer; outline: none; transition: fill-opacity 0.1s; }
-.region-shape:focus, .region-shape:hover { stroke: var(--text-primary); stroke-width: 1.5; fill-opacity: 0.85; }
+.region-shape:focus, .region-shape:hover, .region-shape.is-active {
+  stroke: var(--text-primary);
+  stroke-width: 2;
+  fill-opacity: 0.85;
+}
 .region-tooltip {
   position: absolute;
   z-index: 2;
