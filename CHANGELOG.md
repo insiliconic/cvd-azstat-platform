@@ -36,3 +36,6 @@
   work end to end — "Test: SMTP connection OK" delivered to insiliconic@gmail.com
   (run 35939312328).
 - Removed: the temporary SMTP test step, its job done.
+- Added: repository made public; `deploy` job in `update-data.yml` publishes
+  `data/circulatory_data.json` on GitHub Pages after every successful `update`
+  run, at `https://insiliconic.github.io/cvd-azstat-platform/data/circulatory_data.json`.

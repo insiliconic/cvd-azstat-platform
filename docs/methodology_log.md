@@ -230,3 +230,32 @@ the dataset current and to document revisions:
   written.
 - The workflow reads SMTP credentials only from GitHub Secrets
   (`SMTP_USER`, `SMTP_PASS`).
+- *Verified (2026-09-24):* a manual `workflow_dispatch` run confirmed
+  `SMTP_USER`/`SMTP_PASS` end to end via a temporary smoke-test step
+  ("Test: SMTP connection OK" delivered to insiliconic@gmail.com, run
+  35939312328). The smoke-test step was then removed.
+
+## 2026-09-24 — Public data endpoint (GitHub Pages)
+
+The repository was made public. To give the native app and the web frontend a
+fixed, versionless URL for the current dataset (instead of reading a
+particular git commit through the API), the workflow now publishes
+`data/circulatory_data.json` on GitHub Pages after every successful run.
+
+- A second job, `deploy`, runs after `update` (`needs: update`) whenever
+  `update` succeeds — whether or not that run changed any data — so Pages is
+  populated starting with the very first run, not only after a revision.
+- It checks out `main` explicitly (not `${{ github.sha }}`), because `update`
+  may have just pushed a new data commit in the same workflow run and the
+  freshly pushed commit, not the one that triggered the run, is what must be
+  published.
+- It assembles a minimal site (`site/data/circulatory_data.json` plus a
+  one-line `index.html`) and publishes it with the official
+  `actions/upload-pages-artifact` + `actions/deploy-pages` actions, which
+  requires the repository's Pages source to be set to **GitHub Actions**
+  (Settings → Pages) — a one-time manual step, not something a workflow can
+  set for itself.
+- Resulting URL: `https://insiliconic.github.io/cvd-azstat-platform/data/circulatory_data.json`.
+  Because the `deploy` job needs `update` to succeed, a broken source layout
+  (§4) blocks the Pages update the same way it blocks the data commit — Pages
+  never serves an extraction that failed its own consistency check.

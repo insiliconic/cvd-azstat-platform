@@ -5,7 +5,10 @@ Qan dövranı xəstəlikləri interaktiv platforması
 Extracts the **"Diseases of the circulatory system"** (ICD-10 I00–I99) series
 from the health tables of the State Statistical Committee of Azerbaijan
 (<https://www.stat.gov.az/source/healthcare/?lang=en>). A daily GitHub Actions
-job keeps the data up to date.
+job keeps the data up to date and republishes it on GitHub Pages at a fixed
+public URL:
+
+**<https://insiliconic.github.io/cvd-azstat-platform/data/circulatory_data.json>**
 
 | Path | Purpose |
 |---|---|
@@ -58,6 +61,24 @@ checkout → install deps → parser.py --download ──fail──► failure e
 - E-mails are sent through Gmail SMTP (`smtp.gmail.com:465`, SSL) by
   [`dawidd6/action-send-mail`](https://github.com/dawidd6/action-send-mail).
   The change table is in the body and `changes.json` is attached.
+
+## Public data endpoint (GitHub Pages)
+
+After every successful `update` run, a second job (`deploy`) publishes
+`data/circulatory_data.json` on GitHub Pages, so any client (the native app,
+a web frontend) can fetch a fixed URL instead of reading a specific git
+commit through the GitHub API:
+
+```
+https://insiliconic.github.io/cvd-azstat-platform/data/circulatory_data.json
+```
+
+This requires the repository's Pages source to be set to **GitHub Actions**
+once, in **Settings → Pages → Build and deployment → Source**. If it is still
+set to "Deploy from a branch", the `deploy` job's `actions/deploy-pages` step
+fails with an error naming the Pages source/environment; switching the
+setting and re-running the workflow (or waiting for the next scheduled run)
+fixes it — no code change needed.
 
 ## Secrets
 
