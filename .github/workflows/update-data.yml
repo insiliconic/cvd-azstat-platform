@@ -64,28 +64,6 @@ jobs:
           convert_markdown: true
           attachments: changes.json
 
-      # TEMPORARY: SMTP smoke test, sent on every run regardless of the
-      # outcome of earlier steps. Remove once the connection is confirmed.
-      - name: "TEMP: SMTP test e-mail"
-        if: always()
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          secure: true
-          username: ${{ secrets.SMTP_USER }}
-          password: ${{ secrets.SMTP_PASS }}
-          from: CVD AzStat bot <${{ secrets.SMTP_USER }}>
-          to: ${{ env.NOTIFY_TO }}
-          subject: "Test: SMTP connection OK"
-          body: |
-            SMTP test from the "${{ github.workflow }}" workflow.
-
-            Trigger: ${{ github.event_name }}
-            Commit:  ${{ github.sha }}
-            Changed values in this run: ${{ steps.compare.outputs.count || 'n/a' }}
-            Run log: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-
       - name: E-mail the failure
         if: failure()
         uses: dawidd6/action-send-mail@v3

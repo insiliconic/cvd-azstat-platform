@@ -32,3 +32,7 @@
 ### 2026-09-24
 - Added (temporary): SMTP test e-mail step ("Test: SMTP connection OK")
   running on every workflow run; to be removed after the connection is verified.
+- Verified: manual `workflow_dispatch` run confirmed `SMTP_USER`/`SMTP_PASS`
+  work end to end — "Test: SMTP connection OK" delivered to insiliconic@gmail.com
+  (run 35939312328).
+- Removed: the temporary SMTP test step, its job done.
