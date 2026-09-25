@@ -47,3 +47,31 @@
   `frontend/{index.html,style.css,app.js}` into the Pages artifact, so the
   site and the data are published together at
   `https://insiliconic.github.io/cvd-azstat-platform/`.
+- Added: `frontend/region-map.js` (D3) — a regional map + synced bar chart
+  for the 14 economic regions, with a schematic-grid predecessor replaced by
+  real boundaries the same day (`frontend/az-economic-regions.geojson`,
+  `scripts/build_region_geojson.py`, dissolved from open geoBoundaries data).
+- Changed: heatmap colour red → the project's validated sequential blue ramp.
+- Added: bidirectional hover/click highlight sync between the regional map
+  and its bar chart (`setHighlight()`/`clearHighlight()`, one shared state).
+
+### 2026-09-25
+- Added: `parser.py` downloads and cross-checks `raw_data/001_5_2-3az.xls`
+  (the source's own Azerbaijani-language table) and attaches each
+  region/district's real Azerbaijani name (`name_az`) to
+  `data/circulatory_data.json`, plus an `economic_region` field tagging
+  every district row with its parent region (`ECONOMIC_REGION_KEYS`).
+- Added: region → district cascade in the "Bütün göstəricilər" table
+  (Kəsim: Milli / Region, then an İqtisadi region + Rayon dropdown),
+  replacing the flat ~99-rows-per-year dump from the previous entry.
+- Added: `frontend/az-districts.geojson` (73 real district/city boundaries,
+  `scripts/build_district_geojson.py`) and a "Rayon" map/bar level, with
+  click-to-drill (region → its districts → one district) and a breadcrumb;
+  the existing map↔bar highlight sync works at this level too.
+- Fixed: a ring-winding bug in both GeoJSON build scripts that made d3-geo
+  read a polygon as covering the whole globe (`d3.geoArea` ≈ 4π) instead of
+  itself — see `docs/methodology_log.md` for how it was tracked down.
+- Fixed: drilling into Baku (whose 12 city districts have no open map
+  polygon) showed an empty map and bar chart; the bar chart now reads
+  district rows straight from the dataset (no geometry needed) and the map
+  falls back to the parent region's own shape.

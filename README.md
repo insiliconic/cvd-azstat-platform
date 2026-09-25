@@ -20,7 +20,8 @@ frontend on GitHub Pages at fixed public URLs:
 | `docs/methodology_log.md` | Decisions, problems and solutions (for Materials and Methods) |
 | `docs/data_sources.md` | Source URLs, access dates, checksums |
 | `frontend/` | Static site (HTML/CSS/JS + Chart.js + D3) that reads the public JSON at runtime — see `frontend/README.md` |
-| `scripts/build_region_geojson.py` | One-off script that built `frontend/az-economic-regions.geojson` (the regional map's boundaries) — see its docstring and `docs/methodology_log.md` |
+| `scripts/build_region_geojson.py` | One-off script that built `frontend/az-economic-regions.geojson` (the 14 economic regions' boundaries) — see its docstring and `docs/methodology_log.md` |
+| `scripts/build_district_geojson.py` | One-off script that built `frontend/az-districts.geojson` (73 administrative district/city boundaries) |
 
 ## Local use
 
@@ -92,7 +93,8 @@ fixes it — no code change needed.
 ## Frontend
 
 `frontend/` is the static site above (KPI cards, a trend chart, a regional
-heatmap + bar chart, a sortable table, a methodology section) — see
+heatmap + bar chart with a region → district drill-down, a sortable table
+with the same region → district cascade, a methodology section) — see
 `frontend/README.md` for how to run it locally instead of against the
 deployed one.
 

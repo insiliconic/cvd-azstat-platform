@@ -58,10 +58,14 @@
 
   <section class="card regional-section" id="regional-section" aria-labelledby="regional-heading" hidden>
     <h2 id="regional-heading">Regional göstəricilər</h2>
-    <p class="muted">Qan dövranı sistemi xəstəlikləri, 14 iqtisadi rayon üzrə</p>
+    <p class="muted">Qan dövranı sistemi xəstəlikləri — iqtisadi region və ya rayon üzrə</p>
 
     <div class="regional-controls">
-      <div class="tab-group" role="tablist" aria-label="Göstərici cədvəli">
+      <div class="tab-group" id="level-tabs" role="tablist" aria-label="Səviyyə">
+        <button type="button" class="tab-btn" data-level="region" role="tab" aria-selected="true">İqtisadi region</button>
+        <button type="button" class="tab-btn" data-level="district" role="tab" aria-selected="false">Rayon</button>
+      </div>
+      <div class="tab-group" id="table-tabs" role="tablist" aria-label="Göstərici cədvəli">
         <button type="button" class="tab-btn" data-table="count" role="tab" aria-selected="true">Say (nəfər)</button>
         <button type="button" class="tab-btn" data-table="per_10k" role="tab" aria-selected="false">10 000 əhaliyə görə</button>
       </div>
@@ -70,21 +74,34 @@
         <select id="region-year-select"></select>
       </label>
     </div>
+    <p class="muted map-note">"Rayon" rejimində Bakının 12 daxili şəhər rayonu (Binəqədi, Xətai və s.) xəritədə ayrıca göstərilmir — açıq mənbəli sərhəd tapılmadı, ona görə Bakı vahid fiqur kimi qalır; öz nəticələri isə cədvəldə əlçatandır.</p>
+    <nav id="region-breadcrumb" class="breadcrumb" aria-label="Region → rayon" hidden></nav>
 
     <div class="map-wrap">
-      <svg id="region-map" role="img" aria-label="İqtisadi rayonlar üzrə sxematik xəritə"></svg>
+      <svg id="region-map" role="img" aria-label="Azərbaycanın regionlar/rayonlar üzrə xəritəsi"></svg>
       <div id="region-tooltip" class="region-tooltip" hidden></div>
     </div>
     <div id="region-scale" class="scale-legend"></div>
 
     <div class="chart-wrap chart-wrap--bar">
-      <canvas id="region-bar-chart" role="img" aria-label="Bütün iqtisadi rayonlar üzrə bar qrafiki"></canvas>
+      <canvas id="region-bar-chart" role="img" aria-label="Bütün regionlar/rayonlar üzrə bar qrafiki"></canvas>
     </div>
   </section>
 
   <section class="card table-section" id="table-section" aria-labelledby="table-heading" hidden>
     <h2 id="table-heading">Bütün göstəricilər, illər üzrə</h2>
-    <p class="muted">6 milli göstərici + regional bölgü (bütün regionlar/rayonlar, say və 10 000 əhaliyə görə). Sütun başlığına klikləyin — sıralama üçün</p>
+
+    <div class="table-scope-row">
+      <div class="tab-group" id="table-scope-tabs" role="tablist" aria-label="Kəsim">
+        <button type="button" class="tab-btn" data-scope="national" role="tab" aria-selected="true">Milli göstəricilər</button>
+        <button type="button" class="tab-btn" data-scope="region" role="tab" aria-selected="false">Region</button>
+      </div>
+      <div id="table-region-controls" class="table-region-controls" hidden>
+        <label class="select-label">İqtisadi region <select id="table-region-select"></select></label>
+        <label class="select-label">Rayon <select id="table-district-select"></select></label>
+      </div>
+    </div>
+    <p class="muted">Sütun başlığına klikləyin — sıralama üçün</p>
     <div class="table-wrap">
       <table id="data-table">
         <thead>

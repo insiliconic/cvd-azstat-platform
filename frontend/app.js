@@ -30,6 +30,12 @@ let chartInstance = null;
 let tableRows = [];
 let sortState = { key: "year", dir: "desc" };
 
+// "Kəsim" (scope) for the table: national indicators, or the region -> district
+// cascade. mode/region/district drive getVisibleTableRows(); see initTableScope().
+let tableScope = { mode: "national", region: null, district: null };
+let nationalRows = [];
+let regionalRowsAll = [];
+
 // ---- theme --------------------------------------------------------------
 
 function initTheme() {
@@ -237,15 +243,7 @@ function renderChart(key) {
 
 // ---- table ------------------------------------------------------------------
 
-// Crude "some words - total" -> "Some Words - Total" title-casing for the
-// ~99 raw region/district keys in 001_5_2-3en.xls. Good enough to browse and
-// sort by for now; a proper Azerbaijani name per row (like region-map.js's
-// curated list for the 14 top-level regions) is follow-up work, not this pass.
-function titleCase(s) {
-  return s.replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
-function buildTableRows(dataset) {
+function buildNationalRows(dataset) {
   const rows = [];
   for (const { key, label } of INDICATORS) {
     const sheet = seriesFor(dataset, key);
@@ -260,29 +258,121 @@ function buildTableRows(dataset) {
       });
     }
   }
+  return rows;
+}
 
-  // Regional distribution (001_5_2-3en.xls): every region/district x every
-  // year, both the count and the per-10k tables in the same row -- same
-  // shape as the national rows above, just keyed by region instead of year
-  // range. Not curated/grouped yet (all ~99 rows per year, economic-region
-  // totals and their districts alike); see the comment above titleCase().
+// Every region/district x every year from 001_5_2-3en.xls, tagged with the
+// economic region a district belongs to (parser.py's economic_region field;
+// null for the 14 top-level regions and the country total) so the
+// region -> district cascade below can filter by it. Names come straight
+// from the source's own Azerbaijani label (name_az) -- see parser.py.
+function buildRegionalRows(dataset) {
   const regionalFile = dataset.files["001_5_2-3en.xls"];
-  if (regionalFile) {
-    for (const [yearStr, sheet] of Object.entries(regionalFile.sheets)) {
-      for (const [regionKey, entry] of Object.entries(sheet.regions)) {
-        rows.push({
-          indicatorLabel: `Regional bölgü — ${titleCase(regionKey)}`,
-          year: Number(yearStr),
-          count: entry.count,
-          rate: entry.per_10k,
-          unit: entry.per_10k != null ? "/ 10 000" : "—",
-          notes: entry.notes || [],
-        });
-      }
+  if (!regionalFile) return [];
+  const rows = [];
+  for (const [yearStr, sheet] of Object.entries(regionalFile.sheets)) {
+    for (const [key, entry] of Object.entries(sheet.regions)) {
+      rows.push({
+        key,
+        economicRegion: entry.economic_region,
+        indicatorLabel: entry.name_az || key,
+        year: Number(yearStr),
+        count: entry.count,
+        rate: entry.per_10k,
+        unit: entry.per_10k != null ? "/ 10 000" : "—",
+        notes: entry.notes || [],
+      });
     }
   }
-
   return rows;
+}
+
+// The 14 economic regions, deduplicated across years (a region's identity
+// and name don't change year to year -- verified in docs/methodology_log.md),
+// sorted by their Azerbaijani name for a predictable dropdown order.
+function getEconomicRegionOptions() {
+  const byKey = new Map();
+  for (const r of regionalRowsAll) {
+    if (r.economicRegion === null && !r.key.startsWith("republic of azerbaijan")) {
+      byKey.set(r.key, r.indicatorLabel);
+    }
+  }
+  return [...byKey.entries()].map(([key, name]) => ({ key, name }))
+    .sort((a, b) => a.name.localeCompare(b.name, "az"));
+}
+
+function getDistrictOptions(regionKey) {
+  const byKey = new Map();
+  for (const r of regionalRowsAll) {
+    if (r.economicRegion === regionKey) byKey.set(r.key, r.indicatorLabel);
+  }
+  return [...byKey.entries()].map(([key, name]) => ({ key, name }))
+    .sort((a, b) => a.name.localeCompare(b.name, "az"));
+}
+
+function getVisibleTableRows() {
+  if (tableScope.mode === "national") return nationalRows;
+  if (tableScope.district) return regionalRowsAll.filter((r) => r.key === tableScope.district);
+  if (tableScope.region) {
+    return regionalRowsAll.filter((r) => r.key === tableScope.region || r.economicRegion === tableScope.region);
+  }
+  return [];
+}
+
+function refreshTableRows() {
+  tableRows = getVisibleTableRows();
+  renderTable();
+}
+
+function initTableScope(dataset) {
+  nationalRows = buildNationalRows(dataset);
+  regionalRowsAll = buildRegionalRows(dataset);
+
+  const scopeTabs = document.querySelectorAll("#table-scope-tabs .tab-btn");
+  const regionControls = document.getElementById("table-region-controls");
+  const regionSelect = document.getElementById("table-region-select");
+  const districtSelect = document.getElementById("table-district-select");
+
+  const regionOptions = getEconomicRegionOptions();
+  regionSelect.innerHTML = regionOptions.map((r) => `<option value="${r.key}">${r.name}</option>`).join("");
+
+  function refreshDistrictOptions() {
+    const opts = getDistrictOptions(regionSelect.value);
+    districtSelect.innerHTML = `<option value="">Bütün rayonlar</option>`
+      + opts.map((d) => `<option value="${d.key}">${d.name}</option>`).join("");
+    districtSelect.value = "";
+  }
+
+  for (const btn of scopeTabs) {
+    btn.addEventListener("click", () => {
+      for (const b of scopeTabs) b.setAttribute("aria-selected", "false");
+      btn.setAttribute("aria-selected", "true");
+      tableScope.mode = btn.dataset.scope;
+      regionControls.hidden = tableScope.mode !== "region";
+      if (tableScope.mode === "region") {
+        tableScope.region = regionSelect.value;
+        tableScope.district = districtSelect.value || null;
+      }
+      refreshTableRows();
+    });
+  }
+
+  regionSelect.addEventListener("change", () => {
+    tableScope.region = regionSelect.value;
+    tableScope.district = null;
+    refreshDistrictOptions();
+    refreshTableRows();
+  });
+  districtSelect.addEventListener("change", () => {
+    tableScope.district = districtSelect.value || null;
+    refreshTableRows();
+  });
+
+  if (regionOptions.length) {
+    regionSelect.value = regionOptions[0].key;
+    tableScope.region = regionOptions[0].key;
+    refreshDistrictOptions();
+  }
 }
 
 function renderTable() {
@@ -354,9 +444,9 @@ async function load() {
     buildIndicatorSelect(dataset);
     renderChart(DEFAULT_TREND_KEY);
     if (typeof initRegionalSection === "function") initRegionalSection(dataset);
-    tableRows = buildTableRows(dataset);
+    initTableScope(dataset);
     initTableSorting();
-    renderTable();
+    refreshTableRows();
     document.getElementById("table-section").hidden = false;
     renderMethodology(dataset);
 

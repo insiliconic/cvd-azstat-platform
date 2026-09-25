@@ -15,6 +15,18 @@ Accessed / downloaded: **2026-09-23**. Files stored unmodified in `raw_data/`.
 | [001_2_5en.xls](https://www.stat.gov.az/source/healthcare/en/001_2_5en.xls) | 1.2.5 | Morbidity of population aged 30 and over by main groups of diseases | 2007–2024 | 41984 | `19C14EC90CCC88EED2CF4BD7EFB08156F5B299615112B1CC57CC09FF3F774481` |
 | [001_5_2-3en.xls](https://www.stat.gov.az/source/healthcare/en/001_5_2-3en.xls) | 1.5.2 / 1.5.3 / 1.5.4 | Distribution of population by main disease groups by economic regions and administrative-territorial units | 2015–2024 (sheet per year) | 418816 | `B5D18F294D10170ED8DE336BDC7AB467714E351440037F7D6E7D584C78C6C89F` |
 
+## Azerbaijani-language label source
+
+[001_5_2-3az.xls](https://www.stat.gov.az/source/healthcare/az/001_5_2-3.xls)
+— the same table as `001_5_2-3en.xls` above (same values, same row order),
+published in Azerbaijani. Downloaded **2026-09-25**
+(437248 bytes, SHA-256 `CDDBAC7C2C315BF4199815BA3EFA97FC58A123A3F4769344128FEDF4C1C68631`).
+Used only to attach each region/district's original Azerbaijani name
+(`name_az` in `data/circulatory_data.json`) — every value still comes from
+the English file. Row-position alignment between the two files was verified
+against the circulatory-system column across all 10 years before relying on
+it; see `docs/methodology_log.md`.
+
 ## Additional context source (not parsed)
 
 Stored in `raw_data/`, excluded from `TARGET_LINKS` in `parser.py`: the table

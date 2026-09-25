@@ -1,19 +1,33 @@
-// Regional section: a real-boundary choropleth map of Azerbaijan's 14
-// economic regions (via D3 + a local GeoJSON) plus a synced bar chart, both
-// reading 001_5_2-3en.xls from the dataset already fetched by app.js.
+// Regional section: a real-boundary choropleth map of Azerbaijan plus a
+// synced bar chart, both reading 001_5_2-3en.xls from the dataset already
+// fetched by app.js. Two resolutions share one set of rendering code:
+//   - "region": the 14 economic regions (az-economic-regions.geojson)
+//   - "district": ~73 administrative districts/cities (az-districts.geojson)
+// Names are never baked into the GeoJSON: every label comes from the
+// dataset's own name_az at render time (parser.py), so the map, the bar
+// chart and the table all show the same Azerbaijani names from one source.
 //
-// Map source: az-economic-regions.geojson, built once (offline, not at
-// runtime) by dissolving geoBoundaries' open AZE ADM2 (district) boundaries
-// into the 2021 economic-region groupings -- see the comment at the top of
-// that file and docs/methodology_log.md for how and why.
+// Drill-down: clicking (or tapping) a region while at region level switches
+// to district level filtered to that region's own districts, with a
+// breadcrumb to go back; clicking one of those districts narrows further to
+// just that one. Hovering only ever previews the cross-highlight with the
+// bar chart (see setHighlight below) -- it never changes what's showing.
+//
+// Map sources: see the header comments in az-economic-regions.geojson and
+// az-districts.geojson, and docs/methodology_log.md, for where the
+// boundaries came from and the district map's known coverage gap (Baku's
+// twelve city districts have no open polygon at this resolution anywhere
+// found, so Baku stays one shape even in "Rayon" mode).
 "use strict";
 
-const GEOJSON_URL = "az-economic-regions.geojson";
+const GEOJSON_URLS = { region: "az-economic-regions.geojson", district: "az-districts.geojson" };
 const TABLE_LABEL = { count: "nəfər", per_10k: "10 000 əhaliyə görə" };
 const MAP_W = 800, MAP_H = 500, MAP_PAD = 16;
 
-let regionalState = null; // { sheets, table, year, features, projection, path, barRows }
-let highlightedKey = null; // region key highlighted from either the map or the bar chart
+// { sheets, table, year, level, regionFilter, districtSelected,
+//   featuresByLevel: {region,district}, features, projection, path, barRows }
+let regionalState = null;
+let highlightedKey = null; // key highlighted from either the map or the bar chart (hover preview only)
 
 function cssVar(name) {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -25,9 +39,14 @@ function hexToRgb(hex) {
 }
 
 function heatColor(t) {
-  // t in [0,1]; interpolates --heat-low -> --heat-high in plain sRGB, which
-  // is a single hue varying only in lightness -- safe for every vision type
-  // by construction (the whole point of a sequential, one-hue ramp).
+  // Interpolates --heat-low -> --heat-high in plain sRGB, which is a single
+  // hue varying only in lightness -- safe for every vision type by
+  // construction (the whole point of a sequential, one-hue ramp). Clamped:
+  // a region's own total can fall outside its districts' min/max (e.g. Baku
+  // has no district shapes, so its fallback shape is colored against its
+  // districts' range in the bar chart -- see getBarRows()), and an
+  // unclamped t would overshoot the ramp into out-of-gamut values.
+  t = Math.max(0, Math.min(1, t));
   const [r1, g1, b1] = hexToRgb(cssVar("--heat-low"));
   const [r2, g2, b2] = hexToRgb(cssVar("--heat-high"));
   const r = Math.round(r1 + (r2 - r1) * t);
@@ -36,25 +55,130 @@ function heatColor(t) {
   return `rgb(${r},${g},${b})`;
 }
 
+function regionEntry(regionsData, key) {
+  return regionsData[key] || null;
+}
+
 function regionValue(regionsData, key, table) {
-  const entry = regionsData[key];
-  if (!entry) return null;
-  const v = entry[table];
+  const entry = regionEntry(regionsData, key);
+  const v = entry ? entry[table] : null;
   return typeof v === "number" ? v : null;
 }
 
+function regionName(regionsData, key) {
+  const entry = regionEntry(regionsData, key);
+  return (entry && entry.name_az) || key;
+}
+
+function currentRegionsData() {
+  return regionalState.sheets[regionalState.year].regions;
+}
+
+// The bar chart's row set can differ from the map's visible shapes: some
+// districts (Baku's twelve city districts) have data but no open polygon at
+// this resolution -- see the coverage-gap note in az-districts.geojson.
+// getBarRows() is data-only (no geometry needed), so it shows every district
+// of a drilled-into region even if none of them have a map shape (Baku).
+// The map and the legend still share this same value set for their color
+// scale, so "no shape for this row" never means "a different scale" too.
+function getBarRows() {
+  const regionsData = currentRegionsData();
+  if (regionalState.level === "district" && regionalState.districtSelected) {
+    const v = regionValue(regionsData, regionalState.districtSelected, regionalState.table);
+    return v == null ? [] : [{ key: regionalState.districtSelected, label: regionName(regionsData, regionalState.districtSelected), value: v }];
+  }
+  if (regionalState.level === "district" && regionalState.regionFilter) {
+    return Object.entries(regionsData)
+      .filter(([, e]) => e.economic_region === regionalState.regionFilter)
+      .map(([key]) => ({ key, label: regionName(regionsData, key), value: regionValue(regionsData, key, regionalState.table) }))
+      .filter((r) => r.value != null);
+  }
+  return regionalState.featuresByLevel[regionalState.level]
+    .map((f) => ({ key: f.properties.key, label: regionName(regionsData, f.properties.key), value: regionValue(regionsData, f.properties.key, regionalState.table) }))
+    .filter((r) => r.value != null);
+}
+
 function currentStats() {
-  const { sheets, table, year, features } = regionalState;
-  const regionsData = sheets[year].regions;
-  const values = features
-    .map((f) => regionValue(regionsData, f.properties.key, table))
-    .filter((v) => v != null);
-  return { min: Math.min(...values), max: Math.max(...values), regionsData };
+  const values = getBarRows().map((r) => r.value);
+  return { min: Math.min(...values), max: Math.max(...values), regionsData: currentRegionsData() };
 }
 
 function numberFmt1(v) {
   return v.toLocaleString("en-US", { maximumFractionDigits: 1 });
 }
+
+// ---- drill-down (region -> its districts -> one district) -----------------
+
+function computeVisibleFeatures() {
+  const all = regionalState.featuresByLevel[regionalState.level];
+  if (regionalState.level !== "district") return all;
+
+  if (regionalState.districtSelected) {
+    const matches = all.filter((f) => f.properties.key === regionalState.districtSelected);
+    if (matches.length) return matches;
+    // No shape for this specific district (e.g. one of Baku's city
+    // districts) -- fall back to its parent region's own shape for context.
+    return regionFallbackShape();
+  }
+  if (regionalState.regionFilter) {
+    const regionsData = currentRegionsData();
+    const matches = all.filter((f) => (regionsData[f.properties.key] || {}).economic_region === regionalState.regionFilter);
+    if (matches.length) return matches;
+    // This region's districts have no shapes at all (Baku) -- the bar chart
+    // still lists them (getBarRows() doesn't need geometry); the map falls
+    // back to the region's own single shape rather than rendering nothing.
+    return regionFallbackShape();
+  }
+  return all;
+}
+
+function regionFallbackShape() {
+  const key = regionalState.regionFilter;
+  return key ? regionalState.featuresByLevel.region.filter((f) => f.properties.key === key) : [];
+}
+
+function syncLevelTabUI(level) {
+  for (const btn of document.querySelectorAll("#level-tabs .tab-btn")) {
+    btn.setAttribute("aria-selected", btn.dataset.level === level ? "true" : "false");
+  }
+}
+
+// Shared by the map's click handler and the bar chart's onClick: drills one
+// level deeper into whatever was just clicked, or does nothing at max depth.
+function handleDrillClick(key) {
+  if (regionalState.level === "region") {
+    regionalState.level = "district";
+    regionalState.regionFilter = key;
+    regionalState.districtSelected = null;
+    syncLevelTabUI("district");
+  } else if (!regionalState.districtSelected) {
+    regionalState.districtSelected = key; // narrowing a region's district list to one
+  } else {
+    regionalState.districtSelected = key; // already narrowed: jump straight to a different district
+  }
+  renderRegional();
+}
+
+function renderBreadcrumb() {
+  const el = document.getElementById("region-breadcrumb");
+  if (regionalState.level !== "district" || (!regionalState.regionFilter && !regionalState.districtSelected)) {
+    el.hidden = true;
+    return;
+  }
+  const regionsData = currentRegionsData();
+  const parts = [`<a href="#" data-nav="all">Bütün rayonlar</a>`];
+  if (regionalState.regionFilter) {
+    const rname = regionName(regionsData, regionalState.regionFilter);
+    parts.push(regionalState.districtSelected ? `<a href="#" data-nav="region">${rname}</a>` : `<strong>${rname}</strong>`);
+  }
+  if (regionalState.districtSelected) {
+    parts.push(`<strong>${regionName(regionsData, regionalState.districtSelected)}</strong>`);
+  }
+  el.innerHTML = parts.join(" <span aria-hidden=\"true\">›</span> ");
+  el.hidden = false;
+}
+
+// ---- tooltip ----------------------------------------------------------------
 
 function showTooltip(evt, name, value) {
   const tip = document.getElementById("region-tooltip");
@@ -74,9 +198,10 @@ function hideTooltip() {
   document.getElementById("region-tooltip").hidden = true;
 }
 
-// ---- map <-> bar chart highlight sync --------------------------------------
-// A single piece of state (highlightedKey) drives both: hovering, clicking or
-// tapping a shape on the map highlights its bar, and vice versa.
+// ---- map <-> bar chart highlight sync (hover preview only) ------------------
+// A single piece of state (highlightedKey) drives both: hovering, tapping or
+// focusing a shape on the map highlights its bar, and vice versa. Neither
+// view owns the state; both just react to it.
 
 function setHighlight(key) {
   if (key === highlightedKey) return; // mousemove fires continuously; skip redundant chart.update() calls
@@ -104,6 +229,8 @@ function updateBarHighlight() {
   barChartInstance.update("none"); // no animation: this must feel instant to sync with map hover
 }
 
+// ---- map ----------------------------------------------------------------
+
 function renderMap() {
   const svg = d3.select("#region-map");
   svg.attr("viewBox", `0 0 ${MAP_W} ${MAP_H}`);
@@ -112,34 +239,37 @@ function renderMap() {
   const span = max - min || 1;
   const featureCollection = { type: "FeatureCollection", features: regionalState.features };
 
-  if (!regionalState.projection) {
-    regionalState.projection = d3.geoMercator()
-      .fitExtent([[MAP_PAD, MAP_PAD], [MAP_W - MAP_PAD, MAP_H - MAP_PAD]], featureCollection);
-    regionalState.path = d3.geoPath(regionalState.projection);
-  }
-  const path = regionalState.path;
+  // Recomputed every render: the visible feature set's bounding box changes
+  // with the level and with drill-down filtering, not just the raw level.
+  regionalState.projection = d3.geoMercator()
+    .fitExtent([[MAP_PAD, MAP_PAD], [MAP_W - MAP_PAD, MAP_H - MAP_PAD]], featureCollection);
+  const path = d3.geoPath(regionalState.projection);
 
   const sel = svg.selectAll("path.region-shape").data(regionalState.features, (d) => d.properties.key);
+  sel.exit().remove();
 
   sel.enter()
     .append("path")
     .attr("class", "region-shape")
     .attr("tabindex", "0")
     .attr("role", "button")
-    .on("mousemove touchstart click", function (event) {
+    .on("mousemove touchstart", function (event) {
       const d = d3.select(this).datum();
       const value = regionValue(regionsData, d.properties.key, regionalState.table);
-      showTooltip(event, d.properties.name, value);
+      showTooltip(event, regionName(regionsData, d.properties.key), value);
       setHighlight(d.properties.key);
     })
     .on("mouseleave", () => { hideTooltip(); clearHighlight(); })
     .on("focus", function (event) {
       const d = d3.select(this).datum();
       const value = regionValue(regionsData, d.properties.key, regionalState.table);
-      showTooltip(event, d.properties.name, value);
+      showTooltip(event, regionName(regionsData, d.properties.key), value);
       setHighlight(d.properties.key);
     })
     .on("blur", () => { hideTooltip(); clearHighlight(); })
+    .on("click", function () {
+      handleDrillClick(d3.select(this).datum().properties.key);
+    })
     .merge(sel)
     .classed("is-active", false) // cleared on every re-render; setHighlight() re-applies it if still valid
     .attr("d", path)
@@ -147,7 +277,8 @@ function renderMap() {
     .attr("stroke-width", 1)
     .attr("aria-label", (d) => {
       const value = regionValue(regionsData, d.properties.key, regionalState.table);
-      return `${d.properties.name}: ${value != null ? numberFmt1(value) : "məlumat yoxdur"}`;
+      const name = regionName(regionsData, d.properties.key);
+      return `${name}: ${value != null ? numberFmt1(value) : "məlumat yoxdur"}`;
     })
     .attr("fill", (d) => {
       const value = regionValue(regionsData, d.properties.key, regionalState.table);
@@ -166,17 +297,16 @@ function renderScaleLegend() {
   `;
 }
 
+// ---- bar chart --------------------------------------------------------------
+
 let barChartInstance = null;
 
 function renderBarChart() {
-  const { min, max, regionsData } = currentStats();
+  const { min, max } = currentStats();
   const span = max - min || 1;
 
-  const rows = regionalState.features
-    .map((f) => ({ key: f.properties.key, label: f.properties.name, value: regionValue(regionsData, f.properties.key, regionalState.table) }))
-    .filter((r) => r.value != null)
-    .sort((a, b) => b.value - a.value);
-  regionalState.barRows = rows; // so setHighlight() can turn a region key into a bar index
+  const rows = getBarRows().sort((a, b) => b.value - a.value);
+  regionalState.barRows = rows; // so setHighlight() can turn a key into a bar index
 
   const colors = rows.map((r) => heatColor((r.value - min) / span));
   const textSecondary = cssVar("--text-secondary");
@@ -187,6 +317,10 @@ function renderBarChart() {
 
   if (barChartInstance) barChartInstance.destroy();
   const ctx = document.getElementById("region-bar-chart").getContext("2d");
+  // Many more bars at full district level (~70) than region level (14) or a
+  // single drilled-down district (1): grow the canvas instead of squashing
+  // every bar into the same fixed height.
+  ctx.canvas.parentElement.style.height = `${Math.max(160, Math.min(rows.length, 14) * 30, rows.length * 20)}px`;
   barChartInstance = new Chart(ctx, {
     type: "bar",
     data: {
@@ -205,13 +339,13 @@ function renderBarChart() {
       responsive: true,
       maintainAspectRatio: false,
       // Hover previews the map highlight (mouse or touch-drag); click/tap
-      // pins it the same way clicking a map shape does — see setHighlight().
+      // drills down the same way clicking a map shape does.
       onHover: (_event, elements) => {
         if (elements.length) setHighlight(rows[elements[0].index].key);
         else clearHighlight();
       },
       onClick: (_event, elements) => {
-        if (elements.length) setHighlight(rows[elements[0].index].key);
+        if (elements.length) handleDrillClick(rows[elements[0].index].key);
       },
       plugins: {
         legend: { display: false },
@@ -231,24 +365,46 @@ function renderBarChart() {
   });
 }
 
+// ---- boot -----------------------------------------------------------------
+
 function renderRegional() {
-  highlightedKey = null; // bar order/positions change with year or table, so a stale selection would point at the wrong row
+  highlightedKey = null; // bar order/positions change with year, table, level or drill, so a stale selection would point at the wrong row
+  regionalState.features = computeVisibleFeatures();
+  renderBreadcrumb();
   renderMap();
   renderScaleLegend();
   renderBarChart();
+}
+
+function wireTabGroup(containerId, onSelect) {
+  const container = document.getElementById(containerId);
+  for (const btn of container.querySelectorAll(".tab-btn")) {
+    btn.addEventListener("click", () => {
+      for (const b of container.querySelectorAll(".tab-btn")) b.setAttribute("aria-selected", "false");
+      btn.setAttribute("aria-selected", "true");
+      onSelect(btn.dataset);
+    });
+  }
+}
+
+async function fetchGeoJSON(url) {
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
 }
 
 async function initRegionalSection(dataset) {
   const file = dataset.files["001_5_2-3en.xls"];
   if (!file) return;
 
-  let geo;
+  let regionGeo, districtGeo;
   try {
-    const res = await fetch(GEOJSON_URL);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    geo = await res.json();
+    [regionGeo, districtGeo] = await Promise.all([
+      fetchGeoJSON(GEOJSON_URLS.region),
+      fetchGeoJSON(GEOJSON_URLS.district),
+    ]);
   } catch (err) {
-    console.error("Regional map: could not load", GEOJSON_URL, err);
+    console.error("Regional map: could not load a GeoJSON source", err);
     return; // the rest of the page (KPIs, trend, table) still works without the map
   }
 
@@ -257,7 +413,12 @@ async function initRegionalSection(dataset) {
   const years = Object.keys(sheets).sort((a, b) => Number(b) - Number(a));
   if (!years.length) return;
 
-  regionalState = { sheets, table: "count", year: years[0], features: geo.features, projection: null, path: null };
+  regionalState = {
+    sheets, table: "count", year: years[0], level: "region",
+    regionFilter: null, districtSelected: null,
+    featuresByLevel: { region: regionGeo.features, district: districtGeo.features },
+    features: regionGeo.features,
+  };
 
   const yearSelect = document.getElementById("region-year-select");
   yearSelect.innerHTML = years.map((y) => `<option value="${y}">${y}</option>`).join("");
@@ -267,14 +428,25 @@ async function initRegionalSection(dataset) {
     renderRegional();
   });
 
-  for (const btn of document.querySelectorAll(".tab-btn")) {
-    btn.addEventListener("click", () => {
-      for (const b of document.querySelectorAll(".tab-btn")) b.setAttribute("aria-selected", "false");
-      btn.setAttribute("aria-selected", "true");
-      regionalState.table = btn.dataset.table;
-      renderRegional();
-    });
-  }
+  wireTabGroup("level-tabs", (data) => {
+    regionalState.level = data.level;
+    regionalState.regionFilter = null;
+    regionalState.districtSelected = null;
+    renderRegional();
+  });
+  wireTabGroup("table-tabs", (data) => {
+    regionalState.table = data.table;
+    renderRegional();
+  });
+
+  document.getElementById("region-breadcrumb").addEventListener("click", (e) => {
+    const nav = e.target.dataset && e.target.dataset.nav;
+    if (!nav) return;
+    e.preventDefault();
+    if (nav === "all") { regionalState.regionFilter = null; regionalState.districtSelected = null; }
+    else if (nav === "region") { regionalState.districtSelected = null; }
+    renderRegional();
+  });
 
   window.addEventListener("cvd-theme-changed", renderRegional);
 

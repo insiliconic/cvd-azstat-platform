@@ -256,6 +256,25 @@ main {
   border-radius: 999px;
   border: 1px solid var(--border);
 }
+.map-note { margin-top: 4px; font-size: 0.78rem; }
+.breadcrumb {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+.breadcrumb a { color: var(--series-1); text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb strong { color: var(--text-primary); }
+
+/* Table scope (Milli / Region cascade) */
+.table-scope-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0 4px;
+}
+.table-region-controls { display: flex; flex-wrap: wrap; gap: 12px; }
 
 /* Table */
 .table-wrap { overflow-x: auto; }

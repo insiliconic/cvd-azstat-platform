@@ -168,11 +168,33 @@ def main():
             return [round(c, COORD_DECIMALS) for c in obj]
         return [round_coords(c) for c in obj]
 
+    def ring_signed_area(ring):
+        area = 0.0
+        for (x1, y1), (x2, y2) in zip(ring, ring[1:]):
+            area += x1 * y2 - x2 * y1
+        return area
+
+    def rewind(geom_type, coords):
+        # Winds rings so d3-geo reads the polygon as itself, not as the rest
+        # of the globe -- empirically, exterior rings need NEGATIVE shoelace
+        # sign in (lon, lat) terms and holes POSITIVE; see the long comment
+        # in build_district_geojson.py's rewind_polygon() for how this was
+        # tracked down (via d3.geoArea collapsing to ~4*pi) and why
+        # unary_union() alone isn't reliably enough to skip this step.
+        def poly(rings):
+            out = []
+            for i, r in enumerate(rings):
+                area = ring_signed_area(r)
+                wrong = (area > 0) if i == 0 else (area < 0)
+                out.append(list(reversed(r)) if wrong else r)
+            return out
+        return poly(coords) if geom_type == "Polygon" else [poly(p) for p in coords]
+
     features = []
     for region_key, polys in by_region.items():
         merged = unary_union(polys).simplify(SIMPLIFY_TOLERANCE, preserve_topology=True)
         geom = mapping(merged)
-        geom["coordinates"] = round_coords(geom["coordinates"])
+        geom["coordinates"] = rewind(geom["type"], round_coords(geom["coordinates"]))
         features.append({
             "type": "Feature",
             "properties": {

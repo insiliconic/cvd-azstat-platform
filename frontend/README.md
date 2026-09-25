@@ -20,25 +20,31 @@ hardcoded; if the dataset changes, reloading the page shows the new numbers.
    2001–2004 for deaths) show as a real gap in the line, not an interpolated
    guess.
 3. **Regional section** (`region-map.js`, [D3](https://d3js.org/)) — a real
-   choropleth map of Azerbaijan's 14 economic regions, drawn from
-   `az-economic-regions.geojson`, plus a synced horizontal bar chart, both
-   reading `001_5_2-3en.xls`'s region × year data. That GeoJSON isn't hand
-   drawn: `scripts/build_region_geojson.py` dissolves open district-level
-   boundaries (geoBoundaries) into the 14 regions per the 2021
-   reorganisation — see that script and `docs/methodology_log.md` for the
-   sourcing and how to rebuild it. Two tabs switch both the map and the bar
-   chart between the count table and the per-10k-population table; a year
-   dropdown (2015–2024) selects the sheet. Colors are a single-hue sequential
-   heatmap (light → dark blue, `--heat-low`/`--heat-high`), recomputed from
-   that year+table's own min/max, so the same color never means the same
-   absolute number across different tabs or years. Hover (or tap, or
-   focus+arrow-keys) a region for the exact value.
+   choropleth map of Azerbaijan plus a synced horizontal bar chart, both
+   reading `001_5_2-3en.xls`'s region/district × year data. Two levels:
+   **İqtisadi region** (14 economic regions, `az-economic-regions.geojson`)
+   and **Rayon** (73 administrative districts/cities,
+   `az-districts.geojson` — Baku's twelve city districts have data but no
+   open map polygon anywhere found, so Baku stays one shape even here; a
+   note above the map says so). Neither GeoJSON is hand drawn:
+   `scripts/build_region_geojson.py` / `build_district_geojson.py` build
+   them from open geoBoundaries district boundaries — see those scripts and
+   `docs/methodology_log.md` for the sourcing, the name-matching, and a
+   ring-winding bug worth reading about if you ever see d3-geo render a
+   polygon as the whole planet. **Click a region to drill into its
+   districts** (with a breadcrumb back), then a district to narrow to just
+   that one — the map and the bar chart always show the same set. A second
+   tab switches count vs. per-10k; a year dropdown (2015–2024) selects the
+   sheet. Colors are a single-hue sequential heatmap (light → dark blue,
+   `--heat-low`/`--heat-high`), recomputed from whatever's currently
+   visible's own min/max. Hover (or tap, or focus+arrow-keys) a region for
+   the exact value.
 4. **Table** — every national year-series indicator, one row per indicator ×
-   year, plus (2026-09-25) every region/district × year from the regional
-   breakdown above, count and per-10k in the same row like the national
-   rows. The ~99 region/district labels are raw and uncurated for now (crude
-   title-casing, no economic-region-vs-district grouping) — see `titleCase()`
-   in `app.js`; refining that is follow-up work. Every row has count, rate,
+   year. A **Kəsim** tab switches to **Region**: an İqtisadi region dropdown,
+   then a Rayon dropdown scoped to it ("Bütün rayonlar" shows every district
+   of the chosen region as its own row; picking one narrows to just it).
+   Every label is the source's own Azerbaijani name (`name_az` in the
+   dataset — see `parser.py`), not a translation. Every row has count, rate,
    unit and a badge for COVID / non-integer notes carried over from the
    dataset. Click a column header to sort by it; click again to reverse.
 5. **Methodology** — source, last-updated date (the dataset's own `generated`
@@ -77,13 +83,12 @@ python -m http.server 3000 --directory frontend
   equivalent.
 - If `DATA_URL` in `app.js` is unreachable (offline, or the Pages deploy is
   down), the page shows an explicit error with a retry button rather than a
-  blank screen. If only `az-economic-regions.geojson` fails to load, the
-  regional section is skipped (logged to the console) and the rest of the
-  page still works.
+  blank screen. If either GeoJSON fails to load, the regional section is
+  skipped (logged to the console) and the rest of the page still works.
 - Deployed at <https://insiliconic.github.io/cvd-azstat-platform/> — the
   `deploy` job in `.github/workflows/update-data.yml` copies this folder's
-  five files (`index.html`, `style.css`, `app.js`, `region-map.js`,
-  `az-economic-regions.geojson`) into the same Pages artifact as
-  `data/circulatory_data.json` after every successful daily run. This local
-  setup is for previewing changes before they're pushed, not a separate
-  deployment.
+  six files (`index.html`, `style.css`, `app.js`, `region-map.js`,
+  `az-economic-regions.geojson`, `az-districts.geojson`) into the same Pages
+  artifact as `data/circulatory_data.json` after every successful daily run.
+  This local setup is for previewing changes before they're pushed, not a
+  separate deployment.

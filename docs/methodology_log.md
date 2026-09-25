@@ -490,3 +490,206 @@ which is otherwise easy to misdiagnose as a data or logic bug.
 **Deployed and verified live** after a manual `workflow_dispatch` run
 (`update` + `deploy` both green): map↔bar sync and the 1,111-row table both
 checked on `insiliconic.github.io`, not just locally.
+
+## 2026-09-25 — District-level data, names, cascade, and a real district map
+
+Confirmed request: `001_5_2-3en.xls` really does carry district
+(administrative-rayon) rows already — the previous entry's "regional rows"
+already included them (as raw, uncurated English labels). Today's work:
+give them their real Azerbaijani names, tag each with its parent economic
+region so a proper drill-down UI is possible, and — the open question from
+2026-09-24 — try again for real district boundaries now that the goal is
+narrower (district-level polygons exist far more often than *economic
+region*-level ones do).
+
+### 1. Azerbaijani names: found the source's own Azerbaijani table
+
+`raw_data/001_5_2-3en.xls`'s labels ("Binagadi district", "Guba district",
+...) are themselves already a *translation* — stat.gov.az publishes the same
+table natively in Azerbaijani. Found it the direct way: fetched
+`stat.gov.az/source/healthcare/?lang=az` and located the matching download
+link, `source/healthcare/az/001_5_2-3.xls` — same table, Azerbaijani labels
+("Binəqədi rayonu", "Bakı şəhəri - cəmi", ...), see `docs/data_sources.md`
+for the URL and checksum.
+
+**Verified row-for-row alignment before trusting it.** The two files have
+different row *counts* per year (extra footnote/title rows land in different
+places), so a raw row-index join isn't safe. Filtered both sheets down to
+"rows with a label and a numeric value in the circulatory-system column"
+(exactly the rows `parse_col_sheet` already turns into data) and compared
+that filtered, ordered list's *values* between languages: all 10 years, all
+198 count+rate rows per year, zero mismatches. That's what
+`parser.py`'s `az_labels_in_order()` relies on — position-zipped against the
+English file's own row-add order, not matched by text.
+
+`parser.py` now downloads `001_5_2-3az.xls` too (`AZ_LABEL_SOURCE`, added to
+`download()`) and every region/district entry in
+`data/circulatory_data.json` gets a `name_az` field from it. It's
+enrichment, not load-bearing: a row-count mismatch (a future source
+revision) prints a warning and skips `name_az` for that sheet rather than
+mis-attributing names, and every value still comes from the English file
+only.
+
+### 2. Region → district relationship (`economic_region`)
+
+`ECONOMIC_REGION_KEYS` (the 14 known top-level keys) lets
+`parse_col_sheet` recognise, while walking each sheet top-to-bottom, which
+rows are region totals and which are the districts listed under them (the
+source's own "including:"/"o cümlədən:" structure). Every entry gets an
+`economic_region` field: `null` for the 14 regions and the country total,
+the parent region's key for every district.
+
+**Bug found and fixed before it shipped:** the sheet has two blocks (count,
+then per_10k), each restarting at the country-total row and walking all 99
+regions again. The first pass through correctly resets nothing to track
+*into* — but the **second** block's first few rows (before the first region
+total is re-encountered) inherited whatever `current_region` was left over
+from the *end* of the first block, mis-tagging the country-total row's own
+`economic_region` as some arbitrary last region instead of `null`. Fixed by
+resetting the tracked region whenever a "republic of azerbaijan..." row is
+seen, not just when a real region-total row is seen. Verified across all 10
+years: exactly 15 rows with `economic_region: null` in every year (14
+regions + the country total), never more or fewer.
+
+A second, unrelated bug in the same pass: the `name_az` enrichment used
+`dict.setdefault()` after a *separate* loop had already set every entry's
+`name_az` to `None` (for schema predictability) — `setdefault` only fills a
+*missing* key, so it silently no-opped against a key that already existed
+with value `None`. Switched to a direct assignment. (A reminder that
+"predictable schema" and "setdefault-based enrichment" don't compose for
+free.)
+
+### 3. Cascading region → district selection in the table
+
+The flat ~99-rows-per-year dump from 2026-09-24 is replaced with a proper
+cascade in the "Bütün göstəricilər" section: a **Kəsim** tab (Milli
+göstəricilər / Region), and — only in Region mode — an **İqtisadi region**
+dropdown followed by a **Rayon** dropdown (options depend on the chosen
+region; "Bütün rayonlar" is the default). No region selected → the district
+select is empty; a region with no district picked shows every district of
+that region as its own row (plus the region's own total row), all years;
+picking one district narrows to just its own rows. Every dropdown option
+and every row label comes from `name_az` — nothing hardcoded in `app.js`, so
+adding e.g. a name correction upstream needs no frontend change.
+
+### 4. District-level map: searched again, found it this time
+
+The 2026-09-24 search was for Azerbaijan's *economic regions* specifically —
+a 2021 statistical reorganisation most open geodata doesn't carry. A
+district/rayon-level search is a materially different, much more common
+request: **the same geoBoundaries AZE ADM2 layer already used to build
+`az-economic-regions.geojson` (79 open district/city boundaries, CC-BY-4.0)
+already *is* real district-level data** — 2026-09-24 only *consumed* it by
+dissolving it into 14 regions; today's district map uses those same 79
+shapes directly, mostly un-dissolved.
+
+**Name matching, district-shape to data-row (`scripts/build_district_geojson.py`):**
+53 of 79 geoBoundaries names match a `data/circulatory_data.json` district
+key directly (after lowercasing); 21 more needed an explicit alias
+(spelling variants — Qusar/gusar, Qabala/gabala, Sumqayit/sumgayit,
+Babek/babak, Qazakh/gazakh, etc. — and three sheet labels use "... region"
+where geoBoundaries says "... District": Gobustan, Shamakhi, Ismayilli,
+Agsu). Five geoBoundaries shapes (Shusha City, Khankendi City, Yevlakh City,
+Shaki City, Lankaran City) have **no** matching data row at all — the source
+sheet's own footnotes say Khankendi's and (implicitly) these other cities'
+figures are folded into a district or the country total, not published
+separately — so those five shapes are dropped rather than shown with
+permanently-empty data. geoBoundaries' known duplicate "Lankaran District"
+feature pair (see the 2026-09-24 entry) is merged the same way as before.
+**Coverage gap, permanent:** Baku's twelve city districts (Binəqədi, Xətai,
+...) have their own rows in the data but no open polygon at this resolution
+anywhere found — geoBoundaries' ADM2 layer stops at "Baku City" as one unit.
+Result: 73 named district/city shapes, joined 1:1 to data keys, zero
+ambiguous or duplicate keys (checked programmatically before shipping).
+
+**A second, more interesting bug: winding order.** The first render of the
+73-shape file was a single solid rectangle covering the whole map — not a
+data problem (coordinates were all within Azerbaijan's real bounding box,
+checked first) but `d3.geoBounds()` on the file returning
+`[[-180,-90],[180,90]]`, the whole planet. `d3.geoArea()` on the worst
+offender came back ~12.566 — exactly 4π, the unit sphere's surface area:
+d3-geo, being a *spherical* (not planar) GeoJSON renderer, reads a
+wrongly-wound ring as "the exterior of a polygon covering the entire globe
+minus this sliver." `az-economic-regions.geojson` (built via
+`unary_union()`, which happens to normalise winding as a side effect) never
+showed this; `az-districts.geojson`'s un-dissolved, passed-through single
+shapes (likely shapefile-derived — traditional GIS winding is the reverse
+of GeoJSON's) did. Fixed with an explicit rewind step in both build
+scripts, applied regardless of whether a shape went through `unary_union()`
+or not — no longer relying on that undocumented side effect. The exact sign
+convention needed was confirmed empirically in the browser
+(`d3.geoArea`/`d3.geoBounds` on a ring vs. its reverse), not derived from
+spec-reading, and the fix generalises: **every** feature in both files was
+checked programmatically (0 of 73, then 0 of 14, read back as whole-globe)
+before calling it fixed, not just the one that visibly broke first.
+
+**Deliberately not implemented: geometry for Baku's internal districts.**
+No further search was attempted beyond geoBoundaries/OSM-level open data for
+this specific gap; it appears to require a source at a finer level than any
+standard "ADM2" open dataset publishes for Azerbaijan. Baku's districts
+remain fully available by number (table, bar chart) — they're just not
+drawable as separate map shapes. This is stated in the UI itself (a note
+above the map, shown whenever "Rayon" mode is active), not just here.
+
+### 5. Map/bar chart: region → district drill-down (not just a level toggle)
+
+Requirement was to make the bar chart follow "the same [region → district]
+logic" as the table. Implemented as a genuine drill interaction, not a
+second copy of the table's dropdowns: clicking (or tapping) a region on the
+map or its bar switches to district level, filtered to that region's own
+districts, with a breadcrumb ("Bütün rayonlar › {region} › {district}") to
+go back; clicking one of those districts narrows to just that one. The
+explicit **İqtisadi region / Rayon** tab is the other, independent entry
+point: it always shows the *full* country at that resolution (14 regions,
+or all 73 districts), resetting any drill in progress — so a user has both
+a direct "show me every district" switch and a "show me this region's
+districts" click-through, rather than only one.
+
+**Bug found and fixed:** drilling into **Baku** specifically landed on an
+empty map and an empty bar chart — Baku's districts have data but (§4) no
+map shapes, so filtering the *district geometry* by
+`economic_region === "baku city - total"` correctly returns nothing. Fixed
+by decoupling the bar chart's row source from the map's visible shapes:
+`getBarRows()` reads straight from the dataset (needs no geometry), so it
+lists Baku's twelve real districts by name and value regardless; the map
+falls back to drawing the *region's own* shape as context when its district
+subset is geometrically empty. Both still share one color scale
+(`currentStats()` now derives min/max from `getBarRows()`, not from the
+map's feature list), so the fallback shape's color is still meaningful
+relative to the districts the bar chart is showing.
+
+A related, smaller bug surfaced by the above: `heatColor()`'s interpolation
+factor `t` was never clamped to `[0,1]`. A region's own total can fall
+outside its districts' min/max range (Baku's 63,379 vs. its districts'
+2,000–12,000-ish range) — this fallback shape's color would overshoot the
+ramp into out-of-gamut RGB values (rendered as white). Clamped `t` in
+`heatColor()`.
+
+### 6. Testing notes
+
+- The `hover` browser-automation action proved unreliable for hit-testing
+  the district map's small/irregular shapes in this session (coordinates
+  computed from a feature's own `getBoundingClientRect()` center still
+  missed). Switched to dispatching real `MouseEvent`/`click` events directly
+  at DOM nodes found via `regionalState`/`document.querySelectorAll` for
+  functional testing — exercises the exact same listeners, just without
+  depending on the automation tool's pointer-positioning accuracy.
+- Verified interactively (via the above): drilling into a normal region (5
+  district shapes, correctly zoomed); drilling into Baku (map falls back to
+  one shape, bar chart lists 12 real districts); narrowing to a single
+  district (1 shape, 1 bar, 3-level breadcrumb); both breadcrumb links
+  (back one level, back to the full list); the level tabs' hard reset; the
+  table's Milli ⇄ Region cascade in both directions, including a specific
+  district narrowing the table to just its own 10 rows; dark/light mode on
+  the district map.
+- Same browser-cache trap as 2026-09-24, once more: `fetchGeoJSON()` didn't
+  originally pass `cache: "no-store"`, so a fixed GeoJSON file could still
+  serve stale from a browser's HTTP cache after a normal reload. Added
+  `cache: "no-store"` there too, matching `app.js`'s main data fetch, rather
+  than relying on hard-reloads going forward.
+
+**Deployed and verified live** after a manual `workflow_dispatch` run
+(`update` + `deploy` both green, `parser.py --download` succeeding with the
+new Azerbaijani source added): district map, drill-down, and the table
+cascade all re-checked on `insiliconic.github.io` against the live dataset,
+not just the local copy used during development.

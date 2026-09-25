@@ -41,6 +41,40 @@ INDICATORS = {
 }
 TARGET_LINKS = {name: SOURCE_BASE + name for name in INDICATORS}
 
+# Azerbaijani-language sibling of 001_5_2-3en.xls: same table, same row
+# order (verified position-for-position against the circulatory column
+# across all 10 years -- see docs/methodology_log.md), used only to attach
+# each region/district's original Azerbaijani name (name_az) -- the English
+# file stays the source of truth for every value.
+AZ_LABEL_SOURCE = {
+    "001_5_2-3en.xls": {
+        "az_file": "001_5_2-3az.xls",
+        "az_url": "https://www.stat.gov.az/source/healthcare/az/001_5_2-3.xls",
+    },
+}
+
+# The 14 economic regions from the 2021 reorganisation (see
+# scripts/build_region_geojson.py), as their normalised keys appear in
+# 001_5_2-3en.xls. parse_col_sheet recognises these while walking the sheet
+# top-to-bottom to tag every district row with its parent region -- the
+# source lists each region's districts directly under its own total row.
+ECONOMIC_REGION_KEYS = {
+    "baku city - total",
+    "absheron-khizi economic region - total",
+    "ganja-dashkasan economic region - total",
+    "shaki-zagatala economic region - total",
+    "lankaran-astara economic region - total",
+    "guba-khachmaz economic region - total",
+    "central aran economic region - total",
+    "karabakh economic region - total",
+    "eastern zangazur economic region - total",
+    "daghlig shirvan economic region - total",
+    "nakhchivan autonomous republic - total",
+    "gazakh-tovuz economic region - total",
+    "mil-mughan economic region - total",
+    "shirvan-salyan economic region - total",
+}
+
 XLS_MAGIC = b"\xd0\xcf\x11\xe0"  # OLE2 header of legacy .xls files
 
 # Patterns are compared after normalize(), so they must be normalized too.
@@ -63,6 +97,12 @@ TABLE_NO = re.compile(r"^(\d+\.\d+\.\d+)")
 def normalize(text):
     """Collapse whitespace, strip and lowercase."""
     return re.sub(r"\s+", " ", str(text)).strip().lower()
+
+
+def collapse_ws(text):
+    """Collapse whitespace and strip, keeping case -- for display text
+    (name_az) where normalize()'s lowercasing would be wrong."""
+    return re.sub(r"\s+", " ", str(text)).strip()
 
 
 def split_footnote(label):
@@ -191,7 +231,25 @@ def parse_row_sheet(sh):
 
 # ------------------------------------------------------------- column layout
 
-def parse_col_sheet(sh):
+def az_labels_in_order(sh, col):
+    """Azerbaijani row labels from the sibling-language sheet, in the same
+    top-to-bottom traversal order parse_col_sheet's main loop encounters
+    valid data rows (label present, numeric value at the given column,
+    footnote lines skipped). Verified 1:1 aligned with the English file's
+    circulatory-column data rows across all 10 years -- see
+    docs/methodology_log.md -- so zipping the two lists by position is safe."""
+    out = []
+    for r in range(sh.nrows):
+        raw, label = row_label(sh.row_values(r))
+        if not label or FOOTNOTE_LINE.match(label):
+            continue
+        if parse_number(sh.row_values(r)[col]) is None:
+            continue
+        out.append(collapse_ws(raw))
+    return out
+
+
+def parse_col_sheet(sh, az_sheet=None):
     # Every sheet holds two side-by-side tables sharing the same disease-group
     # columns: absolute counts first, then a rate table introduced by its own
     # title row (e.g. "Number of diseases per 10 000 population"). unit_labels
@@ -200,6 +258,8 @@ def parse_col_sheet(sh):
     title, table_number = None, None
     unit, col, blocks, regions = "count", None, [], {}
     unit_labels = {}
+    add_order = []          # region key added at each successful value, in file order
+    current_region = None   # economic region a district row currently falls under
     for r in range(sh.nrows):
         row = sh.row_values(r)
         for v in row:
@@ -229,17 +289,44 @@ def parse_col_sheet(sh):
         if value is None:
             continue
         name, fn = split_footnote(label)
+        is_region = name in ECONOMIC_REGION_KEYS
+        # The country-total row opens both the count and the per_10k block --
+        # reset here, or a district row right after it would wrongly inherit
+        # whatever region was current_region at the *end* of the prior block.
+        is_root = name.startswith("republic of azerbaijan")
+        if is_region:
+            current_region = name
+        elif is_root:
+            current_region = None
         entry = regions.setdefault(name, empty_entry())
         entry[unit] = value
+        entry["economic_region"] = None if (is_region or is_root) else current_region
         if fn:
             entry["label_footnote"] = fn
+        add_order.append(name)
     if not blocks:
         return None
     for entry in regions.values():
         flag_non_integer(entry)
+        entry.setdefault("name_az", None)  # filled in below when available; predictable schema either way
     # The first (count) table has no dedicated title row of its own -- it's
     # simply what the sheet's main title describes -- so it falls back to that.
     unit_labels.setdefault("count", title)
+
+    # Attach each region/district's original Azerbaijani name, positionally,
+    # from the sibling-language sheet. Best-effort: if the row counts don't
+    # line up (a future source revision, say), skip silently rather than
+    # mis-attribute names -- name_az is enrichment, not load-bearing data.
+    if az_sheet is not None and blocks:
+        az_labels = az_labels_in_order(az_sheet, blocks[0]["column"])
+        if len(az_labels) == len(add_order):
+            for name, az_raw in zip(add_order, az_labels):
+                az_clean, _ = split_footnote(az_raw)
+                regions[name]["name_az"] = az_clean  # direct assign: name_az already defaults to None above
+        else:
+            print(f"  note: az label count mismatch for sheet '{sh.name}' "
+                  f"(en={len(add_order)} az={len(az_labels)}) -- name_az skipped")
+
     m = re.search(r"\b((?:19|20)\d{2})\b", title or "")
     return {
         "layout": "column",
@@ -254,11 +341,30 @@ def parse_col_sheet(sh):
 
 # ---------------------------------------------------------------------- main
 
+SHEET_YEAR = re.compile(r"(19|20)\d{2}")
+
+
 def parse_file(path):
     wb = xlrd.open_workbook(str(path))
+
+    az_info = AZ_LABEL_SOURCE.get(path.name)
+    az_by_year = {}
+    if az_info:
+        az_path = path.parent / az_info["az_file"]
+        if az_path.exists():
+            az_wb = xlrd.open_workbook(str(az_path))
+            for az_sh in az_wb.sheets():
+                m = SHEET_YEAR.search(az_sh.name)
+                if m:
+                    az_by_year[m.group(0)] = az_sh
+        else:
+            print(f"  note: {az_path.name} not found -- name_az skipped for {path.name}")
+
     sheets, not_found = {}, []
     for sh in wb.sheets():
-        result = parse_row_sheet(sh) or parse_col_sheet(sh)
+        m = SHEET_YEAR.search(sh.name)
+        az_sheet = az_by_year.get(m.group(0)) if m else None
+        result = parse_row_sheet(sh) or parse_col_sheet(sh, az_sheet=az_sheet)
         if result:
             sheets[sh.name.strip()] = result
         else:
@@ -281,18 +387,25 @@ def parse_file(path):
     }
 
 
+def _fetch_xls(url, dest):
+    req = urllib.request.Request(url, headers={"User-Agent": "cvd-azstat-platform"})
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        data = resp.read()
+    if not data.startswith(XLS_MAGIC):
+        raise RuntimeError(f"{url}: response is not an .xls workbook")
+    dest.write_bytes(data)
+    print(f"downloaded {dest.name} ({len(data)} bytes)")
+
+
 def download(raw_dir):
-    """Fetch every target file; refuse anything that is not an .xls workbook
-    (e.g. an HTML error page served with status 200)."""
+    """Fetch every target file, plus the Azerbaijani label sources; refuse
+    anything that is not an .xls workbook (e.g. an HTML error page served
+    with status 200)."""
     raw_dir.mkdir(parents=True, exist_ok=True)
     for name, url in TARGET_LINKS.items():
-        req = urllib.request.Request(url, headers={"User-Agent": "cvd-azstat-platform"})
-        with urllib.request.urlopen(req, timeout=60) as resp:
-            data = resp.read()
-        if not data.startswith(XLS_MAGIC):
-            raise RuntimeError(f"{url}: response is not an .xls workbook")
-        (raw_dir / name).write_bytes(data)
-        print(f"downloaded {name} ({len(data)} bytes)")
+        _fetch_xls(url, raw_dir / name)
+    for info in AZ_LABEL_SOURCE.values():
+        _fetch_xls(info["az_url"], raw_dir / info["az_file"])
 
 
 def main():
