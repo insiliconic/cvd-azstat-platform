@@ -889,3 +889,26 @@ order and every column's sort in both directions (including Dəyişim by the
 signed percentage), sort kept after switching to Xəstələnmə 0–13, Abşeron
 rayonu → 10 rows 2024→2015 with one name, İl header flip, region view
 back to count-descending, and no drifted spellings left in any dropdown.
+
+## 2026-09-26 (4) — Swipe follows the bar chart, legend marker for one district
+
+- **Swipe / ‹ › order = bar chart order.** Stepping between economic regions
+  or districts now walks the bar chart's ranking (largest value first for
+  the current year and Say / 10 000 tab) instead of alphabetical order. One
+  function, `barRowsFor(view)`, builds both the bars and the step list, so
+  the two can't drift apart. Changing the year or the tab re-ranks the
+  list, and "N / M" is the item's rank.
+- **Scale for a single district.** With one district on the map, the color
+  scale used to be that district alone (min = max, e.g. "2,043 — 2,043"), so
+  its color and legend meant nothing. It is now scaled against the list it
+  was picked from: its region's districts, or all districts if picked from
+  the full "Rayon" map (`scaleRows()`).
+- **Legend marker.** In that view, a small downward arrow sits on top of
+  the heat bar (not inside it) at the district's value, clamped to the bar
+  the same way `heatColor()` clamps. The arrow's title and aria-label give
+  the district's name and value.
+
+Tested locally and live: region-level bar order vs step order, next/prev
+and wrap-around, district steps within Quba–Xaçmaz (3 706 → 3 048 → 1 926,
+marker at 100% → 80% → 45% on a 444–3 706 scale), and re-ranking after
+switching to "10 000 əhaliyə görə".

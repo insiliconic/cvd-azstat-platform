@@ -252,7 +252,7 @@ main {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 10px 0 4px;
+  margin: 16px 0 4px;
   font-size: 0.78rem;
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
@@ -263,6 +263,19 @@ main {
   height: 10px;
   border-radius: 999px;
   border: 1px solid var(--border);
+  position: relative;
+}
+/* Downward arrow sitting on top of the bar (not inside it), pointing at the
+   selected district's value -- see renderScaleLegend(). */
+.scale-legend__marker {
+  position: absolute;
+  bottom: calc(100% + 2px);
+  width: 0;
+  height: 0;
+  transform: translateX(-50%);
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 8px solid var(--text-primary);
 }
 .region-nav-row {
   display: flex;

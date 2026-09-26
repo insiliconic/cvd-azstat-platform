@@ -106,25 +106,43 @@ function currentRegionsData() {
 // of a drilled-into region even if none of them have a map shape (Baku).
 // The map and the legend still share this same value set for their color
 // scale, so "no shape for this row" never means "a different scale" too.
-function getBarRows() {
+// Rows for one view of the bar chart, largest value first -- the order the
+// bars are drawn in, and (via getStepContext) the order swiping steps through.
+// view = { level, regionFilter, districtSelected }.
+function barRowsFor(view) {
   const regionsData = currentRegionsData();
+  const table = regionalState.table;
+  const row = (key) => ({ key, label: regionName(regionsData, key), value: regionValue(regionsData, key, table) });
+  let rows;
+  if (view.level === "district" && view.districtSelected) {
+    rows = [row(view.districtSelected)];
+  } else if (view.level === "district" && view.regionFilter) {
+    rows = Object.entries(regionsData)
+      .filter(([, e]) => e.economic_region === view.regionFilter)
+      .map(([key]) => row(key));
+  } else {
+    rows = regionalState.featuresByLevel[view.level].map((f) => row(f.properties.key));
+  }
+  return rows.filter((r) => r.value != null).sort((a, b) => b.value - a.value);
+}
+
+function getBarRows() {
+  return barRowsFor(regionalState);
+}
+
+// The rows that set the color scale. A single district on its own would be
+// a one-value scale (min = max, every color the same); instead it is scaled
+// against the list it was picked from -- its region's districts, or all
+// districts -- so its color and the legend marker show where it sits.
+function scaleRows() {
   if (regionalState.level === "district" && regionalState.districtSelected) {
-    const v = regionValue(regionsData, regionalState.districtSelected, regionalState.table);
-    return v == null ? [] : [{ key: regionalState.districtSelected, label: regionName(regionsData, regionalState.districtSelected), value: v }];
+    return barRowsFor({ ...regionalState, districtSelected: null });
   }
-  if (regionalState.level === "district" && regionalState.regionFilter) {
-    return Object.entries(regionsData)
-      .filter(([, e]) => e.economic_region === regionalState.regionFilter)
-      .map(([key]) => ({ key, label: regionName(regionsData, key), value: regionValue(regionsData, key, regionalState.table) }))
-      .filter((r) => r.value != null);
-  }
-  return regionalState.featuresByLevel[regionalState.level]
-    .map((f) => ({ key: f.properties.key, label: regionName(regionsData, f.properties.key), value: regionValue(regionsData, f.properties.key, regionalState.table) }))
-    .filter((r) => r.value != null);
+  return getBarRows();
 }
 
 function currentStats() {
-  const values = getBarRows().map((r) => r.value);
+  const values = scaleRows().map((r) => r.value);
   return { min: Math.min(...values), max: Math.max(...values), regionsData: currentRegionsData() };
 }
 
@@ -211,36 +229,31 @@ function renderBreadcrumb() {
 // ---- prev/next stepping (swipe or ‹ › buttons) ------------------------------
 // Once one economic region's or one district's boundaries are on screen, a
 // horizontal swipe on the map (or the ‹ › buttons) steps to the previous /
-// next item in the same alphabetical order the table's dropdowns use
-// (app.js, getEconomicRegionOptions / getDistrictOptions).
+// next item in the bar chart's order (see getStepContext).
 
 const SWIPE_MIN_PX = 50;
 
-function byAzName(regionsData) {
-  return (a, b) => regionName(regionsData, a).localeCompare(regionName(regionsData, b), "az");
-}
-
-// { kind: "region"|"district", keys, index } or null when nothing single is selected.
+// { kind: "region"|"district", keys, index } or null when nothing single is
+// selected. keys follow the bar chart the selection was picked from
+// (largest value first for the current year and Say / 10 000 tab), so
+// swiping walks down the same ranking the bars show.
 function getStepContext() {
   if (!regionalState || regionalState.level !== "district") return null;
-  const regionsData = currentRegionsData();
-  const entries = Object.entries(regionsData);
+  let rows, kind, current;
   if (regionalState.districtSelected) {
-    // Siblings within the drilled-into region, or every district when the
-    // district was picked from the full "Rayon" map.
-    const keys = entries
-      .filter(([, e]) => e.economic_region != null
-        && (!regionalState.regionFilter || e.economic_region === regionalState.regionFilter))
-      .map(([k]) => k).sort(byAzName(regionsData));
-    return { kind: "district", keys, index: keys.indexOf(regionalState.districtSelected) };
+    // Its region's districts, or every district when it was picked from the full "Rayon" map.
+    rows = barRowsFor({ level: "district", regionFilter: regionalState.regionFilter, districtSelected: null });
+    kind = "district";
+    current = regionalState.districtSelected;
+  } else if (regionalState.regionFilter) {
+    rows = barRowsFor({ level: "region", regionFilter: null, districtSelected: null });
+    kind = "region";
+    current = regionalState.regionFilter;
+  } else {
+    return null;
   }
-  if (regionalState.regionFilter) {
-    const keys = entries
-      .filter(([k, e]) => e.economic_region == null && !k.startsWith("republic of azerbaijan"))
-      .map(([k]) => k).sort(byAzName(regionsData));
-    return { kind: "region", keys, index: keys.indexOf(regionalState.regionFilter) };
-  }
-  return null;
+  const keys = rows.map((r) => r.key);
+  return { kind, keys, index: keys.indexOf(current) };
 }
 
 function stepSelection(delta) {
@@ -399,12 +412,22 @@ function renderMap() {
 }
 
 function renderScaleLegend() {
-  const { min, max } = currentStats();
+  const { min, max, regionsData } = currentStats();
   const el = document.getElementById("region-scale");
   const low = cssVar("--heat-low"), high = cssVar("--heat-high");
+  // With one district on the map, an arrow above the bar marks where its
+  // value falls on the scale (same clamping as heatColor()).
+  let marker = "";
+  const key = regionalState.level === "district" && regionalState.districtSelected;
+  const value = key ? regionValue(regionsData, key, regionalState.table) : null;
+  if (value != null) {
+    const pct = Math.max(0, Math.min(1, (value - min) / (max - min || 1))) * 100;
+    const label = `${regionName(regionsData, key)}: ${numberFmt1(value)}`;
+    marker = `<span class="scale-legend__marker" style="left: ${pct}%" title="${label}" aria-label="${label}"></span>`;
+  }
   el.innerHTML = `
     <span>${numberFmt1(min)}</span>
-    <span class="scale-legend__bar" style="background: linear-gradient(90deg, ${low}, ${high})"></span>
+    <span class="scale-legend__bar" style="background: linear-gradient(90deg, ${low}, ${high})">${marker}</span>
     <span>${numberFmt1(max)}</span>
   `;
 }
@@ -417,7 +440,7 @@ function renderBarChart() {
   const { min, max } = currentStats();
   const span = max - min || 1;
 
-  const rows = getBarRows().sort((a, b) => b.value - a.value);
+  const rows = getBarRows(); // already largest-first (barRowsFor)
   regionalState.barRows = rows; // so setHighlight() can turn a key into a bar index
 
   const colors = rows.map((r) => heatColor((r.value - min) / span));
