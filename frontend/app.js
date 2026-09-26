@@ -102,7 +102,7 @@ function deltaInfo(latestRate, prevRate) {
   // Two decimals below 0.1% so a small move never prints as "0.0%" next to a real arrow.
   const abs = Math.abs(pct);
   const pctText = abs !== 0 && abs < 0.1 ? abs.toFixed(2) : abs.toFixed(1);
-  return { dir, text: `${arrow} ${pctText}%` };
+  return { dir, pct, text: `${arrow} ${pctText}%` };
 }
 
 function deltaHtmlFor(latestRate, prevRate, prevYear) {
@@ -352,6 +352,8 @@ const NATIONAL_MEASURES = {
 const NATIONAL_FIRST_YEAR = 2015;
 
 let nationalState = { measure: "death", age: "all", year: null };
+// Sort for the national all-years table; kept across measure/age changes.
+let nationalSort = { key: "year", dir: "desc" };
 // The age band last picked for morbidity, so Ölüm -> Xəstələnmə -> Ölüm -> Xəstələnmə keeps it.
 let lastMorbidityAge = NATIONAL_MEASURES.morbidity.defaultAge;
 
@@ -382,27 +384,34 @@ function renderNationalResult() {
       const prev = sheet.series[String(y - 1)];
       const rate = rateOf(entry);
       const d = deltaInfo(rate, prev ? rateOf(prev) : null);
-      return `<tr>
-        <td data-type="num">${y}</td>
-        <td data-type="num">${rate != null ? rate.toFixed(1) : "—"}</td>
-        <td>/ ${unitOf(entry)}</td>
-        <td data-type="num">${entry.count != null ? numberFmt.format(entry.count) : "—"}</td>
-        <td data-type="num">${d ? `<span class="delta" data-dir="${d.dir}">${d.text}</span>` : "—"}</td>
-        <td>${noteBadges(entry.notes)}</td>
-      </tr>`;
-    }).join("");
+      return { year: y, rate, unit: `/ ${unitOf(entry)}`, count: entry.count, delta: d ? d.pct : null, deltaInfo: d, notes: entry.notes || [] };
+    }).sort((a, b) => compareRows(a, b, nationalSort));
+    const body = rows.map((r) => `<tr>
+        <td data-type="num">${r.year}</td>
+        <td data-type="num">${r.rate != null ? r.rate.toFixed(1) : "—"}</td>
+        <td>${r.unit}</td>
+        <td data-type="num">${r.count != null ? numberFmt.format(r.count) : "—"}</td>
+        <td data-type="num">${r.deltaInfo ? `<span class="delta" data-dir="${r.deltaInfo.dir}">${r.deltaInfo.text}</span>` : "—"}</td>
+        <td>${noteBadges(r.notes)}</td>
+      </tr>`).join("");
     const span = years.length ? `${years[0]}–${years[years.length - 1]}` : "";
     el.innerHTML = `
       <p class="kpi-tile__label">${measure.label} — ${band.label}, ${span}</p>
+      <p class="muted">Sütun başlığına klikləyin — sıralama üçün</p>
       <div class="table-wrap">
         <table class="data-table" id="national-table">
           <thead><tr>
-            <th data-type="num">İl</th><th data-type="num">Nisbət</th><th>Vahid</th>
-            <th data-type="num">Say (nəfər)</th><th data-type="num">Dəyişim</th><th>Qeyd</th>
+            <th data-key="year" data-type="num">İl</th>
+            <th data-key="rate" data-type="num">Nisbət</th>
+            <th data-key="unit">Vahid</th>
+            <th data-key="count" data-type="num">Say (nəfər)</th>
+            <th data-key="delta" data-type="num">Dəyişim</th>
+            <th data-key="notes">Qeyd</th>
           </tr></thead>
-          <tbody>${rows}</tbody>
+          <tbody>${body}</tbody>
         </table>
       </div>`;
+    markSortedHeader(document.getElementById("national-table"), nationalSort);
     return;
   }
 
@@ -496,7 +505,14 @@ function buildRegionalRows(dataset) {
       });
     }
   }
-  return rows.sort((a, b) => b.year - a.year);
+  rows.sort((a, b) => b.year - a.year);
+  // One name per place across all years: the source's own spelling drifts
+  // year to year (2017 has "Abşeronrayonu", others "Abşeron -Xızı",
+  // "Lənkəran- Astara"...), so every row uses the newest year's name.
+  const nameByKey = new Map();
+  for (const r of rows) if (!nameByKey.has(r.key)) nameByKey.set(r.key, r.indicatorLabel);
+  for (const r of rows) r.indicatorLabel = nameByKey.get(r.key);
+  return rows;
 }
 
 // The 14 economic regions, deduplicated across years (a region's identity
@@ -560,13 +576,13 @@ function initTableScope() {
 
   const yearLabel = document.getElementById("table-year-label");
   const allYearsNote = document.getElementById("table-all-years");
-  // One district -> every year, oldest first; the region-wide view -> one
+  // One district -> every year, newest first; the region-wide view -> one
   // year, largest count first. Re-applied on every switch between the two.
   function syncTableYearControl() {
     const single = Boolean(tableScope.district);
     yearLabel.hidden = single;
     allYearsNote.hidden = !single;
-    sortState = single ? { key: "year", dir: "asc" } : { key: "count", dir: "desc" };
+    sortState = single ? { key: "year", dir: "desc" } : { key: "count", dir: "desc" };
   }
 
   function refreshDistrictOptions() {
@@ -618,13 +634,41 @@ function initTableScope() {
   }
 }
 
+// ---- sorting (shared by the regional table and the national all-years table) ----
+
+// Empty values sort last in either direction; the notes column (an array)
+// sorts by its text rather than by array arithmetic.
+function compareRows(a, b, { key, dir }) {
+  let va = a[key], vb = b[key];
+  if (Array.isArray(va)) va = va.join(" ");
+  if (Array.isArray(vb)) vb = vb.join(" ");
+  if (va == null && vb == null) return 0;
+  if (va == null) return 1;
+  if (vb == null) return -1;
+  const cmp = typeof va === "string" ? va.localeCompare(vb, "az") : va - vb;
+  return dir === "asc" ? cmp : -cmp;
+}
+
+// Same column again flips the direction; a new column starts descending
+// for numbers and ascending for text.
+function nextSort(state, th) {
+  const key = th.dataset.key;
+  if (state.key === key) return { key, dir: state.dir === "asc" ? "desc" : "asc" };
+  return { key, dir: th.dataset.type === "num" ? "desc" : "asc" };
+}
+
+// The ▲/▼ icon comes from CSS on aria-sort (see .data-table th[aria-sort]).
+function markSortedHeader(table, state) {
+  for (const th of table.querySelectorAll("th")) {
+    th.removeAttribute("aria-sort");
+    if (th.dataset.key === state.key) {
+      th.setAttribute("aria-sort", state.dir === "asc" ? "ascending" : "descending");
+    }
+  }
+}
+
 function renderTable() {
-  const sorted = [...tableRows].sort((a, b) => {
-    const va = a[sortState.key];
-    const vb = b[sortState.key];
-    const cmp = typeof va === "string" ? va.localeCompare(vb) : va - vb;
-    return sortState.dir === "asc" ? cmp : -cmp;
-  });
+  const sorted = [...tableRows].sort((a, b) => compareRows(a, b, sortState));
 
   const body = document.getElementById("table-body");
   body.innerHTML = sorted.map((r) => `
@@ -638,26 +682,23 @@ function renderTable() {
     </tr>
   `).join("");
 
-  for (const th of document.querySelectorAll("#data-table th")) {
-    th.removeAttribute("aria-sort");
-    if (th.dataset.key === sortState.key) {
-      th.setAttribute("aria-sort", sortState.dir === "asc" ? "ascending" : "descending");
-    }
-  }
+  markSortedHeader(document.getElementById("data-table"), sortState);
 }
 
 function initTableSorting() {
   for (const th of document.querySelectorAll("#data-table th")) {
     th.addEventListener("click", () => {
-      const key = th.dataset.key;
-      if (sortState.key === key) {
-        sortState.dir = sortState.dir === "asc" ? "desc" : "asc";
-      } else {
-        sortState = { key, dir: th.dataset.type === "num" ? "desc" : "asc" };
-      }
+      sortState = nextSort(sortState, th);
       renderTable();
     });
   }
+  // The national table is re-rendered on every select change, so listen on its container.
+  document.getElementById("national-result").addEventListener("click", (e) => {
+    const th = e.target.closest("#national-table th[data-key]");
+    if (!th) return;
+    nationalSort = nextSort(nationalSort, th);
+    renderNationalResult();
+  });
 }
 
 // ---- methodology --------------------------------------------------------------

@@ -395,6 +395,3 @@ footer {
   .chart-wrap--bar { height: 380px; }
   .regional-controls { align-items: stretch; }
 }
-
-/* The national all-years table is fixed in year order, not sortable. */
-#national-table th { cursor: default; }

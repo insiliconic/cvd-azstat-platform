@@ -861,3 +861,31 @@ year hidden; Xəstələnmə default (18 yaşa qədər) and 0–13 → 10-row tab
 to "Bütün rayonlar" → year select back, single year. Trend: all three tabs,
 control visibility per tab, age change, region/district cascade, Zəngilan's
 gap, Ağsu's continuous line, and back to Ölüm.
+
+## 2026-09-26 (3) — Sortable national table, newest-first years, one name per place
+
+- **"Bütün göstəricilər"**: the table section's heading and the trend
+  card's jump link now read "Bütün göstəricilər" (were "Göstəricilər").
+- **Newest year first**: a single district's all-years table in the
+  "Region" tab now defaults to 2024 → 2015. Clicking the İl header still
+  flips it.
+- **"Abşeronrayonu"**: the missing space is in the source itself, not
+  introduced by the parser or the page (`001_5_2-3az.xls`, sheet
+  `1.5.4-2017`, the per-10 000 block's row: "Abşeronrayonu"). Other names
+  drift the same way across years ("Abşeron -Xızı", "Lənkəran- Astara",
+  "Qazax -Tovuz", "Gəncə -Daşkəsən"). `buildRegionalRows()` now shows one
+  name per place in every year, the newest year's spelling. The dataset
+  keeps `name_az` exactly as published.
+- **Sortable national table**: the all-years table (Ölüm, and Xəstələnmə
+  with a specific age band) sorts by any column on header click, with the
+  same ▲/▼ header marker as the regional table. The default is İl
+  descending, and the choice is kept across measure/age changes. Both
+  tables now share one comparator (`compareRows()`): empty values sort
+  last, and the Qeyd column sorts by its text. Before this, sorting the
+  regional table by Qeyd subtracted arrays and gave an undefined order.
+
+Tested locally and live after deploy: both headings, national default
+order and every column's sort in both directions (including Dəyişim by the
+signed percentage), sort kept after switching to Xəstələnmə 0–13, Abşeron
+rayonu → 10 rows 2024→2015 with one name, İl header flip, region view
+back to count-descending, and no drifted spellings left in any dropdown.
