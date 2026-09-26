@@ -53,7 +53,7 @@
     <div class="chart-wrap">
       <canvas id="trend-chart" role="img" aria-label="Seçilmiş göstəricinin illər üzrə nisbət tendensiyası"></canvas>
     </div>
-    <a class="table-jump" href="#table-section">Cədvəl kimi bax ↓</a>
+    <a class="table-jump" href="#table-section">Göstəricilər ↓</a>
   </section>
 
   <section class="card regional-section" id="regional-section" aria-labelledby="regional-heading" hidden>
@@ -74,8 +74,14 @@
         <select id="region-year-select"></select>
       </label>
     </div>
-    <p class="muted map-note">"Rayon" rejimində Bakının 12 daxili şəhər rayonu (Binəqədi, Xətai və s.) xəritədə ayrıca göstərilmir — açıq mənbəli sərhəd tapılmadı, ona görə Bakı vahid fiqur kimi qalır; öz nəticələri isə cədvəldə əlçatandır.</p>
-    <nav id="region-breadcrumb" class="breadcrumb" aria-label="Region → rayon" hidden></nav>
+    <div class="region-nav-row">
+      <nav id="region-breadcrumb" class="breadcrumb" aria-label="Region → rayon" hidden></nav>
+      <div id="region-stepper" class="region-stepper" hidden>
+        <button type="button" id="region-prev" class="step-btn" aria-label="Əvvəlki">‹</button>
+        <span id="region-step-pos" class="muted"></span>
+        <button type="button" id="region-next" class="step-btn" aria-label="Növbəti">›</button>
+      </div>
+    </div>
 
     <div class="map-wrap">
       <svg id="region-map" role="img" aria-label="Azərbaycanın regionlar/rayonlar üzrə xəritəsi"></svg>
@@ -89,33 +95,51 @@
   </section>
 
   <section class="card table-section" id="table-section" aria-labelledby="table-heading" hidden>
-    <h2 id="table-heading">Bütün göstəricilər, illər üzrə</h2>
+    <h2 id="table-heading">Göstəricilər</h2>
 
     <div class="table-scope-row">
       <div class="tab-group" id="table-scope-tabs" role="tablist" aria-label="Kəsim">
         <button type="button" class="tab-btn" data-scope="national" role="tab" aria-selected="true">Milli göstəricilər</button>
         <button type="button" class="tab-btn" data-scope="region" role="tab" aria-selected="false">Region</button>
       </div>
-      <div id="table-region-controls" class="table-region-controls" hidden>
+    </div>
+
+    <div id="national-controls" class="scope-controls">
+      <label class="select-label">Ölçü növü
+        <select id="national-measure-select">
+          <option value="death">Ölüm</option>
+          <option value="morbidity">Xəstələnmə</option>
+        </select>
+      </label>
+      <label class="select-label" id="national-age-label">Yaş aralığı
+        <select id="national-age-select"></select>
+      </label>
+      <label class="select-label">İl <select id="national-year-select"></select></label>
+    </div>
+    <div id="national-result" class="national-result" aria-live="polite"></div>
+
+    <div id="regional-table-block" hidden>
+      <div id="table-region-controls" class="scope-controls">
         <label class="select-label">İqtisadi region <select id="table-region-select"></select></label>
         <label class="select-label">Rayon <select id="table-district-select"></select></label>
+        <label class="select-label">İl <select id="table-year-select"></select></label>
       </div>
-    </div>
-    <p class="muted">Sütun başlığına klikləyin — sıralama üçün</p>
-    <div class="table-wrap">
-      <table id="data-table">
-        <thead>
-          <tr>
-            <th data-key="indicatorLabel">Göstərici</th>
-            <th data-key="year" data-type="num" aria-sort="descending">İl</th>
-            <th data-key="count" data-type="num">Say (nəfər)</th>
-            <th data-key="rate" data-type="num">Nisbət</th>
-            <th data-key="unit">Vahid</th>
-            <th data-key="notes">Qeyd</th>
-          </tr>
-        </thead>
-        <tbody id="table-body"></tbody>
-      </table>
+      <p class="muted">Sütun başlığına klikləyin — sıralama üçün</p>
+      <div class="table-wrap">
+        <table id="data-table">
+          <thead>
+            <tr>
+              <th data-key="indicatorLabel">Ad</th>
+              <th data-key="year" data-type="num">İl</th>
+              <th data-key="count" data-type="num" aria-sort="descending">Say (nəfər)</th>
+              <th data-key="rate" data-type="num">Nisbət</th>
+              <th data-key="unit">Vahid</th>
+              <th data-key="notes">Qeyd</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
     </div>
   </section>
 

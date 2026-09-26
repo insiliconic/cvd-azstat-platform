@@ -28,12 +28,12 @@ const DEFAULT_TREND_KEY = "001_3en.xls";
 
 let chartInstance = null;
 let tableRows = [];
-let sortState = { key: "year", dir: "desc" };
+// Every visible table row shares one year (the table's year select), so count is the useful default sort.
+let sortState = { key: "count", dir: "desc" };
 
-// "Kəsim" (scope) for the table: national indicators, or the region -> district
-// cascade. mode/region/district drive getVisibleTableRows(); see initTableScope().
-let tableScope = { mode: "national", region: null, district: null };
-let nationalRows = [];
+// "Kəsim" (scope): the national result card, or the region -> district
+// cascade table filtered to one year. See initTableScope().
+let tableScope = { mode: "national", region: null, district: null, year: null };
 let regionalRowsAll = [];
 
 // ---- theme --------------------------------------------------------------
@@ -93,6 +93,24 @@ const numberFmt = new Intl.NumberFormat("en-US");
 
 // ---- KPI row --------------------------------------------------------------
 
+// Year-over-year change, shared by the KPI tiles and the national result
+// card. Only an exact 0% reads as "flat": even a -0.15% move is a real
+// direction and gets its arrow (a 0.5% dead band used to hide the death
+// rate's 2023 -> 2024 dip behind "→"). A rise in a disease/death rate is
+// the unwelcome direction, so "up" reads as critical and "down" as good.
+function deltaHtmlFor(latestRate, prevRate, prevYear) {
+  if (latestRate == null || !prevRate) return "";
+  const pct = ((latestRate - prevRate) / prevRate) * 100;
+  const dir = pct === 0 ? "flat" : pct > 0 ? "up" : "down";
+  const arrow = dir === "flat" ? "→" : dir === "up" ? "▲" : "▼";
+  // Two decimals below 0.1% so a small move never prints as "0.0%" next to a real arrow.
+  const abs = Math.abs(pct);
+  const pctText = abs !== 0 && abs < 0.1 ? abs.toFixed(2) : abs.toFixed(1);
+  return `<p class="kpi-tile__delta" data-dir="${dir}">
+    ${arrow} ${pctText}% (${prevYear}-ə görə)
+  </p>`;
+}
+
 function buildKpis(dataset) {
   const section = document.getElementById("kpi-section");
   section.innerHTML = "";
@@ -111,17 +129,7 @@ function buildKpis(dataset) {
     const latestRate = rateOf(latest);
     const prevRate = prev ? rateOf(prev) : null;
 
-    let deltaHtml = "";
-    if (latestRate != null && prevRate) {
-      const pct = ((latestRate - prevRate) / prevRate) * 100;
-      const dir = Math.abs(pct) < 0.5 ? "flat" : pct > 0 ? "up" : "down";
-      const arrow = dir === "flat" ? "→" : dir === "up" ? "▲" : "▼";
-      // A rise in a disease/death rate is the unwelcome direction, so
-      // "up" reads as critical and "down" as good — not the reverse.
-      deltaHtml = `<p class="kpi-tile__delta" data-dir="${dir}">
-        ${arrow} ${Math.abs(pct).toFixed(1)}% (${prevYear}-ə görə)
-      </p>`;
-    }
+    const deltaHtml = deltaHtmlFor(latestRate, prevRate, prevYear);
 
     const tile = document.createElement("article");
     tile.className = "kpi-tile";
@@ -241,31 +249,111 @@ function renderChart(key) {
   chartInstance._indicatorKey = key;
 }
 
-// ---- table ------------------------------------------------------------------
+// ---- national result (one measure x age band x year) -------------------------
 
-function buildNationalRows(dataset) {
-  const rows = [];
-  for (const { key, label } of INDICATORS) {
-    const sheet = seriesFor(dataset, key);
-    for (const [yearStr, entry] of Object.entries(sheet.series)) {
-      rows.push({
-        indicatorLabel: label,
-        year: Number(yearStr),
-        count: entry.count,
-        rate: rateOf(entry),
-        unit: entry.per_10k != null ? "/ 10 000" : "/ 100 000",
-        notes: entry.notes || [],
-      });
-    }
+// Measure -> age band -> source file. Death (001_3en.xls) is published for
+// the whole population only, so it has a single band and the age select is
+// hidden for it. The regional file is deliberately absent: this block is
+// national-level data only (region/district live in the "Region" scope).
+const NATIONAL_MEASURES = {
+  death: {
+    label: "Ölüm",
+    defaultAge: "all",
+    ages: [{ value: "all", label: "Ümumi əhali", key: "001_3en.xls" }],
+  },
+  morbidity: {
+    label: "Xəstələnmə",
+    defaultAge: "under18",
+    ages: [
+      { value: "all",     label: "Ümumi əhali",      key: "001_2_1en.xls" },
+      { value: "0-13",    label: "0–13 yaş",         key: "001_2_3en.xls" },
+      { value: "14-29",   label: "14–29 yaş",        key: "001_2_4en.xls" },
+      { value: "30+",     label: "30 yaş və yuxarı", key: "001_2_5en.xls" },
+      { value: "under18", label: "18 yaşa qədər",    key: "001_2_2en.xls" },
+    ],
+  },
+};
+const NATIONAL_FIRST_YEAR = 2015;
+
+let nationalState = { measure: "death", age: "all", year: null };
+// The age band last picked for morbidity, so Ölüm -> Xəstələnmə -> Ölüm -> Xəstələnmə keeps it.
+let lastMorbidityAge = NATIONAL_MEASURES.morbidity.defaultAge;
+
+function renderNationalResult() {
+  const measure = NATIONAL_MEASURES[nationalState.measure];
+  const band = measure.ages.find((a) => a.value === nationalState.age) || measure.ages[0];
+  const sheet = seriesFor(window.__dataset, band.key);
+  const year = nationalState.year;
+  const entry = sheet.series[String(year)];
+  const prev = sheet.series[String(year - 1)];
+  const el = document.getElementById("national-result");
+
+  const title = `${measure.label} — ${band.label}, ${year}`;
+  if (!entry) {
+    el.innerHTML = `<article class="kpi-tile"><p class="kpi-tile__label">${title}</p>
+      <p class="kpi-tile__value">—</p><p class="kpi-tile__count">Bu il üçün məlumat yoxdur</p></article>`;
+    return;
   }
-  return rows;
+  const rate = rateOf(entry);
+  el.innerHTML = `
+    <article class="kpi-tile">
+      <p class="kpi-tile__label">${title}</p>
+      <p class="kpi-tile__value">${rate != null ? rate.toFixed(1) : "—"}
+        <span class="kpi-tile__unit">/ ${unitOf(entry)}</span>
+      </p>
+      ${deltaHtmlFor(rate, prev ? rateOf(prev) : null, year - 1)}
+      <p class="kpi-tile__count">${entry.count != null ? numberFmt.format(entry.count) : "—"} nəfər ${noteBadges(entry.notes)}</p>
+    </article>`;
 }
+
+function initNationalControls(dataset) {
+  const measureSelect = document.getElementById("national-measure-select");
+  const ageSelect = document.getElementById("national-age-select");
+  const ageLabel = document.getElementById("national-age-label");
+  const yearSelect = document.getElementById("national-year-select");
+
+  const lastYear = Math.max(...INDICATORS.map((i) => seriesFor(dataset, i.key).year_range[1]));
+  const years = [];
+  for (let y = lastYear; y >= NATIONAL_FIRST_YEAR; y--) years.push(y);
+  yearSelect.innerHTML = years.map((y) => `<option value="${y}">${y}</option>`).join("");
+
+  function syncAgeOptions() {
+    const measure = NATIONAL_MEASURES[nationalState.measure];
+    ageSelect.innerHTML = measure.ages.map((a) => `<option value="${a.value}">${a.label}</option>`).join("");
+    ageSelect.value = nationalState.age;
+    ageLabel.hidden = measure.ages.length < 2;
+  }
+
+  measureSelect.addEventListener("change", () => {
+    if (nationalState.measure === "morbidity") lastMorbidityAge = nationalState.age;
+    nationalState.measure = measureSelect.value;
+    nationalState.age = nationalState.measure === "morbidity" ? lastMorbidityAge : NATIONAL_MEASURES.death.defaultAge;
+    syncAgeOptions();
+    renderNationalResult();
+  });
+  ageSelect.addEventListener("change", () => {
+    nationalState.age = ageSelect.value;
+    renderNationalResult();
+  });
+  yearSelect.addEventListener("change", () => {
+    nationalState.year = Number(yearSelect.value);
+    renderNationalResult();
+  });
+
+  nationalState = { measure: "death", age: NATIONAL_MEASURES.death.defaultAge, year: lastYear };
+  measureSelect.value = "death";
+  yearSelect.value = String(lastYear);
+  syncAgeOptions();
+  renderNationalResult();
+}
+
+// ---- regional table -------------------------------------------------------------
 
 // Every region/district x every year from 001_5_2-3en.xls, tagged with the
 // economic region a district belongs to (parser.py's economic_region field;
 // null for the 14 top-level regions and the country total) so the
-// region -> district cascade below can filter by it. Names come straight
-// from the source's own Azerbaijani label (name_az) -- see parser.py.
+// region -> district cascade below can filter by it. Names come from the
+// source's own Azerbaijani label (name_az, see parser.py) via displayName().
 function buildRegionalRows(dataset) {
   const regionalFile = dataset.files["001_5_2-3en.xls"];
   if (!regionalFile) return [];
@@ -275,7 +363,7 @@ function buildRegionalRows(dataset) {
       rows.push({
         key,
         economicRegion: entry.economic_region,
-        indicatorLabel: entry.name_az || key,
+        indicatorLabel: displayName(entry.name_az || key),
         year: Number(yearStr),
         count: entry.count,
         rate: entry.per_10k,
@@ -311,10 +399,10 @@ function getDistrictOptions(regionKey) {
 }
 
 function getVisibleTableRows() {
-  if (tableScope.mode === "national") return nationalRows;
-  if (tableScope.district) return regionalRowsAll.filter((r) => r.key === tableScope.district);
+  const inYear = regionalRowsAll.filter((r) => r.year === tableScope.year);
+  if (tableScope.district) return inYear.filter((r) => r.key === tableScope.district);
   if (tableScope.region) {
-    return regionalRowsAll.filter((r) => r.key === tableScope.region || r.economicRegion === tableScope.region);
+    return inYear.filter((r) => r.key === tableScope.region || r.economicRegion === tableScope.region);
   }
   return [];
 }
@@ -325,16 +413,26 @@ function refreshTableRows() {
 }
 
 function initTableScope(dataset) {
-  nationalRows = buildNationalRows(dataset);
   regionalRowsAll = buildRegionalRows(dataset);
 
   const scopeTabs = document.querySelectorAll("#table-scope-tabs .tab-btn");
-  const regionControls = document.getElementById("table-region-controls");
+  const nationalControls = document.getElementById("national-controls");
+  const nationalResult = document.getElementById("national-result");
+  const regionalBlock = document.getElementById("regional-table-block");
   const regionSelect = document.getElementById("table-region-select");
   const districtSelect = document.getElementById("table-district-select");
+  const yearSelect = document.getElementById("table-year-select");
 
   const regionOptions = getEconomicRegionOptions();
   regionSelect.innerHTML = regionOptions.map((r) => `<option value="${r.key}">${r.name}</option>`).join("");
+
+  // Same year list and default (the latest year) as the map's own year select.
+  const years = [...new Set(regionalRowsAll.map((r) => r.year))].sort((a, b) => b - a);
+  yearSelect.innerHTML = years.map((y) => `<option value="${y}">${y}</option>`).join("");
+  if (years.length) {
+    yearSelect.value = String(years[0]);
+    tableScope.year = years[0];
+  }
 
   function refreshDistrictOptions() {
     const opts = getDistrictOptions(regionSelect.value);
@@ -348,12 +446,15 @@ function initTableScope(dataset) {
       for (const b of scopeTabs) b.setAttribute("aria-selected", "false");
       btn.setAttribute("aria-selected", "true");
       tableScope.mode = btn.dataset.scope;
-      regionControls.hidden = tableScope.mode !== "region";
-      if (tableScope.mode === "region") {
+      const national = tableScope.mode === "national";
+      nationalControls.hidden = !national;
+      nationalResult.hidden = !national;
+      regionalBlock.hidden = national;
+      if (!national) {
         tableScope.region = regionSelect.value;
         tableScope.district = districtSelect.value || null;
+        refreshTableRows();
       }
-      refreshTableRows();
     });
   }
 
@@ -365,6 +466,10 @@ function initTableScope(dataset) {
   });
   districtSelect.addEventListener("change", () => {
     tableScope.district = districtSelect.value || null;
+    refreshTableRows();
+  });
+  yearSelect.addEventListener("change", () => {
+    tableScope.year = Number(yearSelect.value);
     refreshTableRows();
   });
 
@@ -444,6 +549,7 @@ async function load() {
     buildIndicatorSelect(dataset);
     renderChart(DEFAULT_TREND_KEY);
     if (typeof initRegionalSection === "function") initRegionalSection(dataset);
+    initNationalControls(dataset);
     initTableScope(dataset);
     initTableSorting();
     refreshTableRows();

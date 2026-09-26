@@ -75,6 +75,11 @@
 
 * { box-sizing: border-box; }
 
+/* The hidden attribute must win over any component's own display rule
+   (e.g. .scope-controls { display: flex } used to keep the region selects
+   visible under the "Milli göstəricilər" tab). */
+[hidden] { display: none !important; }
+
 body {
   margin: 0;
   background: var(--page);
@@ -177,7 +182,7 @@ main {
   flex-direction: column;
   gap: 4px;
 }
-#indicator-select, #region-year-select {
+#indicator-select, #region-year-select, .scope-controls select {
   font: inherit;
   padding: 6px 10px;
   border-radius: 8px;
@@ -221,6 +226,8 @@ main {
   font-weight: 600;
 }
 .map-wrap { position: relative; }
+/* Vertical scrolling stays native; horizontal gestures reach the swipe handler (region-map.js, initSwipe). */
+#region-map { touch-action: pan-y; }
 #region-map { width: 100%; height: auto; display: block; max-height: 480px; }
 .region-shape { cursor: pointer; outline: none; transition: fill-opacity 0.1s; }
 .region-shape:focus, .region-shape:hover, .region-shape.is-active {
@@ -256,9 +263,31 @@ main {
   border-radius: 999px;
   border: 1px solid var(--border);
 }
-.map-note { margin-top: 4px; font-size: 0.78rem; }
-.breadcrumb {
+.region-nav-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   margin: 10px 0 0;
+}
+.region-stepper { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.region-stepper .muted { margin: 0; font-variant-numeric: tabular-nums; }
+.step-btn {
+  font: inherit;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--page);
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.step-btn:hover { border-color: var(--series-1); }
+.breadcrumb {
+  margin: 0;
   font-size: 0.85rem;
   color: var(--text-secondary);
 }
@@ -274,7 +303,8 @@ main {
   gap: 12px;
   margin: 12px 0 4px;
 }
-.table-region-controls { display: flex; flex-wrap: wrap; gap: 12px; }
+.scope-controls { display: flex; flex-wrap: wrap; gap: 12px; margin: 12px 0 8px; }
+.national-result { max-width: 360px; }
 
 /* Table */
 .table-wrap { overflow-x: auto; }

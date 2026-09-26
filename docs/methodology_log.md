@@ -693,3 +693,84 @@ ramp into out-of-gamut RGB values (rendered as white). Clamped `t` in
 new Azerbaijani source added): district map, drill-down, and the table
 cascade all re-checked on `insiliconic.github.io` against the live dataset,
 not just the local copy used during development.
+
+## 2026-09-26 — KPI arrows, national result card, swipe navigation, cleanups
+
+Requested by the project lead in one batch of six changes.
+
+### 1. Trend arrows: no dead band
+
+The KPI tiles used a ±0.5% dead band that showed "→" for small moves, so the
+death rate's 2023 → 2024 change (326.8 → 326.3, −0.15%) read as "flat"
+while the other tiles showed arrows. Now only an exact 0% is "flat"; any
+other change gets its direction (▲ red = rise, ▼ green = fall — a rise in a
+disease/death rate is the unwelcome direction). Changes under 0.1% print
+with two decimals so a real arrow never sits next to "0.0%". The logic lives
+in one helper (`deltaHtmlFor()` in `app.js`), shared with the new national
+result card below.
+
+### 2. "cəmi" removed from region names
+
+The source's Azerbaijani table labels each economic region's own row
+"<name> - cəmi" ("total"). `displayName()` (`region-map.js`, also used by
+`app.js`) strips that suffix at render time, so the map tooltip, bar chart,
+breadcrumb, table and dropdowns all show e.g. "Bakı şəhəri". The dataset's
+`name_az` is left exactly as published — this is presentation only.
+
+### 3. Baku coverage note removed from the page
+
+The on-page note under the regional controls about Baku's twelve city
+districts is gone. The coverage gap itself is unchanged and still
+documented here (2026-09-25 entry) and in the GeoJSON/code comments.
+
+### 4. Swipe / ‹ › navigation between regions or districts
+
+When one economic region (drilled into) or one district is on the map, a
+horizontal swipe (≥50 px, mostly horizontal; touch or mouse drag) steps to
+the previous/next item, and ‹ › buttons with an "N / M" position do the same
+for mouse/keyboard users. Order is the same alphabetical (Azerbaijani
+collation) order the table's dropdowns use. Districts step within their
+drilled-into region, or across all districts if one was picked from the
+full "Rayon" map; the list wraps around. `touch-action: pan-y` on the map
+keeps vertical page scrolling native, and the click that follows a mouse
+drag is swallowed so a swipe never doubles as a drill-down.
+
+Fixed along the way (pre-existing): in a region with no district shapes
+(Baku), clicking the fallback region shape set the region itself as the
+"selected district" (breadcrumb "Bakı şəhəri › Bakı şəhəri"). Clicks on a
+non-district key at district level are now ignored. The fallback shape also
+now works for a district picked without a region filter.
+
+### 5. "Milli göstəricilər": one selected result instead of the full table
+
+The region/district selects were visible under the national tab even
+though they don't apply to national data. Cause: `.table-region-controls
+{ display: flex }` overrode the `hidden` attribute. Added a global
+`[hidden] { display: none !important }` so this can't recur, and moved the
+region/district selects into the "Region" tab's own block.
+
+The national tab no longer lists every indicator × year. It has three
+selects — Ölçü növü (Ölüm / Xəstələnmə), Yaş aralığı (only for
+Xəstələnmə: Ümumi əhali, 0–13, 14–29, 30+, 18 yaşa qədər) and İl
+(2015–2024) — and shows just that combination's rate, count, and change vs
+the previous year with the same arrow rule as the KPI tiles. Death
+(`001_3en.xls`) is published for the whole population only, so the age
+select is hidden for it. Defaults: Ölüm, Ümumi əhali, 2024; switching to
+Xəstələnmə defaults the age band to "18 yaşa qədər" and remembers the last
+choice after that.
+
+### 6. Year select in the "Region" table
+
+The region/district table now has its own İl select (same years as the
+map's, default = latest, 2024) and shows only that year's rows, sorted by
+count by default.
+
+### Testing
+
+Checked locally, then on the live site after deploy: KPI arrows (death
+tile ▼ 0.2%), no "cəmi" in bar labels/dropdowns/table, note gone, national
+selects and defaults plus several combinations (e.g. Xəstələnmə 14–29 2020
+= 113.2 ▲7.7%, Ölüm 2020 = 412.3 ▲26.1% with the COVID badge), region
+selects hidden on the national tab, region table year filter, swipe via
+dispatched pointer events and a real mouse drag, ‹ › buttons, wrap-around,
+and stepping through Baku's districts.

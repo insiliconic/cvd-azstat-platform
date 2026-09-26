@@ -65,9 +65,16 @@ function regionValue(regionsData, key, table) {
   return typeof v === "number" ? v : null;
 }
 
+// The source labels every economic region's own row "<name> - cəmi"
+// ("total"); on its own, next to its districts, the suffix is just noise.
+// Shared with app.js (table + dropdowns) so every view shows the same name.
+function displayName(name) {
+  return String(name).replace(/\s*[-–—]\s*cəmi\s*$/i, "");
+}
+
 function regionName(regionsData, key) {
   const entry = regionEntry(regionsData, key);
-  return (entry && entry.name_az) || key;
+  return displayName((entry && entry.name_az) || key);
 }
 
 function currentRegionsData() {
@@ -133,7 +140,10 @@ function computeVisibleFeatures() {
 }
 
 function regionFallbackShape() {
-  const key = regionalState.regionFilter;
+  // A district picked from the full district list (no regionFilter) can
+  // still fall back: use the economic region it belongs to.
+  const selected = regionalState.districtSelected && currentRegionsData()[regionalState.districtSelected];
+  const key = regionalState.regionFilter || (selected && selected.economic_region);
   return key ? regionalState.featuresByLevel.region.filter((f) => f.properties.key === key) : [];
 }
 
@@ -151,6 +161,8 @@ function handleDrillClick(key) {
     regionalState.regionFilter = key;
     regionalState.districtSelected = null;
     syncLevelTabUI("district");
+  } else if ((currentRegionsData()[key] || {}).economic_region == null) {
+    return; // the fallback region shape (e.g. Baku, no district polygons) is context, not a district
   } else if (!regionalState.districtSelected) {
     regionalState.districtSelected = key; // narrowing a region's district list to one
   } else {
@@ -176,6 +188,88 @@ function renderBreadcrumb() {
   }
   el.innerHTML = parts.join(" <span aria-hidden=\"true\">›</span> ");
   el.hidden = false;
+}
+
+// ---- prev/next stepping (swipe or ‹ › buttons) ------------------------------
+// Once one economic region's or one district's boundaries are on screen, a
+// horizontal swipe on the map (or the ‹ › buttons) steps to the previous /
+// next item in the same alphabetical order the table's dropdowns use
+// (app.js, getEconomicRegionOptions / getDistrictOptions).
+
+const SWIPE_MIN_PX = 50;
+
+function byAzName(regionsData) {
+  return (a, b) => regionName(regionsData, a).localeCompare(regionName(regionsData, b), "az");
+}
+
+// { kind: "region"|"district", keys, index } or null when nothing single is selected.
+function getStepContext() {
+  if (!regionalState || regionalState.level !== "district") return null;
+  const regionsData = currentRegionsData();
+  const entries = Object.entries(regionsData);
+  if (regionalState.districtSelected) {
+    // Siblings within the drilled-into region, or every district when the
+    // district was picked from the full "Rayon" map.
+    const keys = entries
+      .filter(([, e]) => e.economic_region != null
+        && (!regionalState.regionFilter || e.economic_region === regionalState.regionFilter))
+      .map(([k]) => k).sort(byAzName(regionsData));
+    return { kind: "district", keys, index: keys.indexOf(regionalState.districtSelected) };
+  }
+  if (regionalState.regionFilter) {
+    const keys = entries
+      .filter(([k, e]) => e.economic_region == null && !k.startsWith("republic of azerbaijan"))
+      .map(([k]) => k).sort(byAzName(regionsData));
+    return { kind: "region", keys, index: keys.indexOf(regionalState.regionFilter) };
+  }
+  return null;
+}
+
+function stepSelection(delta) {
+  const ctx = getStepContext();
+  if (!ctx || ctx.index < 0 || !ctx.keys.length) return;
+  const next = ctx.keys[(ctx.index + delta + ctx.keys.length) % ctx.keys.length];
+  if (ctx.kind === "district") regionalState.districtSelected = next;
+  else regionalState.regionFilter = next;
+  hideTooltip();
+  renderRegional();
+}
+
+function renderStepper() {
+  const el = document.getElementById("region-stepper");
+  const ctx = getStepContext();
+  if (!ctx || ctx.index < 0 || ctx.keys.length < 2) { el.hidden = true; return; }
+  document.getElementById("region-step-pos").textContent = `${ctx.index + 1} / ${ctx.keys.length}`;
+  el.hidden = false;
+}
+
+function initSwipe() {
+  const wrap = document.querySelector(".map-wrap");
+  let start = null;
+  let suppressClick = false;
+
+  wrap.addEventListener("pointerdown", (e) => {
+    start = { x: e.clientX, y: e.clientY };
+  });
+  wrap.addEventListener("pointerup", (e) => {
+    if (!start) return;
+    const dx = e.clientX - start.x, dy = e.clientY - start.y;
+    start = null;
+    if (Math.abs(dx) < SWIPE_MIN_PX || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    if (!getStepContext()) return;
+    // A mouse drag that ends on the same shape it started on still fires a
+    // click; swallow it so a swipe never doubles as a drill-down.
+    suppressClick = true;
+    setTimeout(() => { suppressClick = false; }, 400); // touch can deliver its click late
+    stepSelection(dx < 0 ? 1 : -1); // finger moves left -> next, right -> previous
+  });
+  wrap.addEventListener("pointercancel", () => { start = null; });
+  wrap.addEventListener("click", (e) => {
+    if (suppressClick) { e.stopPropagation(); e.preventDefault(); suppressClick = false; }
+  }, true);
+
+  document.getElementById("region-prev").addEventListener("click", () => stepSelection(-1));
+  document.getElementById("region-next").addEventListener("click", () => stepSelection(1));
 }
 
 // ---- tooltip ----------------------------------------------------------------
@@ -371,6 +465,7 @@ function renderRegional() {
   highlightedKey = null; // bar order/positions change with year, table, level or drill, so a stale selection would point at the wrong row
   regionalState.features = computeVisibleFeatures();
   renderBreadcrumb();
+  renderStepper();
   renderMap();
   renderScaleLegend();
   renderBarChart();
@@ -449,6 +544,7 @@ async function initRegionalSection(dataset) {
   });
 
   window.addEventListener("cvd-theme-changed", renderRegional);
+  initSwipe();
 
   document.getElementById("regional-section").hidden = false;
   renderRegional();
