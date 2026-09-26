@@ -412,3 +412,10 @@ footer {
 /* Vahid is the same on every row, so it has no data-key and isn't sortable. */
 .data-table th:not([data-key]) { cursor: default; }
 .data-table th:not([data-key]):hover { color: var(--text-secondary); }
+
+/* Dəyişim is left-aligned so every arrow starts on the same line; tabular
+   digits keep the percentages lined up after it. */
+.data-table td.delta-cell, .data-table th[data-key="delta"] {
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+}

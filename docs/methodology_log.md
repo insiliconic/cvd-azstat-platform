@@ -936,3 +936,19 @@ switching to "10 000 əhaliyə görə".
 Tested locally and live: headers and order in both tables, Vahid click is a
 no-op, the regional delta values (Abşeron–Xızı 2024 ▲ 9.5%, Zəngilan gaps →
 "—"), Dəyişim sort, the new unit strings and the two new legend entries.
+
+## 2026-09-26 (6) — Short Vahid text, left-aligned Dəyişim
+
+- Vahid in both tables is now just "/ 100 000" (death) or "/ 10 000"
+  (morbidity, national and regional). "nəfərə görə" was dropped there
+  because it repeated on every row and pushed the table wide on phones.
+  The single-year card still says "/ 10 000 nəfərə görə", since it has no
+  column header to explain the unit.
+- Dəyişim was right-aligned like the other numeric columns, so "▼ 0.2%"
+  and "▼ 17.9%" started at different x positions. The column (header and
+  cells) is now left-aligned with tabular digits, so every arrow starts on
+  one line.
+
+Checked locally and live: every Dəyişim arrow in the national (Ölüm,
+Xəstələnmə) and regional tables shares one left edge, aligned with the
+header text, and the units read "/ 100 000" and "/ 10 000".

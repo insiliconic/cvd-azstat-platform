@@ -389,14 +389,14 @@ function renderNationalResult() {
       const prev = sheet.series[String(y - 1)];
       const rate = rateOf(entry);
       const d = deltaInfo(rate, prev ? rateOf(prev) : null);
-      return { year: y, rate, unit: `/ ${unitOf(entry)}`, count: entry.count, delta: d ? d.pct : null, deltaInfo: d, notes: entry.notes || [] };
+      return { year: y, rate, unit: entry.per_10k != null ? "/ 10 000" : "/ 100 000", count: entry.count, delta: d ? d.pct : null, deltaInfo: d, notes: entry.notes || [] };
     }).sort((a, b) => compareRows(a, b, nationalSort));
     const body = rows.map((r) => `<tr>
         <td data-type="num">${r.year}</td>
         <td data-type="num">${r.count != null ? numberFmt.format(r.count) : "—"}</td>
         <td data-type="num">${r.rate != null ? r.rate.toFixed(1) : "—"}</td>
         <td>${r.unit}</td>
-        <td data-type="num">${deltaCell(r.deltaInfo)}</td>
+        <td data-type="num" class="delta-cell">${deltaCell(r.deltaInfo)}</td>
         <td>${noteBadges(r.notes)}</td>
       </tr>`).join("");
     const span = years.length ? `${years[0]}–${years[years.length - 1]}` : "";
@@ -505,7 +505,7 @@ function buildRegionalRows(dataset) {
         year: Number(yearStr),
         count: entry.count,
         rate: entry.per_10k,
-        unit: entry.per_10k != null ? "/ 10 000 nəfərə görə" : "—",
+        unit: entry.per_10k != null ? "/ 10 000" : "—",
         notes: entry.notes || [],
       });
     }
@@ -691,7 +691,7 @@ function renderTable() {
       <td data-type="num">${r.count != null ? numberFmt.format(r.count) : "—"}</td>
       <td data-type="num">${r.rate != null ? r.rate.toFixed(1) : "—"}</td>
       <td>${r.unit}</td>
-      <td data-type="num">${deltaCell(r.deltaInfo)}</td>
+      <td data-type="num" class="delta-cell">${deltaCell(r.deltaInfo)}</td>
       <td>${noteBadges(r.notes)}</td>
     </tr>
   `).join("");
