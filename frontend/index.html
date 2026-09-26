@@ -75,7 +75,7 @@
       </div>
       <div class="tab-group" id="table-tabs" role="tablist" aria-label="Göstərici cədvəli">
         <button type="button" class="tab-btn" data-table="count" role="tab" aria-selected="true">Say (nəfər)</button>
-        <button type="button" class="tab-btn" data-table="per_10k" role="tab" aria-selected="false">10 000 əhaliyə görə</button>
+        <button type="button" class="tab-btn" data-table="per_10k" role="tab" aria-selected="false">10 000 nəfərə görə</button>
       </div>
       <label class="select-label">
         İl
@@ -142,7 +142,8 @@
               <th data-key="year" data-type="num">İl</th>
               <th data-key="count" data-type="num" aria-sort="descending">Say (nəfər)</th>
               <th data-key="rate" data-type="num">Nisbət</th>
-              <th data-key="unit">Vahid</th>
+              <th>Vahid</th>
+              <th data-key="delta" data-type="num">Dəyişim</th>
               <th data-key="notes">Qeyd</th>
             </tr>
           </thead>
@@ -167,6 +168,8 @@
     <details>
       <summary>Qeydlərin izahı</summary>
       <ul>
+        <li><strong>Nisbət</strong> — göstəricinin əhali sayına görə dəyəri: ölüm üçün hər 100 000 nəfərə, xəstələnmə üçün (milli və regional) hər 10 000 nəfərə düşən hal sayı, yəni say ÷ əhali × 100 000 (və ya × 10 000). Nisbət mənbədə dərc olunduğu kimi götürülür, saytda yenidən hesablanmır. Əhali sayı fərqli olan qrupları və illəri müqayisə etmək üçün sayla yox, nisbətlə müqayisə etmək lazımdır.</li>
+        <li><strong>Dəyişim</strong> — nisbətin eyni göstərici (və ya eyni region/rayon) üzrə əvvəlki ilə görə nisbi dəyişməsi: (bu ilin nisbəti − əvvəlki ilin nisbəti) ÷ əvvəlki ilin nisbəti × 100. Say deyil, nisbət müqayisə olunur; faiz bəndi deyil, faizdir. <span class="delta" data-dir="up">▲</span> artım, <span class="delta" data-dir="down">▼</span> azalma, → yalnız tam 0%. Əvvəlki il üçün məlumat yoxdursa, “—” göstərilir.</li>
         <li><span class="badge badge-covid">COVID</span> — 2020–2021-ci illərdə dəyər 2019-cu ilə nisbətən ≥10% dəyişib (artım və ya azalma).</li>
         <li><span class="badge badge-est">təxmini</span> — mənbədə kəsr (tam olmayan) ədəd dərc edilib; ehtimal ki, təxmini/əvvəlcədən qiymətləndirilmiş göstəricidir.</li>
       </ul>

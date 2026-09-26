@@ -21,7 +21,7 @@
 "use strict";
 
 const GEOJSON_URLS = { region: "az-economic-regions.geojson", district: "az-districts.geojson" };
-const TABLE_LABEL = { count: "nəfər", per_10k: "10 000 əhaliyə görə" };
+const TABLE_LABEL = { count: "nəfər", per_10k: "10 000 nəfərə görə" };
 const MAP_W = 800, MAP_H = 500, MAP_PAD = 16;
 
 // { sheets, table, year, level, regionFilter, districtSelected,

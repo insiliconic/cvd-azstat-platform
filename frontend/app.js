@@ -105,6 +105,11 @@ function deltaInfo(latestRate, prevRate) {
   return { dir, pct, text: `${arrow} ${pctText}%` };
 }
 
+// Table cell for a year-over-year change (national and regional tables).
+function deltaCell(d) {
+  return d ? `<span class="delta" data-dir="${d.dir}">${d.text}</span>` : "—";
+}
+
 function deltaHtmlFor(latestRate, prevRate, prevYear) {
   const d = deltaInfo(latestRate, prevRate);
   if (!d) return "";
@@ -388,10 +393,10 @@ function renderNationalResult() {
     }).sort((a, b) => compareRows(a, b, nationalSort));
     const body = rows.map((r) => `<tr>
         <td data-type="num">${r.year}</td>
+        <td data-type="num">${r.count != null ? numberFmt.format(r.count) : "—"}</td>
         <td data-type="num">${r.rate != null ? r.rate.toFixed(1) : "—"}</td>
         <td>${r.unit}</td>
-        <td data-type="num">${r.count != null ? numberFmt.format(r.count) : "—"}</td>
-        <td data-type="num">${r.deltaInfo ? `<span class="delta" data-dir="${r.deltaInfo.dir}">${r.deltaInfo.text}</span>` : "—"}</td>
+        <td data-type="num">${deltaCell(r.deltaInfo)}</td>
         <td>${noteBadges(r.notes)}</td>
       </tr>`).join("");
     const span = years.length ? `${years[0]}–${years[years.length - 1]}` : "";
@@ -402,9 +407,9 @@ function renderNationalResult() {
         <table class="data-table" id="national-table">
           <thead><tr>
             <th data-key="year" data-type="num">İl</th>
-            <th data-key="rate" data-type="num">Nisbət</th>
-            <th data-key="unit">Vahid</th>
             <th data-key="count" data-type="num">Say (nəfər)</th>
+            <th data-key="rate" data-type="num">Nisbət</th>
+            <th>Vahid</th>
             <th data-key="delta" data-type="num">Dəyişim</th>
             <th data-key="notes">Qeyd</th>
           </tr></thead>
@@ -500,7 +505,7 @@ function buildRegionalRows(dataset) {
         year: Number(yearStr),
         count: entry.count,
         rate: entry.per_10k,
-        unit: entry.per_10k != null ? "/ 10 000" : "—",
+        unit: entry.per_10k != null ? "/ 10 000 nəfərə görə" : "—",
         notes: entry.notes || [],
       });
     }
@@ -512,6 +517,14 @@ function buildRegionalRows(dataset) {
   const nameByKey = new Map();
   for (const r of rows) if (!nameByKey.has(r.key)) nameByKey.set(r.key, r.indicatorLabel);
   for (const r of rows) r.indicatorLabel = nameByKey.get(r.key);
+  // Change vs the same place's previous year, the same rule as the national
+  // table (deltaInfo). No previous year in the data (2015, or a gap such as
+  // Zəngilan 2016-2022) -> no change shown.
+  const rateByKeyYear = new Map(rows.map((r) => [`${r.key}|${r.year}`, r.rate]));
+  for (const r of rows) {
+    r.deltaInfo = deltaInfo(r.rate, rateByKeyYear.get(`${r.key}|${r.year - 1}`));
+    r.delta = r.deltaInfo ? r.deltaInfo.pct : null;
+  }
   return rows;
 }
 
@@ -678,6 +691,7 @@ function renderTable() {
       <td data-type="num">${r.count != null ? numberFmt.format(r.count) : "—"}</td>
       <td data-type="num">${r.rate != null ? r.rate.toFixed(1) : "—"}</td>
       <td>${r.unit}</td>
+      <td data-type="num">${deltaCell(r.deltaInfo)}</td>
       <td>${noteBadges(r.notes)}</td>
     </tr>
   `).join("");
@@ -686,7 +700,7 @@ function renderTable() {
 }
 
 function initTableSorting() {
-  for (const th of document.querySelectorAll("#data-table th")) {
+  for (const th of document.querySelectorAll("#data-table th[data-key]")) {
     th.addEventListener("click", () => {
       sortState = nextSort(sortState, th);
       renderTable();

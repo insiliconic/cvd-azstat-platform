@@ -912,3 +912,27 @@ Tested locally and live: region-level bar order vs step order, next/prev
 and wrap-around, district steps within Quba–Xaçmaz (3 706 → 3 048 → 1 926,
 marker at 100% → 80% → 45% on a 444–3 706 scale), and re-ranking after
 switching to "10 000 əhaliyə görə".
+
+## 2026-09-26 (5) — Units, column order, regional Dəyişim, Nisbət/Dəyişim explained
+
+- **Units**: "10 000 əhaliyə görə" became "10 000 nəfərə görə" (regional
+  tab label and map/bar tooltips). The regional table's Vahid column now
+  reads "/ 10 000 nəfərə görə", matching the national table.
+- **Column order**: both tables now use İl, Say (nəfər), Nisbət, Vahid,
+  Dəyişim, Qeyd (the regional table keeps its Ad column first).
+- **Vahid not sortable**: it is the same on every row, so its header has
+  no `data-key`, ignores clicks and shows a default cursor.
+- **Regional Dəyişim**: computed with the national rule (`deltaInfo()`):
+  the rate's relative change against the same place's previous year,
+  matched by canonical key (so it spans the 2019 key renames). There is no
+  value when the previous year is missing: 2015 (no 2014 in this file), or
+  after a gap (Zəngilan 2023 follows 2015). Sortable by the signed percentage.
+  Side effect worth knowing: Xızı 2024 now reads ▲ 4 770.5%, which makes
+  the outlier noted in entry (2) above very visible.
+- **Qeydlərin izahı**: added what Nisbət is (count per 100 000 for death,
+  per 10 000 for morbidity; taken as published, not recomputed; why rates,
+  not counts, are compared) and how Dəyişim is computed.
+
+Tested locally and live: headers and order in both tables, Vahid click is a
+no-op, the regional delta values (Abşeron–Xızı 2024 ▲ 9.5%, Zəngilan gaps →
+"—"), Dəyişim sort, the new unit strings and the two new legend entries.

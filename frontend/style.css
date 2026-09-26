@@ -408,3 +408,7 @@ footer {
   .chart-wrap--bar { height: 380px; }
   .regional-controls { align-items: stretch; }
 }
+
+/* Vahid is the same on every row, so it has no data-key and isn't sortable. */
+.data-table th:not([data-key]) { cursor: default; }
+.data-table th:not([data-key]):hover { color: var(--text-secondary); }
