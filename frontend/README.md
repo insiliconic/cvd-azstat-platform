@@ -75,6 +75,13 @@ python -m http.server 3000 --directory frontend
 
 - **Dark mode** follows the OS setting by default; the 🌓 button in the
   header overrides it (saved in `localStorage`, per-browser only).
+- **Language (AZ / EN)**: the two circles in the header switch the interface
+  language, saved in `localStorage` (`cvd-lang`). Every UI string lives in
+  `i18n/az.json` and `i18n/en.json`. Static markup names its key with
+  `data-i18n`, `data-i18n-html` or `data-i18n-attr`, and scripts call
+  `t(key, vars)` (`i18n.js`). A new string needs a key in **both** files; a
+  key missing from `en.json` falls back to Azerbaijani. Region and district
+  names are intentionally left in the source's Azerbaijani in both languages.
 - **Colors** follow the project's data-viz method: one categorical hue for
   the single-series trend line, the fixed status pair (green = good, red =
   critical) for KPI deltas, and a single-hue sequential heatmap for the
@@ -87,8 +94,9 @@ python -m http.server 3000 --directory frontend
   skipped (logged to the console) and the rest of the page still works.
 - Deployed at <https://insiliconic.github.io/cvd-azstat-platform/> — the
   `deploy` job in `.github/workflows/update-data.yml` copies this folder's
-  six files (`index.html`, `style.css`, `app.js`, `region-map.js`,
-  `az-economic-regions.geojson`, `az-districts.geojson`) into the same Pages
+  files (`index.html`, `style.css`, `i18n.js`, `app.js`, `region-map.js`,
+  `az-economic-regions.geojson`, `az-districts.geojson`, and the `i18n/`
+  folder) into the same Pages
   artifact as `data/circulatory_data.json` after every successful daily run.
   This local setup is for previewing changes before they're pushed, not a
   separate deployment.

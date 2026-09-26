@@ -952,3 +952,50 @@ no-op, the regional delta values (Abşeron–Xızı 2024 ▲ 9.5%, Zəngilan gap
 Checked locally and live: every Dəyişim arrow in the national (Ölüm,
 Xəstələnmə) and regional tables shares one left edge, aligned with the
 header text, and the units read "/ 100 000" and "/ 10 000".
+
+## 2026-09-27 — English interface (i18n)
+
+- **Structure**: `frontend/i18n/az.json` and `en.json` (93 keys each, same
+  key set), loaded by `frontend/i18n.js` before the page renders. Static
+  HTML names its string with `data-i18n` (text), `data-i18n-html` (our own
+  markup: methodology notes, footer) or `data-i18n-attr` (aria-labels).
+  Scripts call `t(key, vars)`. Indicator, measure and age-band labels in
+  `app.js` are getters over the dictionaries (`labelled()`), so existing
+  `measure.label` / `band.label` code always reads the current language.
+  A missing key falls back to Azerbaijani, then to the key itself.
+- **Switching** keeps every selection (trend tab, region/district, national
+  measure/age/year, table scope and sort, map drill-down) instead of
+  reloading. Each part registers a re-render hook with `onLangChange()`.
+- **Saved** in `localStorage` (`cvd-lang`, default `az`). A saved EN
+  choice is applied before first paint: the inline head script sets
+  `lang="en"` and hides the body until the dictionary is applied, so the
+  Azerbaijani fallback text never flashes.
+- **Switch design**: two 36 px circles in the header's top-right, next to
+  the theme button (also on phones). Light mode: white fill, black ring.
+  Dark mode: dark fill, white ring (both from `--surface` /
+  `--text-primary`). The current language is the inverted, filled circle,
+  with `aria-pressed`.
+- **Place names: option (b)**, as asked. Region/district names stay in the
+  source's Azerbaijani in both languages, only the interface changes. This
+  means EN mode still shows e.g. "Quba - Xaçmaz iqtisadi rayonu". An
+  alternative left open: Azstat publishes its own English names in
+  `001_5_2-3en.xls` (e.g. "Guba-Khachmaz economic region", "Khachmaz
+  district"). Those are official, not our transliteration. The dataset keeps
+  them only as lowercased keys today, so using them would need `parser.py`
+  to also store the original-case English label.
+- **Source name (EN)**: "State Statistical Committee of the Republic of
+  Azerbaijan (Azstat)".
+- **Numbers**: English uses "10,000"-style thousands in unit text
+  ("/ 10,000", "per 10,000 population"), Azerbaijani keeps "10 000". Data
+  values were already formatted the same way in both (en-US digits).
+- **Deploy**: the workflow's "Build Pages site" step now also copies
+  `i18n.js` and `i18n/`. Without this the live site would have loaded
+  without dictionaries (it would have fallen back to the built-in
+  Azerbaijani text, not broken).
+
+Tested locally and live: default AZ; switching to EN translates the page
+with no Azerbaijani UI text left (checked by walking every visible text node
+and aria-label, place names excluded) and all selections kept; reload stays
+in EN with no flash; back to AZ leaves no English UI text; the switch in
+light and dark mode; phone width (390 px): switch stays top-right, no
+horizontal scroll.

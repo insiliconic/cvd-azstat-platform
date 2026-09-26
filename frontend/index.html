@@ -5,19 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ürək-damar xəstəlikləri — Azərbaycan statistikası</title>
 <meta name="description" content="stat.gov.az mənbəyindən çıxarılan qan dövranı sistemi xəstəlikləri göstəriciləri: ölüm, xəstələnmə, yaş qrupları üzrə tendensiyalar.">
-<!-- Set the theme before first paint so there is no flash of the wrong colors. -->
+<!-- Set the theme before first paint so there is no flash of the wrong
+     colors, and hide the page while a saved non-default language loads so
+     there is no flash of Azerbaijani text either (i18n.js removes the class). -->
 <script>
   (function () {
-    var saved = null;
-    try { saved = localStorage.getItem("cvd-theme"); } catch (e) {}
+    var saved = null, lang = null;
+    try { saved = localStorage.getItem("cvd-theme"); lang = localStorage.getItem("cvd-lang"); } catch (e) {}
     if (saved === "light" || saved === "dark") {
       document.documentElement.setAttribute("data-theme", saved);
+    }
+    if (lang === "en") {
+      document.documentElement.lang = "en";
+      document.documentElement.className += " i18n-pending";
     }
   })();
 </script>
 <link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js" defer></script>
+<script src="i18n.js" defer></script>
 <script src="region-map.js" defer></script>
 <script src="app.js" defer></script>
 </head>
@@ -25,126 +32,132 @@
 
 <header class="site-header">
   <div class="site-header__title">
-    <h1>Ürək-damar xəstəlikləri statistikası</h1>
-    <p class="subtitle">Qan dövranı sistemi xəstəlikləri (ICD-10 I00–I99) üzrə göstəricilər</p>
+    <h1 data-i18n="header.title">Ürək-damar xəstəlikləri statistikası</h1>
+    <p class="subtitle" data-i18n="header.subtitle">Qan dövranı sistemi xəstəlikləri (ICD-10 I00–I99) üzrə göstəricilər</p>
   </div>
-  <button id="theme-toggle" type="button" aria-label="İşıqlı/qaranlıq rejimi dəyiş">
-    <span aria-hidden="true">🌓</span>
-  </button>
+  <div class="header-actions">
+    <div class="lang-switch" role="group" aria-label="Dil" data-i18n-attr="aria-label:header.langSwitch">
+      <button type="button" class="lang-btn" data-lang="az" lang="az" aria-pressed="true">AZ</button>
+      <button type="button" class="lang-btn" data-lang="en" lang="en" aria-pressed="false">EN</button>
+    </div>
+    <button id="theme-toggle" type="button" aria-label="İşıqlı/qaranlıq rejimi dəyiş" data-i18n-attr="aria-label:header.themeToggle">
+      <span aria-hidden="true">🌓</span>
+    </button>
+  </div>
 </header>
 
 <main>
 
   <p id="status-message" role="status" aria-live="polite">Data yüklənir…</p>
 
-  <section id="kpi-section" class="kpi-row" aria-label="Əsas göstəricilər" hidden></section>
+  <section id="kpi-section" class="kpi-row" aria-label="Əsas göstəricilər" data-i18n-attr="aria-label:kpi.sectionLabel" hidden></section>
 
   <section class="card chart-card" aria-labelledby="chart-heading" hidden id="chart-section">
     <div class="chart-card__header">
       <div>
-        <h2 id="chart-heading">İllər üzrə tendensiya</h2>
-        <p class="muted" id="trend-caption">Göstərici üzrə illik nisbət</p>
+        <h2 id="chart-heading" data-i18n="trend.heading">İllər üzrə tendensiya</h2>
+        <p class="muted" id="trend-caption" data-i18n="trend.captionDefault">Göstərici üzrə illik nisbət</p>
       </div>
     </div>
     <div class="trend-controls">
-      <div class="tab-group" id="trend-tabs" role="tablist" aria-label="Tendensiya növü">
-        <button type="button" class="tab-btn" data-trend="death" role="tab" aria-selected="true">Ölüm</button>
-        <button type="button" class="tab-btn" data-trend="morbidity" role="tab" aria-selected="false">Xəstələnmə</button>
-        <button type="button" class="tab-btn" data-trend="region" role="tab" aria-selected="false">Region</button>
+      <div class="tab-group" id="trend-tabs" role="tablist" aria-label="Tendensiya növü" data-i18n-attr="aria-label:trend.tabsLabel">
+        <button type="button" class="tab-btn" data-trend="death" role="tab" aria-selected="true" data-i18n="measure.death">Ölüm</button>
+        <button type="button" class="tab-btn" data-trend="morbidity" role="tab" aria-selected="false" data-i18n="measure.morbidity">Xəstələnmə</button>
+        <button type="button" class="tab-btn" data-trend="region" role="tab" aria-selected="false" data-i18n="trend.tab.region">Region</button>
       </div>
       <div class="scope-controls">
-        <label class="select-label" id="trend-age-label" hidden>Yaş aralığı <select id="trend-age-select"></select></label>
-        <label class="select-label" id="trend-region-label" hidden>İqtisadi region <select id="trend-region-select"></select></label>
-        <label class="select-label" id="trend-district-label" hidden>Rayon <select id="trend-district-select"></select></label>
+        <label class="select-label" id="trend-age-label" hidden><span data-i18n="label.ageRange">Yaş aralığı</span> <select id="trend-age-select"></select></label>
+        <label class="select-label" id="trend-region-label" hidden><span data-i18n="label.economicRegion">İqtisadi region</span> <select id="trend-region-select"></select></label>
+        <label class="select-label" id="trend-district-label" hidden><span data-i18n="label.district">Rayon</span> <select id="trend-district-select"></select></label>
       </div>
     </div>
     <div class="chart-wrap">
-      <canvas id="trend-chart" role="img" aria-label="Seçilmiş göstəricinin illər üzrə nisbət tendensiyası"></canvas>
+      <canvas id="trend-chart" role="img" aria-label="Seçilmiş göstəricinin illər üzrə nisbət tendensiyası" data-i18n-attr="aria-label:trend.chartAria"></canvas>
     </div>
-    <a class="table-jump" href="#table-section">Bütün göstəricilər ↓</a>
+    <a class="table-jump" href="#table-section" data-i18n="trend.jump">Bütün göstəricilər ↓</a>
   </section>
 
   <section class="card regional-section" id="regional-section" aria-labelledby="regional-heading" hidden>
-    <h2 id="regional-heading">Regional göstəricilər</h2>
-    <p class="muted">Qan dövranı sistemi xəstəlikləri — iqtisadi region və ya rayon üzrə</p>
+    <h2 id="regional-heading" data-i18n="regional.heading">Regional göstəricilər</h2>
+    <p class="muted" data-i18n="regional.subtitle">Qan dövranı sistemi xəstəlikləri — iqtisadi region və ya rayon üzrə</p>
 
     <div class="regional-controls">
-      <div class="tab-group" id="level-tabs" role="tablist" aria-label="Səviyyə">
-        <button type="button" class="tab-btn" data-level="region" role="tab" aria-selected="true">İqtisadi region</button>
-        <button type="button" class="tab-btn" data-level="district" role="tab" aria-selected="false">Rayon</button>
+      <div class="tab-group" id="level-tabs" role="tablist" aria-label="Səviyyə" data-i18n-attr="aria-label:regional.levelLabel">
+        <button type="button" class="tab-btn" data-level="region" role="tab" aria-selected="true" data-i18n="level.region">İqtisadi region</button>
+        <button type="button" class="tab-btn" data-level="district" role="tab" aria-selected="false" data-i18n="level.district">Rayon</button>
       </div>
-      <div class="tab-group" id="table-tabs" role="tablist" aria-label="Göstərici cədvəli">
-        <button type="button" class="tab-btn" data-table="count" role="tab" aria-selected="true">Say (nəfər)</button>
-        <button type="button" class="tab-btn" data-table="per_10k" role="tab" aria-selected="false">10 000 nəfərə görə</button>
+      <div class="tab-group" id="table-tabs" role="tablist" aria-label="Göstərici cədvəli" data-i18n-attr="aria-label:regional.tableLabel">
+        <button type="button" class="tab-btn" data-table="count" role="tab" aria-selected="true" data-i18n="table.count">Say (nəfər)</button>
+        <button type="button" class="tab-btn" data-table="per_10k" role="tab" aria-selected="false" data-i18n="table.per10k">10 000 nəfərə görə</button>
       </div>
       <label class="select-label">
-        İl
+        <span data-i18n="label.year">İl</span>
         <select id="region-year-select"></select>
       </label>
     </div>
     <div class="region-nav-row">
-      <nav id="region-breadcrumb" class="breadcrumb" aria-label="Region → rayon" hidden></nav>
+      <nav id="region-breadcrumb" class="breadcrumb" aria-label="Region → rayon" data-i18n-attr="aria-label:regional.breadcrumbLabel" hidden></nav>
       <div id="region-stepper" class="region-stepper" hidden>
-        <button type="button" id="region-prev" class="step-btn" aria-label="Əvvəlki">‹</button>
+        <button type="button" id="region-prev" class="step-btn" aria-label="Əvvəlki" data-i18n-attr="aria-label:step.prev">‹</button>
         <span id="region-step-pos" class="muted"></span>
-        <button type="button" id="region-next" class="step-btn" aria-label="Növbəti">›</button>
+        <button type="button" id="region-next" class="step-btn" aria-label="Növbəti" data-i18n-attr="aria-label:step.next">›</button>
       </div>
     </div>
 
     <div class="map-wrap">
-      <svg id="region-map" role="img" aria-label="Azərbaycanın regionlar/rayonlar üzrə xəritəsi"></svg>
+      <svg id="region-map" role="img" aria-label="Azərbaycanın regionlar/rayonlar üzrə xəritəsi" data-i18n-attr="aria-label:regional.mapAria"></svg>
       <div id="region-tooltip" class="region-tooltip" hidden></div>
     </div>
     <div id="region-scale" class="scale-legend"></div>
 
     <div class="chart-wrap chart-wrap--bar">
-      <canvas id="region-bar-chart" role="img" aria-label="Bütün regionlar/rayonlar üzrə bar qrafiki"></canvas>
+      <canvas id="region-bar-chart" role="img" aria-label="Bütün regionlar/rayonlar üzrə bar qrafiki" data-i18n-attr="aria-label:regional.barAria"></canvas>
     </div>
   </section>
 
   <section class="card table-section" id="table-section" aria-labelledby="table-heading" hidden>
-    <h2 id="table-heading">Bütün göstəricilər</h2>
+    <h2 id="table-heading" data-i18n="all.heading">Bütün göstəricilər</h2>
 
     <div class="table-scope-row">
-      <div class="tab-group" id="table-scope-tabs" role="tablist" aria-label="Kəsim">
-        <button type="button" class="tab-btn" data-scope="national" role="tab" aria-selected="true">Milli göstəricilər</button>
-        <button type="button" class="tab-btn" data-scope="region" role="tab" aria-selected="false">Region</button>
+      <div class="tab-group" id="table-scope-tabs" role="tablist" aria-label="Kəsim" data-i18n-attr="aria-label:all.scopeLabel">
+        <button type="button" class="tab-btn" data-scope="national" role="tab" aria-selected="true" data-i18n="scope.national">Milli göstəricilər</button>
+        <button type="button" class="tab-btn" data-scope="region" role="tab" aria-selected="false" data-i18n="scope.region">Region</button>
       </div>
     </div>
 
     <div id="national-controls" class="scope-controls">
-      <label class="select-label">Ölçü növü
+      <label class="select-label"><span data-i18n="label.measure">Ölçü növü</span>
         <select id="national-measure-select">
-          <option value="death">Ölüm</option>
-          <option value="morbidity">Xəstələnmə</option>
+          <option value="death" data-i18n="measure.death">Ölüm</option>
+          <option value="morbidity" data-i18n="measure.morbidity">Xəstələnmə</option>
         </select>
       </label>
-      <label class="select-label" id="national-age-label">Yaş aralığı
+      <label class="select-label" id="national-age-label"><span data-i18n="label.ageRange">Yaş aralığı</span>
         <select id="national-age-select"></select>
       </label>
-      <label class="select-label" id="national-year-label">İl <select id="national-year-select"></select></label>
+      <label class="select-label" id="national-year-label"><span data-i18n="label.year">İl</span> <select id="national-year-select"></select></label>
     </div>
     <div id="national-result" class="national-result" aria-live="polite"></div>
 
     <div id="regional-table-block" hidden>
       <div id="table-region-controls" class="scope-controls">
-        <label class="select-label">İqtisadi region <select id="table-region-select"></select></label>
-        <label class="select-label">Rayon <select id="table-district-select"></select></label>
-        <label class="select-label" id="table-year-label">İl <select id="table-year-select"></select></label>
-        <p class="select-label all-years-note" id="table-all-years" hidden>İl <span>Bütün illər</span></p>
+        <label class="select-label"><span data-i18n="label.economicRegion">İqtisadi region</span> <select id="table-region-select"></select></label>
+        <label class="select-label"><span data-i18n="label.district">Rayon</span> <select id="table-district-select"></select></label>
+        <label class="select-label" id="table-year-label"><span data-i18n="label.year">İl</span> <select id="table-year-select"></select></label>
+        <p class="select-label all-years-note" id="table-all-years" hidden><span data-i18n="label.year">İl</span> <span class="all-years-note__value" data-i18n="all.allYears">Bütün illər</span></p>
       </div>
-      <p class="muted">Sütun başlığına klikləyin — sıralama üçün</p>
+      <p class="muted" data-i18n="all.sortHint">Sütun başlığına klikləyin — sıralama üçün</p>
       <div class="table-wrap">
         <table id="data-table" class="data-table">
           <thead>
             <tr>
-              <th data-key="indicatorLabel">Ad</th>
-              <th data-key="year" data-type="num">İl</th>
-              <th data-key="count" data-type="num" aria-sort="descending">Say (nəfər)</th>
-              <th data-key="rate" data-type="num">Nisbət</th>
-              <th>Vahid</th>
-              <th data-key="delta" data-type="num">Dəyişim</th>
-              <th data-key="notes">Qeyd</th>
+              <th data-key="indicatorLabel" data-i18n="col.name">Ad</th>
+              <th data-key="year" data-type="num" data-i18n="col.year">İl</th>
+              <th data-key="count" data-type="num" aria-sort="descending" data-i18n="col.count">Say (nəfər)</th>
+              <th data-key="rate" data-type="num" data-i18n="col.rate">Nisbət</th>
+              <th data-i18n="col.unit">Vahid</th>
+              <th data-key="delta" data-type="num" data-i18n="col.delta">Dəyişim</th>
+              <th data-key="notes" data-i18n="col.notes">Qeyd</th>
             </tr>
           </thead>
           <tbody id="table-body"></tbody>
@@ -154,38 +167,38 @@
   </section>
 
   <section class="card methodology" id="methodology-section" aria-labelledby="methodology-heading" hidden>
-    <h2 id="methodology-heading">Metodologiya</h2>
+    <h2 id="methodology-heading" data-i18n="methodology.heading">Metodologiya</h2>
     <dl>
-      <dt>Mənbə</dt>
-      <dd><a href="https://www.stat.gov.az/source/healthcare/?lang=en" target="_blank" rel="noopener">Azərbaycan Respublikasının Dövlət Statistika Komitəsi (Azstat)</a></dd>
-      <dt>Son yenilənmə</dt>
+      <dt data-i18n="methodology.source">Mənbə</dt>
+      <dd><a href="https://www.stat.gov.az/source/healthcare/?lang=en" target="_blank" rel="noopener" data-i18n="methodology.sourceName">Azərbaycan Respublikasının Dövlət Statistika Komitəsi (Azstat)</a></dd>
+      <dt data-i18n="methodology.lastUpdated">Son yenilənmə</dt>
       <dd id="last-updated">—</dd>
-      <dt>Xam data</dt>
+      <dt data-i18n="methodology.rawData">Xam data</dt>
       <dd><a id="data-link" href="#" target="_blank" rel="noopener">circulatory_data.json</a></dd>
-      <dt>Layihə</dt>
-      <dd><a href="https://github.com/insiliconic/cvd-azstat-platform" target="_blank" rel="noopener">GitHub reposu</a> — ətraflı metodologiya <code>docs/methodology_log.md</code> faylında</dd>
+      <dt data-i18n="methodology.project">Layihə</dt>
+      <dd data-i18n-html="methodology.projectHtml"><a href="https://github.com/insiliconic/cvd-azstat-platform" target="_blank" rel="noopener">GitHub reposu</a> — ətraflı metodologiya <code>docs/methodology_log.md</code> faylında</dd>
     </dl>
     <details>
-      <summary>Qeydlərin izahı</summary>
+      <summary data-i18n="notes.summary">Qeydlərin izahı</summary>
       <ul>
-        <li><strong>Nisbət</strong> — göstəricinin əhali sayına görə dəyəri: ölüm üçün hər 100 000 nəfərə, xəstələnmə üçün (milli və regional) hər 10 000 nəfərə düşən hal sayı, yəni say ÷ əhali × 100 000 (və ya × 10 000). Nisbət mənbədə dərc olunduğu kimi götürülür, saytda yenidən hesablanmır. Əhali sayı fərqli olan qrupları və illəri müqayisə etmək üçün sayla yox, nisbətlə müqayisə etmək lazımdır.</li>
-        <li><strong>Dəyişim</strong> — nisbətin eyni göstərici (və ya eyni region/rayon) üzrə əvvəlki ilə görə nisbi dəyişməsi: (bu ilin nisbəti − əvvəlki ilin nisbəti) ÷ əvvəlki ilin nisbəti × 100. Say deyil, nisbət müqayisə olunur; faiz bəndi deyil, faizdir. <span class="delta" data-dir="up">▲</span> artım, <span class="delta" data-dir="down">▼</span> azalma, → yalnız tam 0%. Əvvəlki il üçün məlumat yoxdursa, “—” göstərilir.</li>
-        <li><span class="badge badge-covid">COVID</span> — 2020–2021-ci illərdə dəyər 2019-cu ilə nisbətən ≥10% dəyişib (artım və ya azalma).</li>
-        <li><span class="badge badge-est">təxmini</span> — mənbədə kəsr (tam olmayan) ədəd dərc edilib; ehtimal ki, təxmini/əvvəlcədən qiymətləndirilmiş göstəricidir.</li>
+        <li data-i18n-html="notes.rateHtml"><strong>Nisbət</strong> — göstəricinin əhali sayına görə dəyəri: ölüm üçün hər 100 000 nəfərə, xəstələnmə üçün (milli və regional) hər 10 000 nəfərə düşən hal sayı, yəni say ÷ əhali × 100 000 (və ya × 10 000). Nisbət mənbədə dərc olunduğu kimi götürülür, saytda yenidən hesablanmır. Əhali sayı fərqli olan qrupları və illəri müqayisə etmək üçün sayla yox, nisbətlə müqayisə etmək lazımdır.</li>
+        <li data-i18n-html="notes.deltaHtml"><strong>Dəyişim</strong> — nisbətin eyni göstərici (və ya eyni region/rayon) üzrə əvvəlki ilə görə nisbi dəyişməsi: (bu ilin nisbəti − əvvəlki ilin nisbəti) ÷ əvvəlki ilin nisbəti × 100. Say deyil, nisbət müqayisə olunur; faiz bəndi deyil, faizdir. <span class="delta" data-dir="up">▲</span> artım, <span class="delta" data-dir="down">▼</span> azalma, → yalnız tam 0%. Əvvəlki il üçün məlumat yoxdursa, “—” göstərilir.</li>
+        <li data-i18n-html="notes.covidHtml"><span class="badge badge-covid">COVID</span> — 2020–2021-ci illərdə dəyər 2019-cu ilə nisbətən ≥10% dəyişib (artım və ya azalma).</li>
+        <li data-i18n-html="notes.estHtml"><span class="badge badge-est">təxmini</span> — mənbədə kəsr (tam olmayan) ədəd dərc edilib; ehtimal ki, təxmini/əvvəlcədən qiymətləndirilmiş göstəricidir.</li>
       </ul>
     </details>
   </section>
 
   <section class="card error-card" id="error-section" hidden>
-    <h2>Data yüklənmədi</h2>
+    <h2 data-i18n="error.heading">Data yüklənmədi</h2>
     <p id="error-message" class="muted"></p>
-    <button id="retry-button" type="button">Yenidən cəhd et</button>
+    <button id="retry-button" type="button" data-i18n="error.retry">Yenidən cəhd et</button>
   </section>
 
 </main>
 
 <footer>
-  <p>Data mənbəyi: <a href="https://www.stat.gov.az/source/healthcare/?lang=en" target="_blank" rel="noopener">stat.gov.az</a> · Sayt statik HTML + Chart.js ilə qurulub, data build zamanı deyil, hər səhifə yüklənişində GitHub Pages-dən oxunur.</p>
+  <p data-i18n-html="footer.html">Data mənbəyi: <a href="https://www.stat.gov.az/source/healthcare/?lang=en" target="_blank" rel="noopener">stat.gov.az</a> · Sayt statik HTML + Chart.js ilə qurulub, data build zamanı deyil, hər səhifə yüklənişində GitHub Pages-dən oxunur.</p>
 </footer>
 
 </body>

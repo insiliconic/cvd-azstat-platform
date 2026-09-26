@@ -5,18 +5,23 @@
 const DATA_URL = "https://insiliconic.github.io/cvd-azstat-platform/data/circulatory_data.json";
 const REPO_URL = "https://github.com/insiliconic/cvd-azstat-platform";
 
-// File key -> Azerbaijani display label, for the KPI row (and the latest
-// year the national selects offer). The trend chart and the national result
+// File key -> display label, for the KPI row (and the latest year the
+// national selects offer). Labels are getters over the i18n dictionaries
+// (i18n.js), so they always read in the current language. The trend chart and the national result
 // pick files through NATIONAL_MEASURES (measure -> age band) instead; the
 // regional breakdown (001_5_2-3en.xls, region x year) is read separately by
 // buildRegionalRows() and region-map.js.
+function labelled(fields, labelKey) {
+  return Object.defineProperty(fields, "label", { get: () => t(labelKey), enumerable: true });
+}
+
 const INDICATORS = [
-  { key: "001_3en.xls",   label: "Ölüm (əsas səbəblər)" },
-  { key: "001_2_1en.xls", label: "Xəstələnmə — ümumi əhali" },
-  { key: "001_2_2en.xls", label: "Xəstələnmə — 18 yaşa qədər" },
-  { key: "001_2_3en.xls", label: "Xəstələnmə — 0–13 yaş" },
-  { key: "001_2_4en.xls", label: "Xəstələnmə — 14–29 yaş" },
-  { key: "001_2_5en.xls", label: "Xəstələnmə — 30 yaş və yuxarı" },
+  labelled({ key: "001_3en.xls" },   "indicator.death"),
+  labelled({ key: "001_2_1en.xls" }, "indicator.morb.all"),
+  labelled({ key: "001_2_2en.xls" }, "indicator.morb.under18"),
+  labelled({ key: "001_2_3en.xls" }, "indicator.morb.0-13"),
+  labelled({ key: "001_2_4en.xls" }, "indicator.morb.14-29"),
+  labelled({ key: "001_2_5en.xls" }, "indicator.morb.30+"),
 ];
 
 // The four headline KPI tiles (death rate + morbidity rate for three age bands).
@@ -65,7 +70,11 @@ function rateOf(entry) {
 }
 
 function unitOf(entry) {
-  return entry.per_10k != null ? "10 000 nəfərə görə" : "100 000 nəfərə görə";
+  return entry.per_10k != null ? t("unit.per10k") : t("unit.per100k");
+}
+
+function unitShortOf(entry) {
+  return entry.per_10k != null ? t("unit.per10kShort") : t("unit.per100kShort");
 }
 
 function sortedYears(sheet) {
@@ -76,12 +85,12 @@ function noteBadges(notes) {
   if (!notes || !notes.length) return "";
   return notes.map((n) => {
     if (n.indexOf("COVID") !== -1) {
-      return `<span class="badge badge-covid" title="${n}">COVID</span>`;
+      return `<span class="badge badge-covid" title="${n}">${t("badge.covid")}</span>`;
     }
     if (n.indexOf("non-integer") !== -1) {
-      return `<span class="badge badge-est" title="${n}">təxmini</span>`;
+      return `<span class="badge badge-est" title="${n}">${t("badge.est")}</span>`;
     }
-    return `<span class="badge" title="${n}">qeyd</span>`;
+    return `<span class="badge" title="${n}">${t("badge.note")}</span>`;
   }).join("");
 }
 
@@ -114,7 +123,7 @@ function deltaHtmlFor(latestRate, prevRate, prevYear) {
   const d = deltaInfo(latestRate, prevRate);
   if (!d) return "";
   return `<p class="kpi-tile__delta" data-dir="${d.dir}">
-    ${d.text} (${prevYear}-ə görə)
+    ${d.text} (${t("delta.vsYear", { year: prevYear })})
   </p>`;
 }
 
@@ -146,7 +155,7 @@ function buildKpis(dataset) {
         <span class="kpi-tile__unit">/ ${latest.per_10k != null ? "10k" : "100k"}</span>
       </p>
       ${deltaHtml}
-      <p class="kpi-tile__count">${numberFmt.format(latest.count)} nəfər ${noteBadges(latest.notes)}</p>
+      <p class="kpi-tile__count">${numberFmt.format(latest.count)} ${t("kpi.persons")} ${noteBadges(latest.notes)}</p>
     `;
     section.appendChild(tile);
   }
@@ -177,7 +186,7 @@ function trendSeries() {
       values.push(r && r.rate != null ? r.rate : null);
     }
     const name = rows.length ? rows[0].indicatorLabel : key;
-    return { labels, values, unitLabel: "10 000 nəfərə", caption: `${name} — xəstələnmə, 10 000 nəfərə görə illik nisbət` };
+    return { labels, values, unitLabel: t("tooltip.per10k"), caption: t("trend.caption.region", { name, unit: t("unit.per10k") }) };
   }
 
   const measure = NATIONAL_MEASURES[trendState.tab];
@@ -190,10 +199,10 @@ function trendSeries() {
     const entry = sheet.series[String(y)];
     values.push(entry ? rateOf(entry) : null);
   }
-  const unitLabel = Object.values(sheet.series).find((e) => e.per_10k != null)
-    ? "10 000 nəfərə"
-    : "100 000 nəfərə";
-  return { labels, values, unitLabel, caption: `${measure.label} — ${band.label}, ${unitLabel} görə illik nisbət` };
+  const per10k = Boolean(Object.values(sheet.series).find((e) => e.per_10k != null));
+  const unitLabel = t(per10k ? "tooltip.per10k" : "tooltip.per100k");
+  const caption = t("trend.caption.national", { measure: measure.label, age: band.label, unit: t(per10k ? "unit.per10k" : "unit.per100k") });
+  return { labels, values, unitLabel, caption };
 }
 
 function initTrendControls() {
@@ -205,14 +214,17 @@ function initTrendControls() {
   const districtLabel = document.getElementById("trend-district-label");
   const districtSelect = document.getElementById("trend-district-select");
 
-  ageSelect.innerHTML = NATIONAL_MEASURES.morbidity.ages
-    .map((a) => `<option value="${a.value}">${a.label}</option>`).join("");
-  ageSelect.value = trendState.age;
+  function fillAgeOptions() {
+    ageSelect.innerHTML = NATIONAL_MEASURES.morbidity.ages
+      .map((a) => `<option value="${a.value}">${a.label}</option>`).join("");
+    ageSelect.value = trendState.age;
+  }
+  fillAgeOptions();
 
   const regionOptions = getEconomicRegionOptions();
   regionSelect.innerHTML = regionOptions.map((r) => `<option value="${r.key}">${r.name}</option>`).join("");
   function refreshDistrictOptions() {
-    districtSelect.innerHTML = `<option value="">Bütün rayonlar</option>`
+    districtSelect.innerHTML = `<option value="">${t("option.allDistricts")}</option>`
       + getDistrictOptions(regionSelect.value).map((d) => `<option value="${d.key}">${d.name}</option>`).join("");
     districtSelect.value = "";
   }
@@ -250,6 +262,15 @@ function initTrendControls() {
   });
 
   syncVisibility();
+
+  // New language: relabel the options this function built, keep every selection.
+  onLangChange(() => {
+    fillAgeOptions();
+    const district = districtSelect.value;
+    refreshDistrictOptions();
+    districtSelect.value = district;
+    renderTrend();
+  });
 }
 
 function renderTrend() {
@@ -310,8 +331,8 @@ function renderTrend() {
           padding: 10,
           callbacks: {
             label: (item) => item.parsed.y == null
-              ? "Məlumat yoxdur"
-              : `${item.parsed.y.toFixed(1)} / ${unitLabel}`,
+              ? t("common.noData")
+              : `${item.parsed.y.toFixed(1)} ${unitLabel}`,
           },
         },
       },
@@ -336,23 +357,22 @@ function renderTrend() {
 // the whole population only, so it has a single band and the age select is
 // hidden for it. The regional file is deliberately absent: this block is
 // national-level data only (region/district live in the "Region" scope).
+const ageBand = (value, key) => labelled({ value, key }, `age.${value}`);
 const NATIONAL_MEASURES = {
-  death: {
-    label: "Ölüm",
+  death: labelled({
     defaultAge: "all",
-    ages: [{ value: "all", label: "Ümumi əhali", key: "001_3en.xls" }],
-  },
-  morbidity: {
-    label: "Xəstələnmə",
+    ages: [ageBand("all", "001_3en.xls")],
+  }, "measure.death"),
+  morbidity: labelled({
     defaultAge: "under18",
     ages: [
-      { value: "all",     label: "Ümumi əhali",      key: "001_2_1en.xls" },
-      { value: "0-13",    label: "0–13 yaş",         key: "001_2_3en.xls" },
-      { value: "14-29",   label: "14–29 yaş",        key: "001_2_4en.xls" },
-      { value: "30+",     label: "30 yaş və yuxarı", key: "001_2_5en.xls" },
-      { value: "under18", label: "18 yaşa qədər",    key: "001_2_2en.xls" },
+      ageBand("all",     "001_2_1en.xls"),
+      ageBand("0-13",    "001_2_3en.xls"),
+      ageBand("14-29",   "001_2_4en.xls"),
+      ageBand("30+",     "001_2_5en.xls"),
+      ageBand("under18", "001_2_2en.xls"),
     ],
-  },
+  }, "measure.morbidity"),
 };
 const NATIONAL_FIRST_YEAR = 2015;
 
@@ -389,7 +409,7 @@ function renderNationalResult() {
       const prev = sheet.series[String(y - 1)];
       const rate = rateOf(entry);
       const d = deltaInfo(rate, prev ? rateOf(prev) : null);
-      return { year: y, rate, unit: entry.per_10k != null ? "/ 10 000" : "/ 100 000", count: entry.count, delta: d ? d.pct : null, deltaInfo: d, notes: entry.notes || [] };
+      return { year: y, rate, unit: unitShortOf(entry), count: entry.count, delta: d ? d.pct : null, deltaInfo: d, notes: entry.notes || [] };
     }).sort((a, b) => compareRows(a, b, nationalSort));
     const body = rows.map((r) => `<tr>
         <td data-type="num">${r.year}</td>
@@ -401,17 +421,17 @@ function renderNationalResult() {
       </tr>`).join("");
     const span = years.length ? `${years[0]}–${years[years.length - 1]}` : "";
     el.innerHTML = `
-      <p class="kpi-tile__label">${measure.label} — ${band.label}, ${span}</p>
-      <p class="muted">Sütun başlığına klikləyin — sıralama üçün</p>
+      <p class="kpi-tile__label">${t("national.title", { measure: measure.label, age: band.label, years: span })}</p>
+      <p class="muted">${t("all.sortHint")}</p>
       <div class="table-wrap">
         <table class="data-table" id="national-table">
           <thead><tr>
-            <th data-key="year" data-type="num">İl</th>
-            <th data-key="count" data-type="num">Say (nəfər)</th>
-            <th data-key="rate" data-type="num">Nisbət</th>
-            <th>Vahid</th>
-            <th data-key="delta" data-type="num">Dəyişim</th>
-            <th data-key="notes">Qeyd</th>
+            <th data-key="year" data-type="num">${t("col.year")}</th>
+            <th data-key="count" data-type="num">${t("col.count")}</th>
+            <th data-key="rate" data-type="num">${t("col.rate")}</th>
+            <th>${t("col.unit")}</th>
+            <th data-key="delta" data-type="num">${t("col.delta")}</th>
+            <th data-key="notes">${t("col.notes")}</th>
           </tr></thead>
           <tbody>${body}</tbody>
         </table>
@@ -423,10 +443,10 @@ function renderNationalResult() {
   const year = nationalState.year;
   const entry = sheet.series[String(year)];
   const prev = sheet.series[String(year - 1)];
-  const title = `${measure.label} — ${band.label}, ${year}`;
+  const title = t("national.title", { measure: measure.label, age: band.label, years: year });
   if (!entry) {
     el.innerHTML = `<article class="kpi-tile"><p class="kpi-tile__label">${title}</p>
-      <p class="kpi-tile__value">—</p><p class="kpi-tile__count">Bu il üçün məlumat yoxdur</p></article>`;
+      <p class="kpi-tile__value">—</p><p class="kpi-tile__count">${t("national.noDataYear")}</p></article>`;
     return;
   }
   const rate = rateOf(entry);
@@ -437,7 +457,7 @@ function renderNationalResult() {
         <span class="kpi-tile__unit">/ ${unitOf(entry)}</span>
       </p>
       ${deltaHtmlFor(rate, prev ? rateOf(prev) : null, year - 1)}
-      <p class="kpi-tile__count">${entry.count != null ? numberFmt.format(entry.count) : "—"} nəfər ${noteBadges(entry.notes)}</p>
+      <p class="kpi-tile__count">${entry.count != null ? numberFmt.format(entry.count) : "—"} ${t("kpi.persons")} ${noteBadges(entry.notes)}</p>
     </article>`;
 }
 
@@ -480,6 +500,8 @@ function initNationalControls(dataset) {
   yearSelect.value = String(lastYear);
   syncAgeOptions();
   renderNationalResult();
+
+  onLangChange(() => { syncAgeOptions(); renderNationalResult(); });
 }
 
 // ---- regional table -------------------------------------------------------------
@@ -505,7 +527,7 @@ function buildRegionalRows(dataset) {
         year: Number(yearStr),
         count: entry.count,
         rate: entry.per_10k,
-        unit: entry.per_10k != null ? "/ 10 000" : "—",
+        hasRate: entry.per_10k != null,
         notes: entry.notes || [],
       });
     }
@@ -600,7 +622,7 @@ function initTableScope() {
 
   function refreshDistrictOptions() {
     const opts = getDistrictOptions(regionSelect.value);
-    districtSelect.innerHTML = `<option value="">Bütün rayonlar</option>`
+    districtSelect.innerHTML = `<option value="">${t("option.allDistricts")}</option>`
       + opts.map((d) => `<option value="${d.key}">${d.name}</option>`).join("");
     districtSelect.value = "";
   }
@@ -645,6 +667,13 @@ function initTableScope() {
     tableScope.region = regionOptions[0].key;
     refreshDistrictOptions();
   }
+
+  onLangChange(() => {
+    const district = districtSelect.value;
+    refreshDistrictOptions();
+    districtSelect.value = district;
+    renderTable();
+  });
 }
 
 // ---- sorting (shared by the regional table and the national all-years table) ----
@@ -690,7 +719,7 @@ function renderTable() {
       <td data-type="num">${r.year}</td>
       <td data-type="num">${r.count != null ? numberFmt.format(r.count) : "—"}</td>
       <td data-type="num">${r.rate != null ? r.rate.toFixed(1) : "—"}</td>
-      <td>${r.unit}</td>
+      <td>${r.hasRate ? t("unit.per10kShort") : "—"}</td>
       <td data-type="num" class="delta-cell">${deltaCell(r.deltaInfo)}</td>
       <td>${noteBadges(r.notes)}</td>
     </tr>
@@ -730,7 +759,7 @@ async function load() {
   const errorSection = document.getElementById("error-section");
   errorSection.hidden = true;
   statusEl.hidden = false;
-  statusEl.textContent = "Data yüklənir…";
+  statusEl.textContent = t("status.loading");
 
   try {
     const res = await fetch(DATA_URL, { cache: "no-store" });
@@ -739,6 +768,7 @@ async function load() {
     window.__dataset = dataset;
 
     buildKpis(dataset);
+    onLangChange(() => buildKpis(dataset));
     regionalRowsAll = buildRegionalRows(dataset); // shared by the trend's Region tab and the table
     initTrendControls();
     renderTrend();
@@ -755,13 +785,13 @@ async function load() {
     statusEl.hidden = true;
     errorSection.hidden = false;
     document.getElementById("error-message").textContent =
-      `${DATA_URL} ünvanından data oxunmadı (${err.message}). ` +
-      `İnternet bağlantınızı yoxlayın və ya bir az sonra yenidən cəhd edin.`;
+      t("error.message", { url: DATA_URL, error: err.message });
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   initTheme();
+  await initI18n(); // dictionaries first, so the very first render is already in the saved language
   document.getElementById("retry-button").addEventListener("click", load);
   load();
 });

@@ -124,6 +124,41 @@ main {
 }
 #theme-toggle:hover { background: var(--page); }
 
+/* Header controls (language + theme) stay together in the top-right corner,
+   also on phones: the title shrinks/wraps instead. */
+.site-header__title { min-width: 0; }
+.header-actions { display: flex; align-items: center; gap: 8px; flex: none; }
+
+/* AZ / EN: two small circles. Light mode = white fill, black ring; dark mode
+   = dark fill, white ring (both follow --surface / --text-primary). The
+   current language is the inverted, filled circle. */
+.lang-switch { display: flex; gap: 4px; }
+.lang-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid var(--text-primary);
+  background: var(--surface);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  padding: 0;
+}
+.lang-btn:hover { background: var(--page); }
+.lang-btn[aria-pressed="true"] {
+  background: var(--text-primary);
+  color: var(--surface);
+  cursor: default;
+}
+.lang-btn:focus-visible { outline: 2px solid var(--series-1); outline-offset: 2px; }
+
+/* Set by the inline head script while a saved non-default language loads
+   (i18n.js removes it), so the Azerbaijani fallback text never flashes. */
+.i18n-pending body { visibility: hidden; }
+
 /* Cards */
 .card {
   background: var(--surface);
@@ -322,7 +357,7 @@ main {
 .national-result--table { max-width: 720px; }
 .national-result--table .kpi-tile__label { margin-bottom: 6px; }
 .all-years-note { margin: 0; }
-.all-years-note span {
+.all-years-note__value {
   padding: 6px 10px;
   border-radius: 8px;
   border: 1px dashed var(--border);
@@ -403,7 +438,7 @@ footer {
 }
 
 @media (max-width: 560px) {
-  .site-header { flex-direction: column; }
+  .site-header h1 { font-size: 1.25rem; }
   .chart-wrap { height: 280px; }
   .chart-wrap--bar { height: 380px; }
   .regional-controls { align-items: stretch; }

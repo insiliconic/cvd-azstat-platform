@@ -21,7 +21,8 @@
 "use strict";
 
 const GEOJSON_URLS = { region: "az-economic-regions.geojson", district: "az-districts.geojson" };
-const TABLE_LABEL = { count: "nəfər", per_10k: "10 000 nəfərə görə" };
+// Unit shown after a value in the tooltips, per Say / 10 000 tab (i18n keys).
+const TABLE_LABEL_KEY = { count: "unit.persons", per_10k: "unit.per10k" };
 const MAP_W = 800, MAP_H = 500, MAP_PAD = 16;
 
 // { sheets, table, year, level, regionFilter, districtSelected,
@@ -38,7 +39,7 @@ function hexToRgb(hex) {
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
 
-function heatColor(t) {
+function heatColor(frac) {
   // Interpolates --heat-low -> --heat-high in plain sRGB, which is a single
   // hue varying only in lightness -- safe for every vision type by
   // construction (the whole point of a sequential, one-hue ramp). Clamped:
@@ -46,12 +47,12 @@ function heatColor(t) {
   // has no district shapes, so its fallback shape is colored against its
   // districts' range in the bar chart -- see getBarRows()), and an
   // unclamped t would overshoot the ramp into out-of-gamut values.
-  t = Math.max(0, Math.min(1, t));
+  const t01 = Math.max(0, Math.min(1, frac));
   const [r1, g1, b1] = hexToRgb(cssVar("--heat-low"));
   const [r2, g2, b2] = hexToRgb(cssVar("--heat-high"));
-  const r = Math.round(r1 + (r2 - r1) * t);
-  const g = Math.round(g1 + (g2 - g1) * t);
-  const b = Math.round(b1 + (b2 - b1) * t);
+  const r = Math.round(r1 + (r2 - r1) * t01);
+  const g = Math.round(g1 + (g2 - g1) * t01);
+  const b = Math.round(b1 + (b2 - b1) * t01);
   return `rgb(${r},${g},${b})`;
 }
 
@@ -214,7 +215,7 @@ function renderBreadcrumb() {
     return;
   }
   const regionsData = currentRegionsData();
-  const parts = [`<a href="#" data-nav="all">Bütün rayonlar</a>`];
+  const parts = [`<a href="#" data-nav="all">${t("option.allDistricts")}</a>`];
   if (regionalState.regionFilter) {
     const rname = regionName(regionsData, regionalState.regionFilter);
     parts.push(regionalState.districtSelected ? `<a href="#" data-nav="region">${rname}</a>` : `<strong>${rname}</strong>`);
@@ -307,8 +308,8 @@ function initSwipe() {
 
 function showTooltip(evt, name, value) {
   const tip = document.getElementById("region-tooltip");
-  const unit = TABLE_LABEL[regionalState.table];
-  tip.innerHTML = `<strong>${name}</strong><br>${value != null ? numberFmt1(value) : "məlumat yoxdur"}${value != null ? ` <span class="muted">/ ${unit}</span>` : ""}`;
+  const unit = t(TABLE_LABEL_KEY[regionalState.table]);
+  tip.innerHTML = `<strong>${name}</strong><br>${value != null ? numberFmt1(value) : t("map.noData")}${value != null ? ` <span class="muted">/ ${unit}</span>` : ""}`;
   tip.hidden = false;
   const wrap = document.querySelector(".map-wrap");
   const wrapRect = wrap.getBoundingClientRect();
@@ -403,7 +404,7 @@ function renderMap() {
     .attr("aria-label", (d) => {
       const value = regionValue(regionsData, d.properties.key, regionalState.table);
       const name = regionName(regionsData, d.properties.key);
-      return `${name}: ${value != null ? numberFmt1(value) : "məlumat yoxdur"}`;
+      return `${name}: ${value != null ? numberFmt1(value) : t("map.noData")}`;
     })
     .attr("fill", (d) => {
       const value = regionValue(regionsData, d.properties.key, regionalState.table);
@@ -488,7 +489,7 @@ function renderBarChart() {
           backgroundColor: surface, borderColor: border, borderWidth: 1,
           titleColor: textPrimary, bodyColor: textPrimary, padding: 8,
           callbacks: {
-            label: (item) => `${numberFmt1(item.parsed.x)} / ${TABLE_LABEL[regionalState.table]}`,
+            label: (item) => `${numberFmt1(item.parsed.x)} ${t(TABLE_LABEL_KEY[regionalState.table])}`,
           },
         },
       },
@@ -585,6 +586,7 @@ async function initRegionalSection(dataset) {
   });
 
   window.addEventListener("cvd-theme-changed", renderRegional);
+  onLangChange(renderRegional);
   initSwipe();
 
   document.getElementById("regional-section").hidden = false;

@@ -117,7 +117,8 @@ jobs:
           set -e
           mkdir -p site/data
           cp data/circulatory_data.json site/data/circulatory_data.json
-          cp frontend/index.html frontend/style.css frontend/app.js frontend/region-map.js frontend/az-economic-regions.geojson frontend/az-districts.geojson site/
+          cp frontend/index.html frontend/style.css frontend/i18n.js frontend/app.js frontend/region-map.js frontend/az-economic-regions.geojson frontend/az-districts.geojson site/
+          cp -r frontend/i18n site/i18n
 
       - uses: actions/configure-pages@v5
 
