@@ -774,3 +774,74 @@ selects and defaults plus several combinations (e.g. Xəstələnmə 14–29 2020
 selects hidden on the national tab, region table year filter, swipe via
 dispatched pointer events and a real mouse drag, ‹ › buttons, wrap-around,
 and stepping through Baku's districts.
+
+## 2026-09-26 (2) — All-years views, and a Region tab on the trend chart
+
+Second batch from the project lead the same day.
+
+### 1. Region table: a single district shows every year
+
+With a specific district picked in the table's "Region" tab, the table now
+lists all of its years (2015–2024, oldest first) instead of one year. The
+İl select is hidden and a static "Bütün illər" label takes its place.
+Going back to "Bütün rayonlar" restores the year select (and its value)
+and the region-wide single-year view, sorted by count.
+
+### 2–3. National: all-years table for death and for specific age bands
+
+- **Ölüm**: the İl select is hidden and a table lists every year from 2015
+  on: rate, unit, count, change vs the previous year (same arrow/color rule
+  as the KPI tiles) and notes.
+- **Xəstələnmə + a specific age band** (0–13, 14–29, 30+, 18 yaşa qədər):
+  same all-years table.
+- **Xəstələnmə + Ümumi əhali**: unchanged, a single-year card with the İl
+  select (default 2024), as asked.
+
+### 4. Trend chart: Ölüm | Xəstələnmə | Region tabs
+
+The trend chart's single "Göstərici" dropdown (six national series) became
+three tabs: **Ölüm**, **Xəstələnmə** (with a Yaş aralığı select covering the
+same five morbidity series) and a new, independent **Region** tab (economic
+region → cascading Rayon, "Bütün rayonlar" = the region's own total row).
+All three draw into the same line chart through one renderer
+(`renderTrend()`), so color, line/fill, points, gaps and tooltip are
+identical. The regional series is morbidity per 10 000 (the only rate
+`001_5_2-3en.xls` publishes). Its x-axis always spans the full regional
+year range, so a place with missing years (Zəngilan: 2015, then 2023–2024;
+Pirallahı: no 2022) shows a real gap instead of a compressed axis.
+
+### Source key changes across years (merged in the frontend)
+
+Building the all-years views showed that the source's English labels for a
+few rows changed in 2019, which split their history into two keys:
+
+| 2015–2018 key          | 2019–2024 key                    |
+|------------------------|----------------------------------|
+| `aghsu district`       | `agsu region`                    |
+| `gobustan district`    | `gobustan region`                |
+| `ismayilli district`   | `ismayilli region`               |
+| `shamakhi district`    | `shamakhy region`                |
+| `republic of azerbaijan` | `republic of azerbaijan - total` |
+
+Their `name_az` and `economic_region` are the same on both sides of the
+change (checked 2018 vs 2019), so these are renames, not different places.
+`KEY_ALIASES` / `canonicalKey()` in `region-map.js` map the old keys onto the
+current ones for the table and the regional trend. Before this, each of
+these four districts showed only half its history, and its dropdown could
+list the same district twice. The dataset itself is untouched. Dropdowns
+now keep each place's newest spelling (e.g. "Abşeron–Xızı").
+
+Worth knowing (not changed): the Abşeron–Xızı region's rate drops from
+~179 (2018) to ~116 (2019) per 10 000. That looks like a change in the
+region's definition or tabulation in the source rather than a real
+epidemiological change, so it should be read with care.
+
+### Testing
+
+Checked locally, then live after deploy. National: Ölüm → 10-row table,
+year hidden; Xəstələnmə default (18 yaşa qədər) and 0–13 → 10-row tables;
+Ümumi əhali → card with year select (2024). Region table: Ağsu → 10 rows,
+2015–2024, continuous across the 2019 key change, "Bütün illər" shown; back
+to "Bütün rayonlar" → year select back, single year. Trend: all three tabs,
+control visibility per tab, age change, region/district cascade, Zəngilan's
+gap, Ağsu's continuous line, and back to Ölüm.

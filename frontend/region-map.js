@@ -65,6 +65,24 @@ function regionValue(regionsData, key, table) {
   return typeof v === "number" ? v : null;
 }
 
+// The source's English labels for a few rows changed in 2019 ("aghsu
+// district" -> "agsu region", etc.) while the Azerbaijani name and the
+// economic region stayed the same -- verified year by year, see
+// docs/methodology_log.md (2026-09-26, second entry). Anything that follows
+// one place across years (the all-years table, the regional trend line)
+// maps the old key onto the current one so its history isn't cut in half.
+const KEY_ALIASES = {
+  "aghsu district": "agsu region",
+  "gobustan district": "gobustan region",
+  "ismayilli district": "ismayilli region",
+  "shamakhi district": "shamakhy region",
+  "republic of azerbaijan": "republic of azerbaijan - total",
+};
+
+function canonicalKey(key) {
+  return KEY_ALIASES[key] || key;
+}
+
 // The source labels every economic region's own row "<name> - cəmi"
 // ("total"); on its own, next to its districts, the suffix is just noise.
 // Shared with app.js (table + dropdowns) so every view shows the same name.
