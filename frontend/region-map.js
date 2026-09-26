@@ -84,16 +84,26 @@ function canonicalKey(key) {
   return KEY_ALIASES[key] || key;
 }
 
-// The source labels every economic region's own row "<name> - cəmi"
-// ("total"); on its own, next to its districts, the suffix is just noise.
-// Shared with app.js (table + dropdowns) so every view shows the same name.
+// The source labels every economic region's own row "<name> - cəmi" /
+// "<name> - total"; on its own, next to its districts, the suffix is just
+// noise. Shared with app.js (table + dropdowns) so every view shows the
+// same name.
 function displayName(name) {
-  return String(name).replace(/\s*[-–—]\s*cəmi\s*$/i, "");
+  return String(name).replace(/\s*[-–—]\s*(cəmi|total)\s*$/i, "");
+}
+
+// A place's name in the interface language: the source's own English label
+// (name_en, from 001_5_2-3en.xls) in EN, its Azerbaijani label (name_az,
+// from 001_5_2-3az.xls) in AZ -- never a transliteration of our own.
+// Falls back to the other language, then to the key.
+function placeName(nameAz, nameEn, key) {
+  const first = i18n.lang === "en" ? nameEn : nameAz;
+  return displayName(first || nameAz || nameEn || key);
 }
 
 function regionName(regionsData, key) {
-  const entry = regionEntry(regionsData, key);
-  return displayName((entry && entry.name_az) || key);
+  const entry = regionEntry(regionsData, key) || {};
+  return placeName(entry.name_az, entry.name_en, key);
 }
 
 function currentRegionsData() {

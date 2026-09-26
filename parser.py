@@ -299,6 +299,10 @@ def parse_col_sheet(sh, az_sheet=None):
         elif is_root:
             current_region = None
         entry = regions.setdefault(name, empty_entry())
+        # The source's own English label, original case (the key above is
+        # lowercased for matching). First occurrence (the count block) wins,
+        # the same row name_az is taken from.
+        entry.setdefault("name_en", collapse_ws(split_footnote(collapse_ws(raw))[0]))
         entry[unit] = value
         entry["economic_region"] = None if (is_region or is_root) else current_region
         if fn:

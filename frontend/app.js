@@ -222,7 +222,13 @@ function initTrendControls() {
   fillAgeOptions();
 
   const regionOptions = getEconomicRegionOptions();
-  regionSelect.innerHTML = regionOptions.map((r) => `<option value="${r.key}">${r.name}</option>`).join("");
+  // Rebuilt on a language change too: names and their sort order both follow the language.
+  function fillRegionOptions() {
+    const current = regionSelect.value;
+    regionSelect.innerHTML = getEconomicRegionOptions().map((r) => `<option value="${r.key}">${r.name}</option>`).join("");
+    if (current) regionSelect.value = current;
+  }
+  fillRegionOptions();
   function refreshDistrictOptions() {
     districtSelect.innerHTML = `<option value="">${t("option.allDistricts")}</option>`
       + getDistrictOptions(regionSelect.value).map((d) => `<option value="${d.key}">${d.name}</option>`).join("");
@@ -266,6 +272,7 @@ function initTrendControls() {
   // New language: relabel the options this function built, keep every selection.
   onLangChange(() => {
     fillAgeOptions();
+    fillRegionOptions();
     const district = districtSelect.value;
     refreshDistrictOptions();
     districtSelect.value = district;
@@ -523,7 +530,8 @@ function buildRegionalRows(dataset) {
       rows.push({
         key: canonicalKey(key),
         economicRegion: entry.economic_region,
-        indicatorLabel: displayName(entry.name_az || key),
+        nameAz: entry.name_az,
+        nameEn: entry.name_en,
         year: Number(yearStr),
         count: entry.count,
         rate: entry.per_10k,
@@ -535,10 +543,20 @@ function buildRegionalRows(dataset) {
   rows.sort((a, b) => b.year - a.year);
   // One name per place across all years: the source's own spelling drifts
   // year to year (2017 has "Abşeronrayonu", others "Abşeron -Xızı",
-  // "Lənkəran- Astara"...), so every row uses the newest year's name.
-  const nameByKey = new Map();
-  for (const r of rows) if (!nameByKey.has(r.key)) nameByKey.set(r.key, r.indicatorLabel);
-  for (const r of rows) r.indicatorLabel = nameByKey.get(r.key);
+  // "Lənkəran- Astara"...), so every row uses the newest year's name, in
+  // each language. indicatorLabel is a getter, so it follows the current
+  // interface language (placeName() in region-map.js).
+  const newest = new Map();
+  for (const r of rows) {
+    const n = newest.get(r.key) || {};
+    if (!n.az && r.nameAz) n.az = r.nameAz;
+    if (!n.en && r.nameEn) n.en = r.nameEn;
+    newest.set(r.key, n);
+  }
+  for (const r of rows) {
+    const n = newest.get(r.key);
+    Object.defineProperty(r, "indicatorLabel", { get: () => placeName(n.az, n.en, r.key), enumerable: true });
+  }
   // Change vs the same place's previous year, the same rule as the national
   // table (deltaInfo). No previous year in the data (2015, or a gap such as
   // Zəngilan 2016-2022) -> no change shown.
@@ -552,7 +570,7 @@ function buildRegionalRows(dataset) {
 
 // The 14 economic regions, deduplicated across years (a region's identity
 // and name don't change year to year -- verified in docs/methodology_log.md),
-// sorted by their Azerbaijani name for a predictable dropdown order.
+// sorted by their name in the interface language for a predictable dropdown order.
 function getEconomicRegionOptions() {
   const byKey = new Map();
   for (const r of regionalRowsAll) {
@@ -561,7 +579,7 @@ function getEconomicRegionOptions() {
     }
   }
   return [...byKey.entries()].map(([key, name]) => ({ key, name }))
-    .sort((a, b) => a.name.localeCompare(b.name, "az"));
+    .sort((a, b) => a.name.localeCompare(b.name, i18n.lang));
 }
 
 function getDistrictOptions(regionKey) {
@@ -570,7 +588,7 @@ function getDistrictOptions(regionKey) {
     if (r.economicRegion === regionKey && !byKey.has(r.key)) byKey.set(r.key, r.indicatorLabel);
   }
   return [...byKey.entries()].map(([key, name]) => ({ key, name }))
-    .sort((a, b) => a.name.localeCompare(b.name, "az"));
+    .sort((a, b) => a.name.localeCompare(b.name, i18n.lang));
 }
 
 // A single district shows its whole history (every year), so the year
@@ -599,7 +617,13 @@ function initTableScope() {
   const yearSelect = document.getElementById("table-year-select");
 
   const regionOptions = getEconomicRegionOptions();
-  regionSelect.innerHTML = regionOptions.map((r) => `<option value="${r.key}">${r.name}</option>`).join("");
+  // Rebuilt on a language change too: names and their sort order both follow the language.
+  function fillRegionOptions() {
+    const current = regionSelect.value;
+    regionSelect.innerHTML = getEconomicRegionOptions().map((r) => `<option value="${r.key}">${r.name}</option>`).join("");
+    if (current) regionSelect.value = current;
+  }
+  fillRegionOptions();
 
   // Same year list and default (the latest year) as the map's own year select.
   const years = [...new Set(regionalRowsAll.map((r) => r.year))].sort((a, b) => b - a);
@@ -669,6 +693,7 @@ function initTableScope() {
   }
 
   onLangChange(() => {
+    fillRegionOptions();
     const district = districtSelect.value;
     refreshDistrictOptions();
     districtSelect.value = district;

@@ -999,3 +999,36 @@ and aria-label, place names excluded) and all selections kept; reload stays
 in EN with no flash; back to AZ leaves no English UI text; the switch in
 light and dark mode; phone width (390 px): switch stays top-right, no
 horizontal scroll.
+
+## 2026-09-27 (2) — Official English place names in EN mode
+
+- **Source, not transliteration.** `parser.py` now stores each
+  region/district's English label as published in `001_5_2-3en.xls`
+  (`name_en`, original case, whitespace collapsed, trailing footnote digit
+  removed), next to `name_az`. Only this file has place names: `001_2_*en.xls`
+  and `001_3en.xls` are national series with no regional rows.
+- **Data change is names only.** Regenerated `data/circulatory_data.json`
+  against the committed version: all 982 region/district entries gained
+  `name_en`, `generated` moved, and nothing else changed. `compare_data.py`
+  only compares count / per_10k / per_100k, so the daily job won't report
+  this as a data revision. No key has more than one English spelling across
+  years.
+- **Frontend.** `placeName()` (`region-map.js`) chooses `name_en` in EN and
+  `name_az` in AZ. It falls back to the other language, then to the key.
+  `displayName()` now strips both "- cəmi" and "- total". The map tooltips
+  and aria-labels, bar chart, breadcrumb, all dropdowns, the regional table
+  and the regional trend caption follow the interface language. Dropdowns
+  are rebuilt and re-sorted in that language on a switch, and the selection
+  is kept. The table keeps one name per place across years (the newest
+  year's) in each language.
+- **Source spellings kept as published**, even where they look odd:
+  e.g. since 2019 Azstat calls Ağsu, Qobustan, İsmayıllı and Şamaxı
+  "Agsu region", "Gobustan region", etc. (2015–2018: "Aghsu district"…),
+  and "Shamakhy" vs the older "Shamakhi". The newest spelling is shown.
+
+Tested locally (against the regenerated data, via a scratch copy of the
+site pointed at it) and live after deploy: EN shows no Azerbaijani letters
+anywhere on the page, including every map shape, bar, option and table row,
+in both region and full-district views. AZ shows no English place names.
+Selections survive switching both ways, and Ağsu's all-years table shows
+one English name across the 2019 key change.
