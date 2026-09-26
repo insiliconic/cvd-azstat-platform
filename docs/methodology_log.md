@@ -832,9 +832,25 @@ list the same district twice. The dataset itself is untouched. Dropdowns
 now keep each place's newest spelling (e.g. "Abşeron–Xızı").
 
 Worth knowing (not changed): the Abşeron–Xızı region's rate drops from
-~179 (2018) to ~116 (2019) per 10 000. That looks like a change in the
-region's definition or tabulation in the source rather than a real
-epidemiological change, so it should be read with care.
+179.0 (2018) to 116.4 (2019) per 10 000. An earlier version of this entry
+guessed this was a change in the region's definition. **That was wrong,
+and it was unverified.** Checking the data:
+
+- The region is the same three units every year 2015–2024 (Sumqayıt şəhəri,
+  Abşeron rayonu, Xızı rayonu), and its total equals their sum every year.
+- The case count barely moves (10 206 → 10 077). What jumps is the
+  population the rate is computed on. Back-calculated as count ÷ rate ×
+  10 000, it goes from ~570 000 to ~866 000 for the region (Abşeron rayonu
+  ~211 000 → ~428 000, Sumqayıt ~342 000 → ~422 000).
+
+So the drop comes from the denominator, not from fewer cases. Why the
+source's population base changed in 2019 is **not known**: a
+post-census revision (2019 census) would be a plausible explanation, but
+no source has been checked for it. Treat it as an open question for Azstat.
+
+Also found while checking: Xızı rayonu has 11–33 cases a year in
+2015–2023 but 1 076 (642.9 per 10 000) in 2024, roughly 50× its usual
+level. Possibly a source error; not verified, left as published.
 
 ### Testing
 
