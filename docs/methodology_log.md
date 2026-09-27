@@ -1032,3 +1032,48 @@ anywhere on the page, including every map shape, bar, option and table row,
 in both region and full-district views. AZ shows no English place names.
 Selections survive switching both ways, and Ağsu's all-years table shows
 one English name across the 2019 key change.
+
+## 2026-09-27 (3) — Mobile app "Medstatica" (`app/`, Expo)
+
+- **Stack**: Expo SDK 57 (React Native 0.86, TypeScript), from the official
+  `blank-typescript` template. Extra packages, all bundled in Expo Go and
+  installed with `npx expo install`: `react-native-svg` (trend line),
+  `@react-native-async-storage/async-storage` (saved language),
+  `react-native-safe-area-context`, `expo-splash-screen`, plus
+  `react-native-web` / `react-dom` / `@expo/metro-runtime` so the app can
+  also be previewed in a browser (`npx expo start --web`). Node.js LTS
+  (v24.19.0) was installed on the dev machine via winget for this.
+- **Removed from the template**: `.claude/settings.json` (it would have
+  enabled a Claude Code plugin for anyone opening `app/`, which wasn't asked
+  for) and `LICENSE` (the template's own MIT notice for Expo's code, which
+  could be misread as the app's license). `AGENTS.md` / `CLAUDE.md` (Expo's
+  development notes) were kept.
+- **Data**: fetched at runtime from the same public URL as the site, with a
+  timestamp query to skip caches. There are no custom request headers: a
+  `Cache-Control` header turned it into a CORS preflight that GitHub Pages
+  rejects (found while testing the web preview).
+  `src/data.ts` ports the site's rules: rate choice, only exact 0% is
+  "flat", the 2019 key aliases, one name per place (newest spelling), and
+  `name_en` / `name_az` by language.
+- **i18n**: no second copy of the strings. `metro.config.js` adds
+  `../frontend/i18n` to Metro's `watchFolders`, and `src/i18n.tsx` imports
+  the site's `az.json` / `en.json` directly, plus eight app-only keys
+  (app name, "all regions", tap hints, select sheet buttons). The choice is
+  saved in AsyncStorage under the site's key (`cvd-lang`).
+- **Screens**: national (measure segment, age and year selects, result
+  card, trend line where tapping a point picks the year) and regional
+  (region → district selects, Say / per 10 000, year, heat-coloured bars
+  where tapping a bar selects that place, by-year table with Dəyişim).
+  There is no map yet, as agreed.
+- **Icon / splash**: a white heartbeat line on the site's blue `#2a78d6`,
+  generated from one SVG motif by `app/scripts/make-icons.mjs` (sharp, not
+  a project dependency). Splash has light and dark variants. Expo Go does
+  not show custom splash screens (since SDK 52), only real builds do.
+- **Checks run**: `tsc --noEmit` clean; `expo-doctor` 21/21; `expo export`
+  bundles for both Android and iOS (this also proves Metro resolves the
+  shared dictionaries outside `app/`). Runtime was checked in the web
+  preview at phone width (390 px): the numbers match the site (Ölüm 2024
+  326.3 ▼ 0.2%, Xəstələnmə 18 yaşa qədər 73.2 ▲ 9.7%, Quba–Xaçmaz
+  districts 3 706 / 3 048 / 1 926 / 967 / 444); AZ→EN switch; bar tap →
+  region → district with the by-year table. **Not yet run on a physical
+  phone** in Expo Go (that needs the owner's device).

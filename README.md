@@ -98,6 +98,14 @@ with the same region → district cascade, a methodology section) — see
 `frontend/README.md` for how to run it locally instead of against the
 deployed one.
 
+## Mobile app (`app/`)
+
+**Medstatica**, an Expo (React Native) app that reads the same public
+dataset at runtime and shares the site's AZ / EN dictionaries. It covers
+the national indicators (measure, age group, year, result card, trend) and
+the regional view (region → district, heat-coloured bars, by-year table).
+See `app/README.md` for testing on a phone with Expo Go.
+
 ## Secrets
 
 Credentials are **never** stored in the repository. The workflow reads them

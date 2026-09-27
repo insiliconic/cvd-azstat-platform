@@ -1,0 +1,76 @@
+// Interface language for the app. The dictionaries are the website's own
+// (frontend/i18n/az.json, en.json -- one source of truth; metro.config.js
+// lets Metro read that folder), plus a handful of app-only strings below.
+// The choice is saved on the device (AsyncStorage, same key as the site's
+// localStorage) so it survives restarts.
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+
+import az from "../../frontend/i18n/az.json";
+import en from "../../frontend/i18n/en.json";
+import type { Lang } from "./data";
+
+const APP_STRINGS: Record<Lang, Record<string, string>> = {
+  az: {
+    "app.name": "Medstatica",
+    "app.tagline": "Ürək-damar xəstəlikləri — Azərbaycan",
+    "option.allRegions": "Bütün regionlar",
+    "regional.byYear": "İllər üzrə",
+    "regional.tapHint": "Bara toxunun — seçmək üçün",
+    "national.tapHint": "Nöqtəyə toxunun — ili seçmək üçün",
+    "select.close": "Bağla",
+    "select.choose": "Seçin",
+  },
+  en: {
+    "app.name": "Medstatica",
+    "app.tagline": "Cardiovascular disease — Azerbaijan",
+    "option.allRegions": "All regions",
+    "regional.byYear": "By year",
+    "regional.tapHint": "Tap a bar to select it",
+    "national.tapHint": "Tap a point to pick the year",
+    "select.close": "Close",
+    "select.choose": "Choose",
+  },
+};
+
+const DICTS: Record<Lang, Record<string, string>> = {
+  az: { ...(az as Record<string, string>), ...APP_STRINGS.az },
+  en: { ...(en as Record<string, string>), ...APP_STRINGS.en },
+};
+
+const STORAGE_KEY = "cvd-lang";
+
+type Ctx = { lang: Lang; setLang: (l: Lang) => void; t: (key: string, vars?: Record<string, string | number>) => string };
+
+const I18nContext = createContext<Ctx | null>(null);
+
+export function I18nProvider({ children }: { children: ReactNode }) {
+  const [lang, setLangState] = useState<Lang>("az");
+
+  useEffect(() => {
+    AsyncStorage.getItem(STORAGE_KEY)
+      .then((saved) => { if (saved === "az" || saved === "en") setLangState(saved); })
+      .catch(() => { /* storage unavailable: keep the default */ });
+  }, []);
+
+  const setLang = useCallback((l: Lang) => {
+    setLangState(l);
+    AsyncStorage.setItem(STORAGE_KEY, l).catch(() => { /* not critical */ });
+  }, []);
+
+  // Missing key -> Azerbaijani -> the key itself (same fallback as the site).
+  const t = useCallback((key: string, vars?: Record<string, string | number>) => {
+    let s = DICTS[lang][key] ?? DICTS.az[key] ?? key;
+    if (vars) s = s.replace(/\{(\w+)\}/g, (m, name) => (vars[name] != null ? String(vars[name]) : m));
+    return s;
+  }, [lang]);
+
+  const value = useMemo(() => ({ lang, setLang, t }), [lang, setLang, t]);
+  return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
+}
+
+export function useI18n(): Ctx {
+  const ctx = useContext(I18nContext);
+  if (!ctx) throw new Error("useI18n outside I18nProvider");
+  return ctx;
+}
