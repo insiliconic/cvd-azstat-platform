@@ -155,3 +155,9 @@
   schema.org `Dataset` JSON-LD in `index.html`, so search engines can find and describe
   cardiostatistics.com. Search Console still has to be set up by hand (TXT record in Cloudflare).
 
+### 2026-11-02 (4)
+- Added: a static "Layihə haqqında" / "About the project" section in `index.html` (not
+  hidden, three short paragraphs describing the site, its indicators and source), with
+  `about.*` keys in `az.json` and `en.json`. The text is in the HTML itself, so search
+  engines can read it without running JavaScript; `i18n.js` still translates it.
+

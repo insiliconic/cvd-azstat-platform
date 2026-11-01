@@ -106,5 +106,10 @@
   "error.retry": "Yenidən cəhd et",
   "error.message": "{url} ünvanından data oxunmadı ({error}). İnternet bağlantınızı yoxlayın və ya bir az sonra yenidən cəhd edin.",
 
-  "footer.html": "Data mənbəyi: <a href=\"https://www.stat.gov.az/source/healthcare/?lang=en\" target=\"_blank\" rel=\"noopener\">stat.gov.az</a> · Sayt statik HTML + Chart.js ilə qurulub, data build zamanı deyil, hər səhifə yüklənişində GitHub Pages-dən oxunur."
+  "footer.html": "Data mənbəyi: <a href=\"https://www.stat.gov.az/source/healthcare/?lang=en\" target=\"_blank\" rel=\"noopener\">stat.gov.az</a> · Sayt statik HTML + Chart.js ilə qurulub, data build zamanı deyil, hər səhifə yüklənişində GitHub Pages-dən oxunur.",
+
+  "about.heading": "Layihə haqqında",
+  "about.p1": "<strong>Cardiostatistics</strong> — Azərbaycanda ürək-damar xəstəlikləri statistikasını bir yerdə göstərən açıq saytdır. Qan dövranı sistemi xəstəlikləri (ICD-10 I00–I99) üzrə ölüm və xəstələnmə göstəriciləri illər, yaş qrupları, iqtisadi regionlar və rayonlar üzrə təqdim olunur.",
+  "about.p2": "Saytda ən son ilin əsas göstəriciləri, illər üzrə tendensiya qrafikləri, Azərbaycanın iqtisadi region və rayonlar üzrə xəritəsi və bütün göstəricilərin sıralana bilən cədvəli var. Sayt Azərbaycan və ingilis dillərindədir.",
+  "about.p3": "Məlumatlar Azərbaycan Respublikasının Dövlət Statistika Komitəsinin (Azstat) rəsmi səhiyyə cədvəllərindən götürülür; mənbə hər gün yoxlanılır və yeni məlumat dərc olunduqda saytda yenilənir. Sayt tədqiqatçılar, həkimlər, tələbələr və jurnalistlər üçün nəzərdə tutulub."
 }

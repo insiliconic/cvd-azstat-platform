@@ -438,6 +438,8 @@ html { scroll-padding-top: calc(var(--topbar-h) + 8px); } /* in-page jumps stop 
 }
 .trend-controls .scope-controls { margin: 0; }
 
+.about p { margin: 8px 0 0; color: var(--text-secondary); font-size: 0.95rem; max-width: 70ch; }
+
 /* Table */
 .table-wrap { overflow-x: auto; }
 .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }

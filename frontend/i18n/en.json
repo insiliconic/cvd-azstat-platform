@@ -106,5 +106,10 @@
   "error.retry": "Try again",
   "error.message": "Could not read data from {url} ({error}). Check your internet connection or try again in a moment.",
 
-  "footer.html": "Data source: <a href=\"https://www.stat.gov.az/source/healthcare/?lang=en\" target=\"_blank\" rel=\"noopener\">stat.gov.az</a> · Static HTML + Chart.js site; the data is read from GitHub Pages on every page load, not at build time."
+  "footer.html": "Data source: <a href=\"https://www.stat.gov.az/source/healthcare/?lang=en\" target=\"_blank\" rel=\"noopener\">stat.gov.az</a> · Static HTML + Chart.js site; the data is read from GitHub Pages on every page load, not at build time.",
+
+  "about.heading": "About the project",
+  "about.p1": "<strong>Cardiostatistics</strong> is an open website that brings together cardiovascular disease statistics for Azerbaijan. It presents death and morbidity indicators for diseases of the circulatory system (ICD-10 I00–I99) by year, age group, economic region and district.",
+  "about.p2": "The site shows the latest year's key indicators, trend charts over the years, a map of Azerbaijan by economic region and district, and a sortable table of all indicators. It is available in Azerbaijani and English.",
+  "about.p3": "The data comes from the official health tables of the State Statistical Committee of the Republic of Azerbaijan (Azstat); the source is checked every day and the site is updated when new data is published. It is intended for researchers, physicians, students and journalists."
 }
