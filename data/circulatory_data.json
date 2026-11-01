@@ -5,7 +5,8 @@
       "diseases of the circulatory system"
     ],
     "column": [
-      "circulatory system diseases"
+      "circulatory system diseases",
+      "diseases of the circulatory system"
     ]
   },
   "covid_rule": {
@@ -1099,6 +1100,7 @@
       "indicator": "Morbidity — by economic region",
       "source_url": "https://www.stat.gov.az/source/healthcare/en/001_5_2-3en.xls",
       "sheet_names": [
+        "2025",
         "2024",
         "2023",
         "2022",
@@ -1111,28 +1113,946 @@
         "2015"
       ],
       "sheets": {
+        "2025": {
+          "layout": "column",
+          "table_number": "1.5.3",
+          "title": "1.5.3.   Morbidity of population by main disease groups by economic regions and administrative-territorial units of the country in 2025 (newly diagnosed cases registered)",
+          "reference_year": "2025",
+          "blocks": [
+            {
+              "unit": "count",
+              "header_row": 5,
+              "column": 8,
+              "column_header_raw": "diseases of the circulatory system                                                                                                                                                                                                                 "
+            },
+            {
+              "unit": "per_10k",
+              "header_row": 128,
+              "column": 8,
+              "column_header_raw": "diseases of the circulatory system                                                                                                                                                                                                                 "
+            }
+          ],
+          "unit_labels": {
+            "per_10k": "Number of diseases per 10 000 population",
+            "count": "1.5.3.   Morbidity of population by main disease groups by economic regions and administrative-territorial units of the country in 2025 (newly diagnosed cases registered)"
+          },
+          "regions": {
+            "republic of azerbaijan - total": {
+              "count": 247019.0,
+              "per_10k": 241.1,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Republic of Azerbaijan - total",
+              "economic_region": null,
+              "label_footnote": "1",
+              "name_az": "Azərbaycan Respublikası - cəmi"
+            },
+            "baku city - total": {
+              "count": 60569.0,
+              "per_10k": 257.3,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Baku city - total",
+              "economic_region": null,
+              "name_az": "Bakı şəhəri - cəmi"
+            },
+            "binagadi district": {
+              "count": 8492.0,
+              "per_10k": 274.9,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Binagadi district",
+              "economic_region": "baku city - total",
+              "name_az": "Binəqədi rayonu"
+            },
+            "khatai district": {
+              "count": 6318.0,
+              "per_10k": 227.7,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Khatai district",
+              "economic_region": "baku city - total",
+              "name_az": "Xətai rayonu"
+            },
+            "khazar district": {
+              "count": 8182.0,
+              "per_10k": 396.4,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Khazar district",
+              "economic_region": "baku city - total",
+              "name_az": "Xəzər rayonu"
+            },
+            "garadagh district": {
+              "count": 1109.0,
+              "per_10k": 93.9,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Garadagh district",
+              "economic_region": "baku city - total",
+              "name_az": "Qaradağ rayonu"
+            },
+            "narimanov district": {
+              "count": 2086.0,
+              "per_10k": 115.0,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Narimanov district",
+              "economic_region": "baku city - total",
+              "name_az": "Nərimanov rayonu"
+            },
+            "nasimi district": {
+              "count": 2040.0,
+              "per_10k": 92.9,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Nasimi district",
+              "economic_region": "baku city - total",
+              "name_az": "Nəsimi rayonu"
+            },
+            "nizami district": {
+              "count": 3412.0,
+              "per_10k": 183.4,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Nizami district",
+              "economic_region": "baku city - total",
+              "name_az": "Nizami rayonu"
+            },
+            "pirallahi district": {
+              "count": 30.0,
+              "per_10k": 15.9,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Pirallahi district",
+              "economic_region": "baku city - total",
+              "name_az": "Pirallahı rayonu"
+            },
+            "sabunchu district": {
+              "count": 9736.0,
+              "per_10k": 293.7,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Sabunchu district",
+              "economic_region": "baku city - total",
+              "name_az": "Sabunçu rayonu"
+            },
+            "sabail district": {
+              "count": 5034.0,
+              "per_10k": 493.5,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Sabail district",
+              "economic_region": "baku city - total",
+              "name_az": "Səbail rayonu"
+            },
+            "surakhani district": {
+              "count": 6914.0,
+              "per_10k": 330.6,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Surakhani district",
+              "economic_region": "baku city - total",
+              "name_az": "Suraxanı rayonu"
+            },
+            "yasamal district": {
+              "count": 7216.0,
+              "per_10k": 371.1,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Yasamal district",
+              "economic_region": "baku city - total",
+              "name_az": "Yasamal rayonu"
+            },
+            "nakhchivan autonomous republic - total": {
+              "count": 4329.0,
+              "per_10k": 91.8,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Nakhchivan economic region - total",
+              "economic_region": null,
+              "name_az": "Naxçıvan iqtisadi rayonu - cəmi"
+            },
+            "nakhchivan city": {
+              "count": 1366.0,
+              "per_10k": 139.4,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Nakhchivan city",
+              "economic_region": "nakhchivan autonomous republic - total",
+              "name_az": "Naxçıvan şəhəri"
+            },
+            "babak district": {
+              "count": 515.0,
+              "per_10k": 65.8,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Babak district",
+              "economic_region": "nakhchivan autonomous republic - total",
+              "name_az": "Babək rayonu"
+            },
+            "julfa district": {
+              "count": 591.0,
+              "per_10k": 122.4,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Julfa district",
+              "economic_region": "nakhchivan autonomous republic - total",
+              "name_az": "Culfa rayonu"
+            },
+            "kangarli district": {
+              "count": 144.0,
+              "per_10k": 42.5,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Kangarli district",
+              "economic_region": "nakhchivan autonomous republic - total",
+              "name_az": "Kəngərli rayonu"
+            },
+            "ordubad district": {
+              "count": 296.0,
+              "per_10k": 58.2,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Ordubad district",
+              "economic_region": "nakhchivan autonomous republic - total",
+              "name_az": "Ordubad rayonu"
+            },
+            "sadarak district": {
+              "count": 90.0,
+              "per_10k": 38.6,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Sadarak district",
+              "economic_region": "nakhchivan autonomous republic - total",
+              "name_az": "Sədərək rayonu"
+            },
+            "shahbuz district": {
+              "count": 309.0,
+              "per_10k": 122.1,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Shahbuz district",
+              "economic_region": "nakhchivan autonomous republic - total",
+              "name_az": "Şahbuz rayonu"
+            },
+            "sharur district": {
+              "count": 1018.0,
+              "per_10k": 89.4,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Sharur district",
+              "economic_region": "nakhchivan autonomous republic - total",
+              "name_az": "Şərur rayonu"
+            },
+            "absheron-khizi economic region - total": {
+              "count": 12222.0,
+              "per_10k": 139.0,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Absheron-Khizi economic region - total",
+              "economic_region": null,
+              "name_az": "Abşeron–Xızı iqtisadi rayonu - cəmi"
+            },
+            "sumgayit city": {
+              "count": 9877.0,
+              "per_10k": 230.8,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Sumgayit city",
+              "economic_region": "absheron-khizi economic region - total",
+              "name_az": "Sumqayıt şəhəri"
+            },
+            "absheron district": {
+              "count": 2001.0,
+              "per_10k": 46.0,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Absheron district",
+              "economic_region": "absheron-khizi economic region - total",
+              "name_az": "Abşeron rayonu"
+            },
+            "khizi district": {
+              "count": 344.0,
+              "per_10k": 204.8,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Khizi district",
+              "economic_region": "absheron-khizi economic region - total",
+              "name_az": "Xızı rayonu"
+            },
+            "daghlig shirvan economic region - total": {
+              "count": 6879.0,
+              "per_10k": 212.6,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Daghlig Shirvan economic region - total",
+              "economic_region": null,
+              "name_az": "Dağlıq Şirvan iqtisadi rayonu - cəmi"
+            },
+            "agsu region": {
+              "count": 1601.0,
+              "per_10k": 197.0,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Agsu district",
+              "economic_region": "daghlig shirvan economic region - total",
+              "name_az": "Ağsu rayonu"
+            },
+            "ismayilli region": {
+              "count": 875.0,
+              "per_10k": 99.8,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Ismayilli district",
+              "economic_region": "daghlig shirvan economic region - total",
+              "name_az": "İsmayıllı rayonu"
+            },
+            "gobustan region": {
+              "count": 2769.0,
+              "per_10k": 580.4,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Gobustan district",
+              "economic_region": "daghlig shirvan economic region - total",
+              "name_az": "Qobustan rayonu"
+            },
+            "shamakhy region": {
+              "count": 1634.0,
+              "per_10k": 152.9,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Shamakhy district",
+              "economic_region": "daghlig shirvan economic region - total",
+              "name_az": "Şamaxı rayonu"
+            },
+            "ganja-dashkasan economic region - total": {
+              "count": 10205.0,
+              "per_10k": 170.1,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Ganja-Dashkasan economic region - total",
+              "economic_region": null,
+              "name_az": "Gəncə-Daşkəsən iqtisadi rayonu - cəmi"
+            },
+            "ganja city": {
+              "count": 4681.0,
+              "per_10k": 141.4,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Ganja city",
+              "economic_region": "ganja-dashkasan economic region - total",
+              "name_az": "Gəncə şəhəri"
+            },
+            "naftalan city": {
+              "count": 67.0,
+              "per_10k": 77.5,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Naftalan city",
+              "economic_region": "ganja-dashkasan economic region - total",
+              "name_az": "Naftalan şəhəri"
+            },
+            "dashkasan district": {
+              "count": 330.0,
+              "per_10k": 98.8,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Dashkasan district",
+              "economic_region": "ganja-dashkasan economic region - total",
+              "name_az": "Daşkəsən rayonu"
+            },
+            "goranboy district": {
+              "count": 3812.0,
+              "per_10k": 371.7,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Goranboy district",
+              "economic_region": "ganja-dashkasan economic region - total",
+              "name_az": "Goranboy rayonu"
+            },
+            "goygol district": {
+              "count": 878.0,
+              "per_10k": 134.6,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Goygol district",
+              "economic_region": "ganja-dashkasan economic region - total",
+              "name_az": "Göygöl rayonu"
+            },
+            "samukh district": {
+              "count": 437.0,
+              "per_10k": 74.1,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Samukh district",
+              "economic_region": "ganja-dashkasan economic region - total",
+              "name_az": "Samux rayonu"
+            },
+            "karabakh economic region - total": {
+              "count": 7745.0,
+              "per_10k": 103.4,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Garabagh economic region - total",
+              "economic_region": null,
+              "name_az": "Qarabağ iqtisadi rayonu - cəmi"
+            },
+            "aghjabadi district": {
+              "count": 458.0,
+              "per_10k": 33.4,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Aghjabadi district",
+              "economic_region": "karabakh economic region - total",
+              "name_az": "Ağcabədi rayonu"
+            },
+            "aghdam district": {
+              "count": 1169.0,
+              "per_10k": 66.4,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Aghdam district",
+              "economic_region": "karabakh economic region - total",
+              "name_az": "Ağdam rayonu"
+            },
+            "barda district": {
+              "count": 1655.0,
+              "per_10k": 104.6,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Barda district",
+              "economic_region": "karabakh economic region - total",
+              "name_az": "Bərdə rayonu"
+            },
+            "fuzuli district": {
+              "count": 1682.0,
+              "per_10k": 127.6,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Fuzuli district",
+              "economic_region": "karabakh economic region - total",
+              "name_az": "Füzuli rayonu"
+            },
+            "khojaly district": {
+              "count": 96.0,
+              "per_10k": 61.5,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Khojaly district",
+              "economic_region": "karabakh economic region - total",
+              "name_az": "Xocalı rayonu"
+            },
+            "khojavand district": {
+              "count": 1419.0,
+              "per_10k": 1139.1,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Khojavand district",
+              "economic_region": "karabakh economic region - total",
+              "name_az": "Xocavənd rayonu"
+            },
+            "shusha district": {
+              "count": 119.0,
+              "per_10k": 47.1,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Shusha district",
+              "economic_region": "karabakh economic region - total",
+              "name_az": "Şuşa rayonu"
+            },
+            "tartar district": {
+              "count": 1147.0,
+              "per_10k": 150.7,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Tartar district",
+              "economic_region": "karabakh economic region - total",
+              "name_az": "Tərtər rayonu"
+            },
+            "gazakh-tovuz economic region - total": {
+              "count": 46914.0,
+              "per_10k": 688.1,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Gazakh-Tovuz economic region - total",
+              "economic_region": null,
+              "name_az": "Qazax-Tovuz iqtisadi rayonu - cəmi"
+            },
+            "aghstafa district": {
+              "count": 860.0,
+              "per_10k": 99.0,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Aghstafa district",
+              "economic_region": "gazakh-tovuz economic region - total",
+              "name_az": "Ağstafa rayonu"
+            },
+            "gadabay district": {
+              "count": 671.0,
+              "per_10k": 66.2,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Gadabay district",
+              "economic_region": "gazakh-tovuz economic region - total",
+              "name_az": "Gədəbəy rayonu"
+            },
+            "gazakh district": {
+              "count": 2913.0,
+              "per_10k": 301.6,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Gazakh district",
+              "economic_region": "gazakh-tovuz economic region - total",
+              "name_az": "Qazax rayonu"
+            },
+            "shamkir district": {
+              "count": 36560.0,
+              "per_10k": 1671.7,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Shamkir district",
+              "economic_region": "gazakh-tovuz economic region - total",
+              "name_az": "Şəmkir rayonu"
+            },
+            "tovuz district": {
+              "count": 5910.0,
+              "per_10k": 331.4,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Tovuz district",
+              "economic_region": "gazakh-tovuz economic region - total",
+              "name_az": "Tovuz rayonu"
+            },
+            "guba-khachmaz economic region - total": {
+              "count": 8809.0,
+              "per_10k": 159.7,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Guba-Khachmaz economic region - total",
+              "economic_region": null,
+              "name_az": "Quba-Xaçmaz iqtisadi rayonu - cəmi"
+            },
+            "khachmaz district": {
+              "count": 2757.0,
+              "per_10k": 156.9,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Khachmaz district",
+              "economic_region": "guba-khachmaz economic region - total",
+              "name_az": "Xaçmaz rayonu"
+            },
+            "guba district": {
+              "count": 3910.0,
+              "per_10k": 227.7,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Guba district",
+              "economic_region": "guba-khachmaz economic region - total",
+              "name_az": "Quba rayonu"
+            },
+            "gusar district": {
+              "count": 1372.0,
+              "per_10k": 133.2,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Gusar district",
+              "economic_region": "guba-khachmaz economic region - total",
+              "name_az": "Qusar rayonu"
+            },
+            "siyazan district": {
+              "count": 515.0,
+              "per_10k": 122.2,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Siyazan district",
+              "economic_region": "guba-khachmaz economic region - total",
+              "name_az": "Siyəzən rayonu"
+            },
+            "shabran district": {
+              "count": 255.0,
+              "per_10k": 43.3,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Shabran district",
+              "economic_region": "guba-khachmaz economic region - total",
+              "name_az": "Şabran rayonu"
+            },
+            "lankaran-astara economic region - total": {
+              "count": 12553.0,
+              "per_10k": 132.6,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Lankaran-Astara economic region - total",
+              "economic_region": null,
+              "name_az": "Lənkəran-Astara iqtisadi rayonu - cəmi"
+            },
+            "astara district": {
+              "count": 3403.0,
+              "per_10k": 300.5,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Astara district",
+              "economic_region": "lankaran-astara economic region - total",
+              "name_az": "Astara rayonu"
+            },
+            "jalilabad district": {
+              "count": 1380.0,
+              "per_10k": 62.7,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Jalilabad district",
+              "economic_region": "lankaran-astara economic region - total",
+              "name_az": "Cəlilabad rayonu"
+            },
+            "lerik district": {
+              "count": 2356.0,
+              "per_10k": 270.6,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Lerik district",
+              "economic_region": "lankaran-astara economic region - total",
+              "name_az": "Lerik rayonu"
+            },
+            "lankaran district": {
+              "count": 1795.0,
+              "per_10k": 78.6,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Lankaran district",
+              "economic_region": "lankaran-astara economic region - total",
+              "name_az": "Lənkəran rayonu"
+            },
+            "masalli district": {
+              "count": 601.0,
+              "per_10k": 26.3,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Masalli district",
+              "economic_region": "lankaran-astara economic region - total",
+              "name_az": "Masallı rayonu"
+            },
+            "yardimli district": {
+              "count": 3018.0,
+              "per_10k": 433.9,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Yardimli district",
+              "economic_region": "lankaran-astara economic region - total",
+              "name_az": "Yardımlı rayonu"
+            },
+            "central aran economic region - total": {
+              "count": 20041.0,
+              "per_10k": 276.1,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Central Aran economic region - total",
+              "economic_region": null,
+              "name_az": "Mərkəzi Aran iqtisadi rayonu - cəmi"
+            },
+            "mingachevir city": {
+              "count": 66.0,
+              "per_10k": 6.4,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Mingachevir city",
+              "economic_region": "central aran economic region - total",
+              "name_az": "Mingəçevir şəhəri"
+            },
+            "agdash district": {
+              "count": 4946.0,
+              "per_10k": 458.7,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Agdash district",
+              "economic_region": "central aran economic region - total",
+              "name_az": "Ağdaş rayonu"
+            },
+            "goychay district": {
+              "count": 9501.0,
+              "per_10k": 796.0,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Goychay district",
+              "economic_region": "central aran economic region - total",
+              "name_az": "Göyçay rayonu"
+            },
+            "kurdamir district": {
+              "count": 1210.0,
+              "per_10k": 101.2,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Kurdamir district",
+              "economic_region": "central aran economic region - total",
+              "name_az": "Kürdəmir rayonu"
+            },
+            "ujar district": {
+              "count": 1768.0,
+              "per_10k": 206.3,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Ujar district",
+              "economic_region": "central aran economic region - total",
+              "name_az": "Ucar rayonu"
+            },
+            "yevlakh district": {
+              "count": 458.0,
+              "per_10k": 35.1,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Yevlakh district",
+              "economic_region": "central aran economic region - total",
+              "name_az": "Yevlax rayonu"
+            },
+            "zardab district": {
+              "count": 2092.0,
+              "per_10k": 349.0,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Zardab district",
+              "economic_region": "central aran economic region - total",
+              "name_az": "Zərdab rayonu"
+            },
+            "mil-mughan economic region - total": {
+              "count": 5946.0,
+              "per_10k": 112.4,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Mil-Mughan economic region - total",
+              "economic_region": null,
+              "name_az": "Mil-Muğan iqtisadi rayonu - cəmi"
+            },
+            "beylagan district": {
+              "count": 1229.0,
+              "per_10k": 120.1,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Beylagan district",
+              "economic_region": "mil-mughan economic region - total",
+              "name_az": "Beyləqan rayonu"
+            },
+            "imishli district": {
+              "count": 463.0,
+              "per_10k": 34.9,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Imishli district",
+              "economic_region": "mil-mughan economic region - total",
+              "name_az": "İmişli rayonu"
+            },
+            "saatli district": {
+              "count": 1342.0,
+              "per_10k": 120.4,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Saatli district",
+              "economic_region": "mil-mughan economic region - total",
+              "name_az": "Saatlı rayonu"
+            },
+            "sabirabad district": {
+              "count": 2912.0,
+              "per_10k": 159.6,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Sabirabad district",
+              "economic_region": "mil-mughan economic region - total",
+              "name_az": "Sabirabad rayonu"
+            },
+            "shaki-zagatala economic region - total": {
+              "count": 35798.0,
+              "per_10k": 568.3,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Shaki-Zagatala economic region - total",
+              "economic_region": null,
+              "name_az": "Şəki-Zaqatala iqtisadi rayonu - cəmi"
+            },
+            "balakan district": {
+              "count": 619.0,
+              "per_10k": 61.2,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Balakan district",
+              "economic_region": "shaki-zagatala economic region - total",
+              "name_az": "Balakən rayonu"
+            },
+            "gakh district": {
+              "count": 338.0,
+              "per_10k": 57.8,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Gakh district",
+              "economic_region": "shaki-zagatala economic region - total",
+              "name_az": "Qax rayonu"
+            },
+            "gabala district": {
+              "count": 2645.0,
+              "per_10k": 240.8,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Gabala district",
+              "economic_region": "shaki-zagatala economic region - total",
+              "name_az": "Qəbələ rayonu"
+            },
+            "oghuz district": {
+              "count": 567.0,
+              "per_10k": 126.6,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Oghuz district",
+              "economic_region": "shaki-zagatala economic region - total",
+              "name_az": "Oğuz rayonu"
+            },
+            "shaki district": {
+              "count": 18957.0,
+              "per_10k": 1024.7,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Shaki district",
+              "economic_region": "shaki-zagatala economic region - total",
+              "name_az": "Şəki rayonu"
+            },
+            "zagatala district": {
+              "count": 12672.0,
+              "per_10k": 969.3,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Zagatala district",
+              "economic_region": "shaki-zagatala economic region - total",
+              "name_az": "Zaqatala rayonu"
+            },
+            "eastern zangazur economic region - total": {
+              "count": 1961.0,
+              "per_10k": 64.7,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Eastern Zangazur economic region - total",
+              "economic_region": null,
+              "name_az": "Şərqi Zəngəzur iqtisadi rayonu - cəmi"
+            },
+            "jabrayil district": {
+              "count": 203.0,
+              "per_10k": 27.6,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Jabrayil district",
+              "economic_region": "eastern zangazur economic region - total",
+              "name_az": "Cəbrayıl rayonu"
+            },
+            "kalbajar district": {
+              "count": 345.0,
+              "per_10k": 47.5,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Kalbajar district",
+              "economic_region": "eastern zangazur economic region - total",
+              "name_az": "Kəlbəcər rayonu"
+            },
+            "gubadli district": {
+              "count": 336.0,
+              "per_10k": 89.9,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Gubadli district",
+              "economic_region": "eastern zangazur economic region - total",
+              "name_az": "Qubadlı rayonu"
+            },
+            "lachin district": {
+              "count": 193.0,
+              "per_10k": 25.3,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Lachin district",
+              "economic_region": "eastern zangazur economic region - total",
+              "name_az": "Laçın rayonu"
+            },
+            "zangilan district": {
+              "count": 884.0,
+              "per_10k": 205.8,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Zangilan district",
+              "economic_region": "eastern zangazur economic region - total",
+              "name_az": "Zəngilan rayonu"
+            },
+            "shirvan-salyan economic region - total": {
+              "count": 11011.0,
+              "per_10k": 220.8,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Shirvan-Salyan economic region - total",
+              "economic_region": null,
+              "name_az": "Şirvan-Salyan iqtisadi rayonu - cəmi"
+            },
+            "shirvan city": {
+              "count": 112.0,
+              "per_10k": 13.0,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Shirvan city",
+              "economic_region": "shirvan-salyan economic region - total",
+              "name_az": "Şirvan şəhəri"
+            },
+            "bilasuvar district": {
+              "count": 951.0,
+              "per_10k": 88.2,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Bilasuvar district",
+              "economic_region": "shirvan-salyan economic region - total",
+              "name_az": "Biləsuvar rayonu"
+            },
+            "hajigabul district": {
+              "count": 1276.0,
+              "per_10k": 166.6,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Hajigabul district",
+              "economic_region": "shirvan-salyan economic region - total",
+              "name_az": "Hacıqabul rayonu"
+            },
+            "neftchala district": {
+              "count": 3161.0,
+              "per_10k": 360.2,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Neftchala district",
+              "economic_region": "shirvan-salyan economic region - total",
+              "name_az": "Neftçala rayonu"
+            },
+            "salyan district": {
+              "count": 5511.0,
+              "per_10k": 391.9,
+              "per_100k": null,
+              "notes": [],
+              "name_en": "Salyan district",
+              "economic_region": "shirvan-salyan economic region - total",
+              "name_az": "Salyan rayonu"
+            }
+          }
+        },
         "2024": {
           "layout": "column",
           "table_number": "1.5.3",
-          "title": "1.5.3. Distribution of population by main disease groups by economic regions and administrative-territorial units of the country in 2024 (patients registered with the diagnosis set for the first time)",
+          "title": "1.5.3. Morbidity of population by main disease groups by economic regions and administrative-territorial units of the country in  2024 (newly diagnosed cases registered)",
           "reference_year": "2024",
           "blocks": [
             {
               "unit": "count",
               "header_row": 5,
               "column": 8,
-              "column_header_raw": "circulatory system diseases                                                                                                                                                                                                                "
+              "column_header_raw": "diseases of the circulatory system                                                                                                                                                                                                                 "
             },
             {
               "unit": "per_10k",
               "header_row": 128,
               "column": 8,
-              "column_header_raw": "circulatory system diseases                                                                                                                                                                                                                "
+              "column_header_raw": "diseases of the circulatory system                                                                                                                                                                                                                 "
             }
           ],
           "unit_labels": {
             "per_10k": "Number of diseases per 10 000 population",
-            "count": "1.5.3. Distribution of population by main disease groups by economic regions and administrative-territorial units of the country in 2024 (patients registered with the diagnosis set for the first time)"
+            "count": "1.5.3. Morbidity of population by main disease groups by economic regions and administrative-territorial units of the country in  2024 (newly diagnosed cases registered)"
           },
           "regions": {
             "republic of azerbaijan - total": {
@@ -1267,7 +2187,7 @@
               "per_10k": 116.3,
               "per_100k": null,
               "notes": [],
-              "name_en": "Nakhchivan Autonomous Republic - total",
+              "name_en": "Nakhchivan economic region - total",
               "economic_region": null,
               "name_az": "Naxçıvan iqtisadi rayonu - cəmi"
             },
@@ -1393,7 +2313,7 @@
               "per_10k": 257.8,
               "per_100k": null,
               "notes": [],
-              "name_en": "Agsu region",
+              "name_en": "Agsu district",
               "economic_region": "daghlig shirvan economic region - total",
               "name_az": "Ağsu rayonu"
             },
@@ -1402,7 +2322,7 @@
               "per_10k": 139.6,
               "per_100k": null,
               "notes": [],
-              "name_en": "Ismayilli region",
+              "name_en": "Ismayilli district",
               "economic_region": "daghlig shirvan economic region - total",
               "name_az": "İsmayıllı rayonu"
             },
@@ -1411,7 +2331,7 @@
               "per_10k": 493.1,
               "per_100k": null,
               "notes": [],
-              "name_en": "Gobustan region",
+              "name_en": "Gobustan district",
               "economic_region": "daghlig shirvan economic region - total",
               "name_az": "Qobustan rayonu"
             },
@@ -1420,7 +2340,7 @@
               "per_10k": 205.4,
               "per_100k": null,
               "notes": [],
-              "name_en": "Shamakhy region",
+              "name_en": "Shamakhy district",
               "economic_region": "daghlig shirvan economic region - total",
               "name_az": "Şamaxı rayonu"
             },
@@ -1494,7 +2414,7 @@
               "per_10k": 120.5,
               "per_100k": null,
               "notes": [],
-              "name_en": "Karabakh economic region - total",
+              "name_en": "Garabakh economic region - total",
               "economic_region": null,
               "name_az": "Qarabağ iqtisadi rayonu - cəmi"
             },
@@ -2034,25 +2954,25 @@
         "2023": {
           "layout": "column",
           "table_number": "1.5.3",
-          "title": "1.5.3. Distribution of population by main disease groups by economic regions and administrative-territorial units of the country in 2023 (patients registered with the diagnosis set for the first time)",
+          "title": "1.5.3. Morbidity of population by main disease groups by economic regions and administrative-territorial units of the country in  2023 (newly diagnosed cases registered)",
           "reference_year": "2023",
           "blocks": [
             {
               "unit": "count",
               "header_row": 5,
               "column": 8,
-              "column_header_raw": "circulatory system diseases                                                                                                                                                                                                                "
+              "column_header_raw": "diseases of the circulatory system                                                                                                                                                                                                                 "
             },
             {
               "unit": "per_10k",
               "header_row": 128,
               "column": 8,
-              "column_header_raw": "circulatory system diseases                                                                                                                                                                                                                "
+              "column_header_raw": "diseases of the circulatory system                                                                                                                                                                                                                 "
             }
           ],
           "unit_labels": {
             "per_10k": "Number of diseases per 10 000 population",
-            "count": "1.5.3. Distribution of population by main disease groups by economic regions and administrative-territorial units of the country in 2023 (patients registered with the diagnosis set for the first time)"
+            "count": "1.5.3. Morbidity of population by main disease groups by economic regions and administrative-territorial units of the country in  2023 (newly diagnosed cases registered)"
           },
           "regions": {
             "republic of azerbaijan - total": {
@@ -2189,7 +3109,7 @@
               "per_10k": 106.3,
               "per_100k": null,
               "notes": [],
-              "name_en": "Nakhchivan Autonomous Republic - total",
+              "name_en": "Nakhchivan economic region - total",
               "economic_region": null,
               "name_az": "Naxçıvan iqtisadi rayonu - cəmi"
             },
@@ -2315,7 +3235,7 @@
               "per_10k": 259.5,
               "per_100k": null,
               "notes": [],
-              "name_en": "Agsu region",
+              "name_en": "Agsu district",
               "economic_region": "daghlig shirvan economic region - total",
               "name_az": "Ağsu rayonu"
             },
@@ -2324,7 +3244,7 @@
               "per_10k": 33.4,
               "per_100k": null,
               "notes": [],
-              "name_en": "Ismayilli region",
+              "name_en": "Ismayilli district",
               "economic_region": "daghlig shirvan economic region - total",
               "name_az": "İsmayıllı rayonu"
             },
@@ -2333,7 +3253,7 @@
               "per_10k": 591.5,
               "per_100k": null,
               "notes": [],
-              "name_en": "Gobustan region",
+              "name_en": "Gobustan district",
               "economic_region": "daghlig shirvan economic region - total",
               "name_az": "Qobustan rayonu"
             },
@@ -2342,7 +3262,7 @@
               "per_10k": 188.8,
               "per_100k": null,
               "notes": [],
-              "name_en": "Shamakhy region",
+              "name_en": "Shamakhy district",
               "economic_region": "daghlig shirvan economic region - total",
               "name_az": "Şamaxı rayonu"
             },
@@ -2418,7 +3338,7 @@
               "per_10k": 110.7,
               "per_100k": null,
               "notes": [],
-              "name_en": "Karabakh economic region - total",
+              "name_en": "Garabakh economic region - total",
               "economic_region": null,
               "name_az": "Qarabağ iqtisadi rayonu - cəmi"
             },
@@ -2958,25 +3878,25 @@
         "2022": {
           "layout": "column",
           "table_number": "1.5.3",
-          "title": "1.5.3. Distribution of population by main disease groups by economic regions and administrative-territorial\nunits of the country in 2022 (patients registered with the diagnosis set for the first time)",
+          "title": "1.5.3. Morbidity of population by main disease groups by economic regions and administrative-territorial units of the country in  2022 (newly diagnosed cases registered)",
           "reference_year": "2022",
           "blocks": [
             {
               "unit": "count",
               "header_row": 5,
               "column": 8,
-              "column_header_raw": "circulatory system diseases                                                                                                                                                                                                                "
+              "column_header_raw": "diseases of the circulatory system                                                                                                                                                                                                                 "
             },
             {
               "unit": "per_10k",
               "header_row": 126,
               "column": 8,
-              "column_header_raw": "circulatory system diseases                                                                                                                                                                                                                "
+              "column_header_raw": "diseases of the circulatory system                                                                                                                                                                                                                 "
             }
           ],
           "unit_labels": {
             "per_10k": "Number of diseases per 10 000 population",
-            "count": "1.5.3. Distribution of population by main disease groups by economic regions and administrative-territorial\nunits of the country in 2022 (patients registered with the diagnosis set for the first time)"
+            "count": "1.5.3. Morbidity of population by main disease groups by economic regions and administrative-territorial units of the country in  2022 (newly diagnosed cases registered)"
           },
           "regions": {
             "republic of azerbaijan - total": {
@@ -3102,7 +4022,7 @@
               "per_10k": 89.2,
               "per_100k": null,
               "notes": [],
-              "name_en": "Nakhchivan Autonomous Republic - total",
+              "name_en": "Nakhchivan economic region - total",
               "economic_region": null,
               "name_az": "Naxçıvan iqtisadi rayonu - cəmi"
             },
@@ -3228,7 +4148,7 @@
               "per_10k": 218.1,
               "per_100k": null,
               "notes": [],
-              "name_en": "Agsu region",
+              "name_en": "Agsu district",
               "economic_region": "daghlig shirvan economic region - total",
               "name_az": "Ağsu rayonu"
             },
@@ -3237,7 +4157,7 @@
               "per_10k": 28.0,
               "per_100k": null,
               "notes": [],
-              "name_en": "Ismayilli region",
+              "name_en": "Ismayilli district",
               "economic_region": "daghlig shirvan economic region - total",
               "name_az": "İsmayıllı rayonu"
             },
@@ -3246,7 +4166,7 @@
               "per_10k": 499.3,
               "per_100k": null,
               "notes": [],
-              "name_en": "Gobustan region",
+              "name_en": "Gobustan district",
               "economic_region": "daghlig shirvan economic region - total",
               "name_az": "Qobustan rayonu"
             },
@@ -3255,7 +4175,7 @@
               "per_10k": 158.8,
               "per_100k": null,
               "notes": [],
-              "name_en": "Shamakhy region",
+              "name_en": "Shamakhy district",
               "economic_region": "daghlig shirvan economic region - total",
               "name_az": "Şamaxı rayonu"
             },
@@ -3327,7 +4247,7 @@
               "per_10k": 93.0,
               "per_100k": null,
               "notes": [],
-              "name_en": "Karabakh economic region - total",
+              "name_en": "Garabakh economic region - total",
               "economic_region": null,
               "name_az": "Qarabağ iqtisadi rayonu - cəmi"
             },
@@ -3858,25 +4778,25 @@
         "2021": {
           "layout": "column",
           "table_number": "1.5.3",
-          "title": "1.5.3. Distribution of population by main disease groups by economic regions and administrative-territorial\nunits of the country in 2021 (patients registered with the diagnosis set for the first time)",
+          "title": "1.5.3. Morbidity of population by main disease groups by economic regions and administrative-territorial units of the country in 2021 (newly diagnosed cases registered)",
           "reference_year": "2021",
           "blocks": [
             {
               "unit": "count",
               "header_row": 5,
               "column": 8,
-              "column_header_raw": "circulatory system diseases                                                                                                                                                                                                                "
+              "column_header_raw": "diseases of the circulatory system                                                                                                                                                                                                                 "
             },
             {
               "unit": "per_10k",
               "header_row": 126,
               "column": 8,
-              "column_header_raw": "circulatory system diseases                                                                                                                                                                                                                "
+              "column_header_raw": "diseases of the circulatory system                                                                                                                                                                                                                 "
             }
           ],
           "unit_labels": {
-            "per_10k": "Number of diseases per 10 000 population1)",
-            "count": "1.5.3. Distribution of population by main disease groups by economic regions and administrative-territorial\nunits of the country in 2021 (patients registered with the diagnosis set for the first time)"
+            "per_10k": "Number of diseases per 10 000 population 1)",
+            "count": "1.5.3. Morbidity of population by main disease groups by economic regions and administrative-territorial units of the country in 2021 (newly diagnosed cases registered)"
           },
           "regions": {
             "republic of azerbaijan - total": {
@@ -4063,7 +4983,7 @@
               "per_10k": 91.4,
               "per_100k": null,
               "notes": [],
-              "name_en": "Nakhchivan Autonomous Republic - total",
+              "name_en": "Nakhchivan economic region - total",
               "economic_region": null,
               "name_az": "Naxçıvan iqtisadi rayonu - cəmi"
             },
@@ -4235,7 +5155,7 @@
               "notes": [
                 "COVID-19 period — consider separately in trend analysis"
               ],
-              "name_en": "Agsu region",
+              "name_en": "Agsu district",
               "economic_region": "daghlig shirvan economic region - total",
               "name_az": "Ağsu rayonu",
               "covid_change_vs_2019_pct": -10.1,
@@ -4248,7 +5168,7 @@
               "notes": [
                 "COVID-19 period — consider separately in trend analysis"
               ],
-              "name_en": "Ismayilli region",
+              "name_en": "Ismayilli district",
               "economic_region": "daghlig shirvan economic region - total",
               "name_az": "İsmayıllı rayonu",
               "covid_change_vs_2019_pct": -35.5,
@@ -4261,7 +5181,7 @@
               "notes": [
                 "COVID-19 period — consider separately in trend analysis"
               ],
-              "name_en": "Gobustan region",
+              "name_en": "Gobustan district",
               "economic_region": "daghlig shirvan economic region - total",
               "name_az": "Qobustan rayonu",
               "covid_change_vs_2019_pct": -27.7,
@@ -4274,7 +5194,7 @@
               "notes": [
                 "COVID-19 period — consider separately in trend analysis"
               ],
-              "name_en": "Shamakhy region",
+              "name_en": "Shamakhy district",
               "economic_region": "daghlig shirvan economic region - total",
               "name_az": "Şamaxı rayonu",
               "covid_change_vs_2019_pct": 76.8,
@@ -4362,7 +5282,7 @@
               "notes": [
                 "COVID-19 period — consider separately in trend analysis"
               ],
-              "name_en": "Karabakh economic region - total",
+              "name_en": "Garabakh economic region - total",
               "economic_region": null,
               "name_az": "Qarabağ iqtisadi rayonu - cəmi",
               "covid_change_vs_2019_pct": -16.9,
@@ -5067,25 +5987,25 @@
         "2020": {
           "layout": "column",
           "table_number": "1.5.2",
-          "title": "1.5.2. Distribution of population by main disease groups by economic regions and administrative-territorial\nunits of the country in 2020 (patients registered with the diagnosis set for the first time)",
+          "title": "1.5.2. Morbidity of population by main disease groups by economic regions and administrative-territorial units of the country in 2020 (newly diagnosed cases registered)",
           "reference_year": "2020",
           "blocks": [
             {
               "unit": "count",
               "header_row": 5,
               "column": 8,
-              "column_header_raw": "circulatory system diseases                                                                                                                                                                                                                "
+              "column_header_raw": "diseases of the circulatory system                                                                                                                                                                                                                 "
             },
             {
               "unit": "per_10k",
               "header_row": 126,
               "column": 8,
-              "column_header_raw": "circulatory system diseases                                                                                                                                                                                                                "
+              "column_header_raw": "diseases of the circulatory system                                                                                                                                                                                                                 "
             }
           ],
           "unit_labels": {
-            "per_10k": "Number of diseases per 10 000 population1)",
-            "count": "1.5.2. Distribution of population by main disease groups by economic regions and administrative-territorial\nunits of the country in 2020 (patients registered with the diagnosis set for the first time)"
+            "per_10k": "Number of diseases per 10 000 population 1)",
+            "count": "1.5.2. Morbidity of population by main disease groups by economic regions and administrative-territorial units of the country in 2020 (newly diagnosed cases registered)"
           },
           "regions": {
             "republic of azerbaijan - total": {
@@ -5254,7 +6174,7 @@
               "notes": [
                 "COVID-19 period — consider separately in trend analysis"
               ],
-              "name_en": "Nakhchivan Autonomous Republic - total",
+              "name_en": "Nakhchivan economic region - total",
               "economic_region": null,
               "name_az": "Naxçıvan iqtisadi rayonu - cəmi",
               "covid_change_vs_2019_pct": 41.7,
@@ -5420,7 +6340,7 @@
               "notes": [
                 "COVID-19 period — consider separately in trend analysis"
               ],
-              "name_en": "Agsu region",
+              "name_en": "Agsu district",
               "economic_region": "daghlig shirvan economic region - total",
               "name_az": "Ağsu rayonu",
               "covid_change_vs_2019_pct": -10.9,
@@ -5433,7 +6353,7 @@
               "notes": [
                 "COVID-19 period — consider separately in trend analysis"
               ],
-              "name_en": "Ismayilli region",
+              "name_en": "Ismayilli district",
               "economic_region": "daghlig shirvan economic region - total",
               "name_az": "İsmayıllı rayonu",
               "covid_change_vs_2019_pct": -30.9,
@@ -5446,7 +6366,7 @@
               "notes": [
                 "COVID-19 period — consider separately in trend analysis"
               ],
-              "name_en": "Gobustan region",
+              "name_en": "Gobustan district",
               "economic_region": "daghlig shirvan economic region - total",
               "name_az": "Qobustan rayonu",
               "covid_change_vs_2019_pct": 12.3,
@@ -5459,7 +6379,7 @@
               "notes": [
                 "COVID-19 period — consider separately in trend analysis"
               ],
-              "name_en": "Shamakhy region",
+              "name_en": "Shamakhy district",
               "economic_region": "daghlig shirvan economic region - total",
               "name_az": "Şamaxı rayonu",
               "covid_change_vs_2019_pct": 28.8,
@@ -5537,7 +6457,7 @@
               "per_10k": 115.3857925504239,
               "per_100k": null,
               "notes": [],
-              "name_en": "Karabakh economic region - total",
+              "name_en": "Garabakh economic region - total",
               "economic_region": null,
               "name_az": "Qarabağ iqtisadi rayonu - cəmi"
             },
@@ -6192,25 +7112,25 @@
         "2019": {
           "layout": "column",
           "table_number": "1.5.3",
-          "title": "1.5.3. Distribution of population by main disease groups by economic regions and administrative-territorial\nunits of the country in 2019 (patients registered with the diagnosis set for the first time)",
+          "title": "1.5.3. Morbidity of population by main disease groups by economic regions and administrative-territorial units of the country in  2019 (newly diagnosed cases registered)",
           "reference_year": "2019",
           "blocks": [
             {
               "unit": "count",
               "header_row": 5,
               "column": 8,
-              "column_header_raw": "circulatory system diseases                                                                                                                                                                                                                "
+              "column_header_raw": "diseases of the circulatory system                                                                                                                                                                                                                 "
             },
             {
               "unit": "per_10k",
               "header_row": 127,
               "column": 8,
-              "column_header_raw": "circulatory system diseases                                                                                                                                                                                                                "
+              "column_header_raw": "diseases of the circulatory system                                                                                                                                                                                                                 "
             }
           ],
           "unit_labels": {
-            "per_10k": "Number of diseases per 10 000 population1)",
-            "count": "1.5.3. Distribution of population by main disease groups by economic regions and administrative-territorial\nunits of the country in 2019 (patients registered with the diagnosis set for the first time)"
+            "per_10k": "Number of diseases per 10 000 population 1)",
+            "count": "1.5.3. Morbidity of population by main disease groups by economic regions and administrative-territorial units of the country in  2019 (newly diagnosed cases registered)"
           },
           "regions": {
             "republic of azerbaijan - total": {
@@ -6345,7 +7265,7 @@
               "per_10k": 85.20996845288127,
               "per_100k": null,
               "notes": [],
-              "name_en": "Nakhchivan Autonomous Republic - total",
+              "name_en": "Nakhchivan economic region - total",
               "economic_region": null,
               "name_az": "Naxçıvan iqtisadi rayonu - cəmi"
             },
@@ -6471,7 +7391,7 @@
               "per_10k": 208.70594593203543,
               "per_100k": null,
               "notes": [],
-              "name_en": "Agsu region",
+              "name_en": "Agsu district",
               "economic_region": "daghlig shirvan economic region - total",
               "name_az": "Ağsu rayonu"
             },
@@ -6480,7 +7400,7 @@
               "per_10k": 36.1423088695816,
               "per_100k": null,
               "notes": [],
-              "name_en": "Ismayilli region",
+              "name_en": "Ismayilli district",
               "economic_region": "daghlig shirvan economic region - total",
               "name_az": "İsmayıllı rayonu"
             },
@@ -6489,7 +7409,7 @@
               "per_10k": 514.9808515431404,
               "per_100k": null,
               "notes": [],
-              "name_en": "Gobustan region",
+              "name_en": "Gobustan district",
               "economic_region": "daghlig shirvan economic region - total",
               "name_az": "Qobustan rayonu"
             },
@@ -6498,7 +7418,7 @@
               "per_10k": 89.74750509817056,
               "per_100k": null,
               "notes": [],
-              "name_en": "Shamakhy region",
+              "name_en": "Shamakhy district",
               "economic_region": "daghlig shirvan economic region - total",
               "name_az": "Şamaxı rayonu"
             },
@@ -6570,7 +7490,7 @@
               "per_10k": 116.32418390326328,
               "per_100k": null,
               "notes": [],
-              "name_en": "Karabakh economic region - total",
+              "name_en": "Garabakh economic region - total",
               "economic_region": null,
               "name_az": "Qarabağ iqtisadi rayonu - cəmi"
             },
@@ -7101,25 +8021,25 @@
         "2018": {
           "layout": "column",
           "table_number": "1.5.4",
-          "title": "1.5.4. Distribution of population by main disease groups by economic regions and administrative-territorial\nunits of the country in 2018 (patients registered with the diagnosis set for the first time)",
+          "title": "1.5.4. Morbidity of population by main disease groups by economic regions and administrative-territorial units of the country in 2018(newly diagnosed cases registered)",
           "reference_year": "2018",
           "blocks": [
             {
               "unit": "count",
               "header_row": 5,
               "column": 8,
-              "column_header_raw": "                                                                                                                                                                        circulatory system diseases                                                                                                                                                                                                                "
+              "column_header_raw": "diseases of the circulatory system                                                                                                                                                                                                                 "
             },
             {
               "unit": "per_10k",
               "header_row": 125,
               "column": 8,
-              "column_header_raw": "                                                                                                                                                                        circulatory system diseases                                                                                                                                                                                                                "
+              "column_header_raw": "diseases of the circulatory system                                                                                                                                                                                                                 "
             }
           ],
           "unit_labels": {
             "per_10k": "Number of diseases per 10 000 population",
-            "count": "1.5.4. Distribution of population by main disease groups by economic regions and administrative-territorial\nunits of the country in 2018 (patients registered with the diagnosis set for the first time)"
+            "count": "1.5.4. Morbidity of population by main disease groups by economic regions and administrative-territorial units of the country in 2018(newly diagnosed cases registered)"
           },
           "regions": {
             "republic of azerbaijan": {
@@ -7254,7 +8174,7 @@
               "per_10k": 82.2,
               "per_100k": null,
               "notes": [],
-              "name_en": "Nakhchivan Autonomous Republic - total",
+              "name_en": "Nakhchivan economic region - total",
               "economic_region": null,
               "name_az": "Naxçıvan iqtisadi rayonu - cəmi"
             },
@@ -7479,7 +8399,7 @@
               "per_10k": 100.3,
               "per_100k": null,
               "notes": [],
-              "name_en": "Karabakh economic region - total",
+              "name_en": "Garabakh economic region - total",
               "economic_region": null,
               "name_az": "Qarabağ iqtisadi rayonu - cəmi"
             },
@@ -8010,25 +8930,25 @@
         "2017": {
           "layout": "column",
           "table_number": "1.5.4",
-          "title": "1.5.4. Distribution of population by main disease groups by economic regions and administrative-territorial\nunits of the country in 2017 (patients registered with the diagnosis set for the first time)",
+          "title": "1.5.4. Morbidity of population by main disease groups by economic regions and administrative-territorial units of the country in 2017 (newly diagnosed cases registered)",
           "reference_year": "2017",
           "blocks": [
             {
               "unit": "count",
               "header_row": 4,
               "column": 8,
-              "column_header_raw": "                                                                                                                                                                        circulatory system diseases                                                                                                                                                                                                                "
+              "column_header_raw": "diseases of the circulatory system                                                                                                                                                                                                                 "
             },
             {
               "unit": "per_10k",
               "header_row": 124,
               "column": 8,
-              "column_header_raw": "                                                                                                                                                                        circulatory system diseases                                                                                                                                                                                                                "
+              "column_header_raw": "diseases of the circulatory system                                                                                                                                                                                                                 "
             }
           ],
           "unit_labels": {
             "per_10k": "Number of diseases per 10 000 population",
-            "count": "1.5.4. Distribution of population by main disease groups by economic regions and administrative-territorial\nunits of the country in 2017 (patients registered with the diagnosis set for the first time)"
+            "count": "1.5.4. Morbidity of population by main disease groups by economic regions and administrative-territorial units of the country in 2017 (newly diagnosed cases registered)"
           },
           "regions": {
             "republic of azerbaijan": {
@@ -8163,7 +9083,7 @@
               "per_10k": 86.8,
               "per_100k": null,
               "notes": [],
-              "name_en": "Nakhchivan Autonomous Republic - total",
+              "name_en": "Nakhchivan economic region - total",
               "economic_region": null,
               "name_az": "Naxçıvan iqtisadi rayonu - cəmi"
             },
@@ -8388,7 +9308,7 @@
               "per_10k": 117.2,
               "per_100k": null,
               "notes": [],
-              "name_en": "Karabakh economic region - total",
+              "name_en": "Garabakh economic region - total",
               "economic_region": null,
               "name_az": "Qarabağ iqtisadi rayonu - cəmi"
             },
@@ -8919,25 +9839,25 @@
         "2016": {
           "layout": "column",
           "table_number": "1.5.4",
-          "title": "1.5.4. Distribution of population by main disease groups by economic regions and administrative-territorial\nunits of the country in 2016 (patients registered with the diagnosis set for the first time)",
+          "title": "1.5.4. Morbidity of population by main disease groups by economic regions and administrative-territorial units of the country in  2016 (newly diagnosed cases registered)",
           "reference_year": "2016",
           "blocks": [
             {
               "unit": "count",
               "header_row": 3,
               "column": 8,
-              "column_header_raw": "                                                                                                                                                                          circulatory system diseases                                                                                                                                                                                                                "
+              "column_header_raw": "diseases of the circulatory system                                                                                                                                                                                                                 "
             },
             {
               "unit": "per_10k",
               "header_row": 123,
               "column": 8,
-              "column_header_raw": "                                                                                                                                                                          circulatory system diseases                                                                                                                                                                                                                "
+              "column_header_raw": "diseases of the circulatory system                                                                                                                                                                                                                 "
             }
           ],
           "unit_labels": {
             "per_10k": "Number of diseases per 10 000 population",
-            "count": "1.5.4. Distribution of population by main disease groups by economic regions and administrative-territorial\nunits of the country in 2016 (patients registered with the diagnosis set for the first time)"
+            "count": "1.5.4. Morbidity of population by main disease groups by economic regions and administrative-territorial units of the country in  2016 (newly diagnosed cases registered)"
           },
           "regions": {
             "republic of azerbaijan": {
@@ -9072,7 +9992,7 @@
               "per_10k": 92.93102020443929,
               "per_100k": null,
               "notes": [],
-              "name_en": "Nakhchivan Autonomous Republic - total",
+              "name_en": "Nakhchivan economic region - total",
               "economic_region": null,
               "name_az": "Naxçıvan iqtisadi rayonu - cəmi"
             },
@@ -9297,7 +10217,7 @@
               "per_10k": 138.0,
               "per_100k": null,
               "notes": [],
-              "name_en": "Karabakh economic region - total",
+              "name_en": "Garabakh economic region - total",
               "economic_region": null,
               "name_az": "Qarabağ iqtisadi rayonu - cəmi"
             },
@@ -9828,25 +10748,25 @@
         "2015": {
           "layout": "column",
           "table_number": "1.5.4",
-          "title": "1.5.4. Distribution of population by main disease groups by economic regions and administrative-territorial\nunits of the country in 2015 (patients registered with the diagnosis set for the first time)",
+          "title": "1.5.4. Morbidity of population by main disease groups by economic regions and administrative-territorial units of the country in  2015 (newly diagnosed cases registered)",
           "reference_year": "2015",
           "blocks": [
             {
               "unit": "count",
               "header_row": 4,
               "column": 8,
-              "column_header_raw": "                                                                                                                                                                          circulatory system diseases                                                                                                                                                                                                                "
+              "column_header_raw": "diseases of the circulatory system                                                                                                                                                                                                                 "
             },
             {
               "unit": "per_10k",
               "header_row": 124,
               "column": 8,
-              "column_header_raw": "                                                                                                                                                                          circulatory system diseases                                                                                                                                                                                                                "
+              "column_header_raw": "diseases of the circulatory system                                                                                                                                                                                                                 "
             }
           ],
           "unit_labels": {
             "per_10k": "Number of diseases per 10 000 population",
-            "count": "1.5.4. Distribution of population by main disease groups by economic regions and administrative-territorial\nunits of the country in 2015 (patients registered with the diagnosis set for the first time)"
+            "count": "1.5.4. Morbidity of population by main disease groups by economic regions and administrative-territorial units of the country in  2015 (newly diagnosed cases registered)"
           },
           "regions": {
             "republic of azerbaijan": {
@@ -9981,7 +10901,7 @@
               "per_10k": 83.98495373250124,
               "per_100k": null,
               "notes": [],
-              "name_en": "Nakhchivan Autonomous Republic - total",
+              "name_en": "Nakhchivan economic region - total",
               "economic_region": null,
               "name_az": "Naxçıvan iqtisadi rayonu - cəmi"
             },
@@ -10206,7 +11126,7 @@
               "per_10k": 111.0,
               "per_100k": null,
               "notes": [],
-              "name_en": "Karabakh economic region - total",
+              "name_en": "Garabakh economic region - total",
               "economic_region": null,
               "name_az": "Qarabağ iqtisadi rayonu - cəmi"
             },
