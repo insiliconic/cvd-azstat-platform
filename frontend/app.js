@@ -474,7 +474,7 @@ function renderNationalResult() {
 }
 
 function initNationalControls(dataset) {
-  const measureSelect = document.getElementById("national-measure-select");
+  const measureTabs = document.querySelectorAll("#national-measure-tabs .tab-btn");
   const ageSelect = document.getElementById("national-age-select");
   const ageLabel = document.getElementById("national-age-label");
   const yearSelect = document.getElementById("national-year-select");
@@ -491,13 +491,18 @@ function initNationalControls(dataset) {
     ageLabel.hidden = measure.ages.length < 2;
   }
 
-  measureSelect.addEventListener("change", () => {
+  function syncMeasureTabs() {
+    measureTabs.forEach((b) => b.setAttribute("aria-selected", String(b.dataset.measure === nationalState.measure)));
+  }
+  measureTabs.forEach((btn) => btn.addEventListener("click", () => {
+    if (btn.dataset.measure === nationalState.measure) return;
     if (nationalState.measure === "morbidity") lastMorbidityAge = nationalState.age;
-    nationalState.measure = measureSelect.value;
+    nationalState.measure = btn.dataset.measure;
     nationalState.age = nationalState.measure === "morbidity" ? lastMorbidityAge : NATIONAL_MEASURES.death.defaultAge;
+    syncMeasureTabs();
     syncAgeOptions();
     renderNationalResult();
-  });
+  }));
   ageSelect.addEventListener("change", () => {
     nationalState.age = ageSelect.value;
     renderNationalResult();
@@ -508,7 +513,7 @@ function initNationalControls(dataset) {
   });
 
   nationalState = { measure: "death", age: NATIONAL_MEASURES.death.defaultAge, year: lastYear };
-  measureSelect.value = "death";
+  syncMeasureTabs();
   yearSelect.value = String(lastYear);
   syncAgeOptions();
   renderNationalResult();

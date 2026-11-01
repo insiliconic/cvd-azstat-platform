@@ -136,3 +136,17 @@
   `name_en` keeps the source's wording. Checked: 2015-2024 values identical to the
   previous file, 2025 adds the same 99 rows.
 - Changed: the "download failed" e-mail now also covers an unrecognised file layout.
+
+### 2026-11-02 (2)
+- Changed: in "Bütün göstəricilər" the "Ölçü növü" dropdown (Ölüm / Xəstələnmə) is now
+  a pair of tab buttons, styled like the trend section's tabs (selected = blue,
+  unselected = light).
+- Changed: header. "Cardiostatistics" (mark + name) sits alone, centred, in a fixed
+  top bar that stays put while scrolling (opaque, so content never shows through it;
+  in-page jumps stop below it). The name now has the same font size as the page title
+  (`--head-size`). The title and the AZ / EN / theme buttons share one row.
+- Added: the logo's line draws itself like an ECG on every page load (CSS only):
+  flat line, bump + dip, pause, tall spike and back down, pause, then a quick climb
+  to the end dot. Nothing is stored, so it plays on every visit; it is skipped for
+  `prefers-reduced-motion`.
+

@@ -46,28 +46,34 @@
 </head>
 <body>
 
+<!-- Fixed top bar: logo + name, centred, always visible. Opaque, so content
+     scrolling under it never shows through. The line in the mark draws itself
+     like an ECG on every page load (CSS only, see .brand__line in style.css). -->
+<div class="topbar">
+  <a class="brand" href="./" aria-label="Cardiostatistics">
+    <svg class="brand__mark" viewBox="0 0 100 100" width="40" height="40" aria-hidden="true" focusable="false">
+      <rect width="100" height="100" rx="22" fill="currentColor"/>
+      <polyline class="brand__line" pathLength="100" points="15,58 31,58 38,46 46,72 56,27 63,56 73,44 83,32" fill="none" stroke="#fff" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle class="brand__dot" cx="83" cy="32" r="7.4" fill="#fff"/>
+    </svg>
+    <span class="brand__name">Cardiostatistics</span>
+  </a>
+</div>
+
 <header class="site-header">
-  <div class="site-header__title">
-    <a class="brand" href="./" aria-label="Cardiostatistics">
-      <svg class="brand__mark" viewBox="0 0 100 100" width="28" height="28" aria-hidden="true" focusable="false">
-        <rect width="100" height="100" rx="22" fill="currentColor"/>
-        <polyline points="15,58 31,58 38,46 46,72 56,27 63,56 73,44 83,32" fill="none" stroke="#fff" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="83" cy="32" r="7.4" fill="#fff"/>
-      </svg>
-      <span class="brand__name">Cardiostatistics</span>
-    </a>
+  <div class="site-header__row">
     <h1 data-i18n="header.title">Ürək-damar xəstəlikləri statistikası</h1>
-    <p class="subtitle" data-i18n="header.subtitle">Qan dövranı sistemi xəstəlikləri (ICD-10 I00–I99) üzrə göstəricilər</p>
-  </div>
-  <div class="header-actions">
-    <div class="lang-switch" role="group" aria-label="Dil" data-i18n-attr="aria-label:header.langSwitch">
-      <button type="button" class="lang-btn" data-lang="az" lang="az" aria-pressed="true">AZ</button>
-      <button type="button" class="lang-btn" data-lang="en" lang="en" aria-pressed="false">EN</button>
+    <div class="header-actions">
+      <div class="lang-switch" role="group" aria-label="Dil" data-i18n-attr="aria-label:header.langSwitch">
+        <button type="button" class="lang-btn" data-lang="az" lang="az" aria-pressed="true">AZ</button>
+        <button type="button" class="lang-btn" data-lang="en" lang="en" aria-pressed="false">EN</button>
+      </div>
+      <button id="theme-toggle" type="button" aria-label="İşıqlı/qaranlıq rejimi dəyiş" data-i18n-attr="aria-label:header.themeToggle">
+        <span aria-hidden="true">🌓</span>
+      </button>
     </div>
-    <button id="theme-toggle" type="button" aria-label="İşıqlı/qaranlıq rejimi dəyiş" data-i18n-attr="aria-label:header.themeToggle">
-      <span aria-hidden="true">🌓</span>
-    </button>
   </div>
+  <p class="subtitle" data-i18n="header.subtitle">Qan dövranı sistemi xəstəlikləri (ICD-10 I00–I99) üzrə göstəricilər</p>
 </header>
 
 <main>
@@ -150,12 +156,10 @@
     </div>
 
     <div id="national-controls" class="scope-controls">
-      <label class="select-label"><span data-i18n="label.measure">Ölçü növü</span>
-        <select id="national-measure-select">
-          <option value="death" data-i18n="measure.death">Ölüm</option>
-          <option value="morbidity" data-i18n="measure.morbidity">Xəstələnmə</option>
-        </select>
-      </label>
+      <div class="tab-group" id="national-measure-tabs" role="tablist" aria-label="Ölçü növü" data-i18n-attr="aria-label:label.measure">
+        <button type="button" class="tab-btn" data-measure="death" role="tab" aria-selected="true" data-i18n="measure.death">Ölüm</button>
+        <button type="button" class="tab-btn" data-measure="morbidity" role="tab" aria-selected="false" data-i18n="measure.morbidity">Xəstələnmə</button>
+      </div>
       <label class="select-label" id="national-age-label"><span data-i18n="label.ageRange">Yaş aralığı</span>
         <select id="national-age-select"></select>
       </label>

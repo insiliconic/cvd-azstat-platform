@@ -100,30 +100,84 @@ main {
 .muted { color: var(--text-secondary); font-size: 0.9rem; margin: 4px 0 0; }
 
 /* Header */
-.site-header {
+/* One size for the wordmark and the page title, so they read as a pair. */
+:root { --head-size: 1.5rem; --topbar-h: 62px; }
+html { scroll-padding-top: calc(var(--topbar-h) + 8px); } /* in-page jumps stop below the fixed bar */
+
+/* Fixed top bar: logo + name, centred with empty sides. Opaque and above the
+   content (z-index), so scrolling text never runs into it. */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  max-width: 1040px;
-  margin: 0 auto;
-  padding: 24px 16px 8px;
+  justify-content: center;
+  padding: 8px 16px;
+  background: var(--page);
+  border-bottom: 1px solid var(--border);
 }
-/* Brand lockup (mark + wordmark) above the page title. The mark takes the
-   chart blue via currentColor, so it follows light/dark like the data does. */
+/* Brand lockup (mark + wordmark). The mark takes the chart blue via
+   currentColor, so it follows light/dark like the data does. */
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
+  gap: 10px;
   color: var(--series-1);
   text-decoration: none;
 }
-.brand__mark { display: block; flex: none; }
-.brand__name { font-size: 1.05rem; font-weight: 700; letter-spacing: 0.01em; color: var(--text-primary); }
+.brand__mark { display: block; flex: none; width: 40px; height: 40px; }
+.brand__name { font-size: var(--head-size); font-weight: 700; line-height: 1.2; letter-spacing: 0.01em; color: var(--text-primary); }
 .brand:focus-visible { outline: 2px solid var(--series-1); outline-offset: 3px; border-radius: 6px; }
-.site-header h1 { margin: 0; font-size: 1.5rem; }
-.site-header .subtitle { margin: 4px 0 0; color: var(--text-secondary); font-size: 0.95rem; }
+
+/* Page-load intro: the mark's line is drawn like an ECG trace. Flat line,
+   then each rise-and-fall (P bump + dip, then the tall spike) with a short
+   pause after it, and finally the quick climb of the growth arrow to the end
+   dot. Segment ends on the 100-unit path: 9.74 / 34.76 / 80.98 / 100. Runs on
+   every load only (nothing is stored); users who asked for less motion get
+   the finished logo at once. */
+.brand__line {
+  stroke-dasharray: 100 100;
+  animation: ecg-trace 2.2s linear both;
+}
+.brand__dot {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ecg-dot 0.32s ease-out 1.9s both;
+}
+@keyframes ecg-trace {
+  0%     { stroke-dashoffset: 100;   opacity: 0; }
+  0.5%   { stroke-dashoffset: 100;   opacity: 1; }
+  13.6%  { stroke-dashoffset: 90.26; }                          /* flat baseline */
+  31.8%  { stroke-dashoffset: 65.24; }                          /* bump + dip */
+  43.2%  { stroke-dashoffset: 65.24; }                          /* pause */
+  68.2%  { stroke-dashoffset: 19.02; }                          /* tall spike + back down */
+  79.5%  { stroke-dashoffset: 19.02; animation-timing-function: ease-in; } /* pause */
+  87.7%  { stroke-dashoffset: 0; }                              /* fast climb to the end */
+  100%   { stroke-dashoffset: 0; }
+}
+@keyframes ecg-dot {
+  0%   { transform: scale(0); }
+  60%  { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brand__line, .brand__dot { animation: none; }
+}
+
+.site-header {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 20px 16px 8px;
+}
+/* Title and the language / theme buttons share one row. */
+.site-header__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.site-header h1 { margin: 0; font-size: var(--head-size); line-height: 1.25; min-width: 0; }
+.site-header .subtitle { margin: 6px 0 0; color: var(--text-secondary); font-size: 0.95rem; }
 #theme-toggle {
   flex: none;
   width: 40px;
@@ -139,7 +193,6 @@ main {
 
 /* Header controls (language + theme) stay together in the top-right corner,
    also on phones: the title shrinks/wraps instead. */
-.site-header__title { min-width: 0; }
 .header-actions { display: flex; align-items: center; gap: 8px; flex: none; }
 
 /* AZ / EN: two small circles. Light mode = white fill, black ring; dark mode
@@ -365,7 +418,7 @@ main {
   gap: 12px;
   margin: 12px 0 4px;
 }
-.scope-controls { display: flex; flex-wrap: wrap; gap: 12px; margin: 12px 0 8px; }
+.scope-controls { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; margin: 12px 0 8px; }
 .national-result { max-width: 360px; }
 .national-result--table { max-width: 720px; }
 .national-result--table .kpi-tile__label { margin-bottom: 6px; }
@@ -451,7 +504,9 @@ footer {
 }
 
 @media (max-width: 560px) {
-  .site-header h1 { font-size: 1.25rem; }
+  :root { --head-size: 1.25rem; --topbar-h: 56px; }
+  .brand__mark { width: 34px; height: 34px; }
+  .topbar { padding: 8px 12px; }
   .chart-wrap { height: 280px; }
   .chart-wrap--bar { height: 380px; }
   .regional-controls { align-items: stretch; }
