@@ -1,4 +1,4 @@
-// Medstatica: the cvd-azstat-platform data on a phone. Fetches the public
+// Cardiostatistics: the cvd-azstat-platform data on a phone. Fetches the public
 // dataset at start (and on pull-to-refresh), then shows the national and
 // regional views. Header: app name + AZ/EN switch; two tabs below it.
 import { StatusBar } from "expo-status-bar";

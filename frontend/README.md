@@ -3,8 +3,9 @@
 A small static site (plain HTML/CSS/JS + [Chart.js](https://www.chartjs.org/))
 that reads the public dataset and renders it. No framework, no build step, no
 bundler — the browser fetches
+`data/circulatory_data.json` from the same origin on the deployed site (and
 `https://insiliconic.github.io/cvd-azstat-platform/data/circulatory_data.json`
-every time the page loads (see `app.js`, `DATA_URL`). Nothing here is
+in a local preview) every time the page loads (see `app.js`, `DATA_URL`). Nothing here is
 hardcoded; if the dataset changes, reloading the page shows the new numbers.
 
 ## What's on the page
@@ -43,8 +44,8 @@ hardcoded; if the dataset changes, reloading the page shows the new numbers.
    year. A **Kəsim** tab switches to **Region**: an İqtisadi region dropdown,
    then a Rayon dropdown scoped to it ("Bütün rayonlar" shows every district
    of the chosen region as its own row; picking one narrows to just it).
-   Every label is the source's own Azerbaijani name (`name_az` in the
-   dataset — see `parser.py`), not a translation. Every row has count, rate,
+   Every label is the source's own name in the interface language (`name_az`
+   / `name_en` in the dataset — see `parser.py`), not a translation. Every row has count, rate,
    unit and a badge for COVID / non-integer notes carried over from the
    dataset. Click a column header to sort by it; click again to reverse.
 5. **Methodology** — source, last-updated date (the dataset's own `generated`
@@ -81,7 +82,17 @@ python -m http.server 3000 --directory frontend
   `data-i18n`, `data-i18n-html` or `data-i18n-attr`, and scripts call
   `t(key, vars)` (`i18n.js`). A new string needs a key in **both** files; a
   key missing from `en.json` falls back to Azerbaijani. Region and district
-  names are intentionally left in the source's Azerbaijani in both languages.
+  names follow the interface language too: `name_az` / `name_en` in the
+  dataset are Azstat's own published labels, not our translation.
+- **Brand**: the site is **Cardiostatistics** (cardiostatistics.com, the
+  same name as the mobile app in `app/`). The wordmark and mark sit
+  above the page title in `index.html`;
+  `favicon.svg`, `logo-mark.svg`, `apple-touch-icon.png`, `og-image.png` and the
+  `logo-light.png` / `logo-dark.png` lockups (mark + wordmark, for light and
+  dark backgrounds) all come from the same logo mark (`python
+  scripts/make_site_assets.py` rebuilds the PNGs).
+  The `og:url` / `og:image` tags use absolute URLs, so update them when a
+  custom domain is attached.
 - **Colors** follow the project's data-viz method: one categorical hue for
   the single-series trend line, the fixed status pair (green = good, red =
   critical) for KPI deltas, and a single-hue sequential heatmap for the
@@ -95,8 +106,8 @@ python -m http.server 3000 --directory frontend
 - Deployed at <https://insiliconic.github.io/cvd-azstat-platform/> — the
   `deploy` job in `.github/workflows/update-data.yml` copies this folder's
   files (`index.html`, `style.css`, `i18n.js`, `app.js`, `region-map.js`,
-  `az-economic-regions.geojson`, `az-districts.geojson`, and the `i18n/`
-  folder) into the same Pages
+  `az-economic-regions.geojson`, `az-districts.geojson`, `favicon.svg`,
+  `apple-touch-icon.png`, `og-image.png`, and the `i18n/` folder) into the same Pages
   artifact as `data/circulatory_data.json` after every successful daily run.
   This local setup is for previewing changes before they're pushed, not a
   separate deployment.

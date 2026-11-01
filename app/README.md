@@ -1,4 +1,4 @@
-# Medstatica (mobil app)
+# Cardiostatistics (mobil app)
 
 Expo (React Native) app. Saytdakı ürək-damar xəstəlikləri statistikasını
 telefonda göstərir. Datanı hər açılışda saytın istifadə etdiyi eyni ictimai

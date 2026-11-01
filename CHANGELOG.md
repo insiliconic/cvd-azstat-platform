@@ -75,3 +75,45 @@
   polygon) showed an empty map and bar chart; the bar chart now reads
   district rows straight from the dataset (no geometry needed) and the map
   falls back to the parent region's own shape.
+
+### 2026-10-11
+- Added: Medstatica branding on the site: wordmark + heartbeat mark in the
+  header, page title `Medstatica — …` (AZ and EN), `favicon.svg`,
+  `apple-touch-icon.png`, `og-image.png`, `theme-color`, Open Graph and
+  Twitter card tags. `scripts/make_site_assets.py` rebuilds the PNGs.
+- Changed: the Pages build step copies the three new asset files.
+- Fixed: `frontend/README.md` still said region/district names stay in
+  Azerbaijani; they have followed the interface language since 2026-09-27.
+
+### 2026-11-01
+- Changed: the site is now **Cardiostatistics** (cardiostatistics.com) instead
+  of Medstatica: header wordmark, page title (AZ and EN), `og:site_name`,
+  `og:title`, `og:url` and `og:image` (now `https://cardiostatistics.com/…`),
+  and the regenerated `og-image.png`.
+- Changed: the mobile app in `app/` is renamed to **Cardiostatistics** too
+  (`app.json` name/slug, `package.json`, `package-lock.json`, in-app title,
+  READMEs). The icon and splash are the heartbeat mark without text, so they
+  are unchanged.
+- Note: the Pages site is published by the workflow, so the custom domain is
+  set in the repo's Settings → Pages, not by a `CNAME` file.
+- Changed: `frontend/app.js` reads the dataset same-origin (`data/circulatory_data.json`)
+  when served from cardiostatistics.com, www or github.io, instead of always
+  fetching the absolute github.io URL, which would cross origins (and a redirect)
+  once the custom domain is attached. Local previews still use the public URL.
+- Fixed: the daily `update` job had been failing at "Download sources and parse"
+  with `urllib.error.URLError: [Errno 104] Connection reset by peer`, which also
+  skipped the `deploy` job (so the site was never republished). `parser.py
+  --download` now retries each file (4 attempts, 5/20/60 s back-off) with a
+  browser-like User-Agent, and if a file still cannot be fetched it keeps the
+  committed copy in `raw_data/` and carries on. It writes `download_failed` /
+  `failed_files` to the step outputs; the workflow e-mails "download failed,
+  data NOT refreshed" and still publishes the site with the last committed
+  data. With no committed copy to fall back to, the job still fails as before.
+- Added: logo. A white heartbeat line that turns into a rising trend and ends
+  in a dot, on the site's rounded blue square. Used in the site header,
+  `frontend/favicon.svg` / `logo-mark.svg`, `apple-touch-icon.png`,
+  `og-image.png`, new `logo-light.png` / `logo-dark.png` (mark + wordmark,
+  transparent, for light and dark backgrounds) and all mobile app icons and
+  splash images (`app/assets/`). `scripts/make_site_assets.py` and
+  `app/scripts/make-icons.mjs` now draw this mark.
+

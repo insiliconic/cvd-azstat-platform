@@ -2,7 +2,12 @@
 // and renders the KPI row, trend chart and sortable table from it.
 "use strict";
 
-const DATA_URL = "https://insiliconic.github.io/cvd-azstat-platform/data/circulatory_data.json";
+// On the deployed site (custom domain or github.io) the data sits next to the page, so read it
+// same-origin: no CORS, and no dependence on github.io redirecting to the custom domain.
+// Anywhere else (a local preview) it falls back to the public copy.
+const PUBLIC_DATA_URL = "https://insiliconic.github.io/cvd-azstat-platform/data/circulatory_data.json";
+const DEPLOY_HOSTS = ["cardiostatistics.com", "www.cardiostatistics.com", "insiliconic.github.io"];
+const DATA_URL = DEPLOY_HOSTS.includes(location.hostname) ? "data/circulatory_data.json" : PUBLIC_DATA_URL;
 const REPO_URL = "https://github.com/insiliconic/cvd-azstat-platform";
 
 // File key -> display label, for the KPI row (and the latest year the

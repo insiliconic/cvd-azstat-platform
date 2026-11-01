@@ -12,13 +12,20 @@ Two table layouts are handled, and every sheet is parsed independently
 Usage: python parser.py [--download] [raw_dir] [out_json]
 
 --download re-fetches every TARGET_LINKS file into raw_dir before parsing.
-Exits non-zero if a download fails or a target file no longer contains the
-circulatory pattern (i.e. the source layout changed).
+Each download is retried with a browser-like User-Agent. If a file still
+cannot be fetched but a committed copy exists in raw_dir, that copy is kept
+(a warning is printed, and in GitHub Actions `download_failed=true` is written
+to the step outputs so the workflow can e-mail it); the run only fails when
+there is nothing to fall back to. It also exits non-zero if a target file no
+longer contains the circulatory pattern (i.e. the source layout changed).
 """
 import argparse
+import http.client
 import json
+import os
 import re
 import sys
+import time
 import urllib.request
 from datetime import date
 from pathlib import Path
@@ -391,25 +398,69 @@ def parse_file(path):
     }
 
 
+FETCH_ATTEMPTS = 4
+FETCH_BACKOFF = (5, 20, 60)  # seconds to wait after attempt 1, 2, 3
+# stat.gov.az resets connections from non-browser clients now and then
+# ("Connection reset by peer"), so ask like a browser would.
+BROWSER_HEADERS = {
+    "User-Agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                   "(KHTML, like Gecko) Chrome/124.0 Safari/537.36 cvd-azstat-platform"),
+    "Accept": "application/vnd.ms-excel,application/octet-stream,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Referer": "https://www.stat.gov.az/source/healthcare/",
+}
+FETCH_ERRORS = (OSError, http.client.HTTPException, RuntimeError)
+
+
 def _fetch_xls(url, dest):
-    req = urllib.request.Request(url, headers={"User-Agent": "cvd-azstat-platform"})
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        data = resp.read()
-    if not data.startswith(XLS_MAGIC):
-        raise RuntimeError(f"{url}: response is not an .xls workbook")
-    dest.write_bytes(data)
-    print(f"downloaded {dest.name} ({len(data)} bytes)")
+    last = None
+    for attempt in range(1, FETCH_ATTEMPTS + 1):
+        try:
+            req = urllib.request.Request(url, headers=BROWSER_HEADERS)
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                data = resp.read()
+            if not data.startswith(XLS_MAGIC):
+                raise RuntimeError(f"{url}: response is not an .xls workbook")
+            dest.write_bytes(data)
+            print(f"downloaded {dest.name} ({len(data)} bytes)")
+            return
+        except FETCH_ERRORS as err:
+            last = err
+            print(f"attempt {attempt}/{FETCH_ATTEMPTS} failed for {dest.name}: {err}")
+            if attempt < FETCH_ATTEMPTS:
+                time.sleep(FETCH_BACKOFF[attempt - 1])
+    raise last
 
 
 def download(raw_dir):
     """Fetch every target file, plus the Azerbaijani label sources; refuse
     anything that is not an .xls workbook (e.g. an HTML error page served
-    with status 200)."""
+    with status 200). Returns the names of files that could not be refreshed
+    and were kept from the committed copy; raises if a file has no copy."""
     raw_dir.mkdir(parents=True, exist_ok=True)
-    for name, url in TARGET_LINKS.items():
-        _fetch_xls(url, raw_dir / name)
-    for info in AZ_LABEL_SOURCE.values():
-        _fetch_xls(info["az_url"], raw_dir / info["az_file"])
+    jobs = list(TARGET_LINKS.items())
+    jobs += [(info["az_file"], info["az_url"]) for info in AZ_LABEL_SOURCE.values()]
+    kept = []
+    for name, url in jobs:
+        dest = raw_dir / name
+        try:
+            _fetch_xls(url, dest)
+        except FETCH_ERRORS as err:
+            if not dest.exists():
+                raise
+            print(f"::warning::could not refresh {name} ({err}); keeping the committed copy")
+            kept.append(name)
+    return kept
+
+
+def _report_download_failures(kept):
+    """Expose the fallback to the GitHub Actions workflow (step outputs)."""
+    out = os.environ.get("GITHUB_OUTPUT")
+    if not out:
+        return
+    with open(out, "a", encoding="utf-8") as fh:
+        fh.write(f"download_failed={'true' if kept else 'false'}\n")
+        fh.write(f"failed_files={', '.join(kept)}\n")
 
 
 def main():
@@ -421,7 +472,11 @@ def main():
     raw_dir, out = Path(args.raw_dir), Path(args.out)
 
     if args.download:
-        download(raw_dir)
+        kept = download(raw_dir)
+        _report_download_failures(kept)
+        if kept:
+            print(f"WARNING: {len(kept)} source file(s) not refreshed, using committed copies: "
+                  f"{', '.join(kept)}")
     files = {name: parse_file(raw_dir / name) for name in TARGET_LINKS}
     broken = [name for name, f in files.items() if not f["sheets"]]
     if broken:

@@ -1077,3 +1077,60 @@ one English name across the 2019 key change.
   districts 3 706 / 3 048 / 1 926 / 967 / 444); AZ→EN switch; bar tap →
   region → district with the by-year table. **Not yet run on a physical
   phone** in Expo Go (that needs the owner's device).
+
+## 2026-11-01 — Rename to Cardiostatistics, same-origin data
+
+- The site is now **Cardiostatistics** (cardiostatistics.com), replacing the
+  working name Medstatica; the mobile app in `app/` follows. Icon, splash and
+  favicon are a text-free heartbeat mark, so only the wordmark, titles, Open
+  Graph tags and the share image (`og-image.png`) changed.
+- The Pages site is published by `update-data.yml`, so the custom domain is set
+  in the repository's Settings → Pages (a `CNAME` file in the artifact is not
+  used).
+- `frontend/app.js` now loads `data/circulatory_data.json` relative to the page
+  on the deployed hosts. The absolute github.io URL stays as the fallback for
+  local previews and as the app's `DATA_URL` (`app/src/data.ts`): a native app
+  has no CORS and follows the redirect to the custom domain.
+- Checked locally with the page served as `http://cardiostatistics.com/` (request
+  routed to the local files): the single data request goes to the same origin.
+  Charts and map were not rendered in that check (no CDN access in the sandbox).
+
+## 2026-11-01 (2) — Download failures no longer block the site
+
+- **Symptom**: daily "data update FAILED" e-mails. Run #53 (schedule): the
+  `update` job failed in 12 s at "Download sources and parse" with
+  `urllib.error.URLError: <urlopen error [Errno 104] Connection reset by peer>`;
+  `deploy` is gated on `update` succeeding, so it was skipped and no site
+  change reached Pages while this lasted.
+- **Cause**: stat.gov.az drops the connection (seen from the GitHub-hosted
+  runner, not reproducible from the sandbox this was written in, where the
+  site is unreachable). Whether it is a block on datacenter addresses, on the
+  client's fingerprint, or plain flakiness is not established from the logs.
+- **Change**: retries with back-off and a browser-like User-Agent/Referer;
+  on persistent failure the committed `raw_data/` copy is used for that file.
+  Because the parsed values then equal the committed ones, `compare_data.py`
+  reports no change, nothing is committed and the data's own `generated` date
+  keeps its old value, so the methodology section does not claim freshness it
+  does not have. A warning e-mail replaces silence; the deploy job runs.
+- **Tested** offline by replacing `urlopen`: succeeds after two resets;
+  all-resets with committed copies exits 0, flags `download_failed=true`, and
+  yields values identical to the committed JSON; all-resets with no local
+  copies still fails. Not tested against the real stat.gov.az.
+
+## 2026-11-02 — Logo
+
+- **Mark**: the earlier heartbeat-in-a-square became a heartbeat that turns into
+  a rising trend line ending in a dot (data read off the heartbeat), still white
+  on the rounded blue `#2a78d6` square. Geometry (100-unit grid): points
+  `15,58 31,58 38,46 46,72 56,27 63,56 73,44 83,32`, stroke 7.5 with round caps
+  and joins, end dot r 7.4 at `83,32`, corner radius 22.
+- **Small sizes**: a first version with a second dot on the rising line read as
+  a lump at 16 px and was dropped; the zig-zag peaks were made taller. The final
+  mark is recognisable down to 16 px and clear from 24 px.
+- **Where**: site header (inline SVG, takes the accent via `currentColor`),
+  `favicon.svg`, `logo-mark.svg`, `apple-touch-icon.png`, `og-image.png`,
+  `logo-light.png` / `logo-dark.png` (dark variant: light-blue tile `#6fb1f0`
+  with a near-black mark), and the app icon, Android adaptive layers, splash
+  (light and dark) and favicon. The same geometry is in
+  `scripts/make_site_assets.py` (Pillow) and `app/scripts/make-icons.mjs` (sharp).
+

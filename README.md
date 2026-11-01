@@ -100,7 +100,7 @@ deployed one.
 
 ## Mobile app (`app/`)
 
-**Medstatica**, an Expo (React Native) app that reads the same public
+**Cardiostatistics**, an Expo (React Native) app that reads the same public
 dataset at runtime and shares the site's AZ / EN dictionaries. It covers
 the national indicators (measure, age group, year, result card, trend) and
 the regional view (region → district, heat-coloured bars, by-year table).

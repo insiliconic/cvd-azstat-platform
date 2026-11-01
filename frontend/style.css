@@ -109,6 +109,19 @@ main {
   margin: 0 auto;
   padding: 24px 16px 8px;
 }
+/* Brand lockup (mark + wordmark) above the page title. The mark takes the
+   chart blue via currentColor, so it follows light/dark like the data does. */
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  color: var(--series-1);
+  text-decoration: none;
+}
+.brand__mark { display: block; flex: none; }
+.brand__name { font-size: 1.05rem; font-weight: 700; letter-spacing: 0.01em; color: var(--text-primary); }
+.brand:focus-visible { outline: 2px solid var(--series-1); outline-offset: 3px; border-radius: 6px; }
 .site-header h1 { margin: 0; font-size: 1.5rem; }
 .site-header .subtitle { margin: 4px 0 0; color: var(--text-secondary); font-size: 0.95rem; }
 #theme-toggle {

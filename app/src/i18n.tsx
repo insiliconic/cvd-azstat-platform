@@ -12,7 +12,7 @@ import type { Lang } from "./data";
 
 const APP_STRINGS: Record<Lang, Record<string, string>> = {
   az: {
-    "app.name": "Medstatica",
+    "app.name": "Cardiostatistics",
     "app.tagline": "Ürək-damar xəstəlikləri — Azərbaycan",
     "option.allRegions": "Bütün regionlar",
     "regional.byYear": "İllər üzrə",
@@ -22,7 +22,7 @@ const APP_STRINGS: Record<Lang, Record<string, string>> = {
     "select.choose": "Seçin",
   },
   en: {
-    "app.name": "Medstatica",
+    "app.name": "Cardiostatistics",
     "app.tagline": "Cardiovascular disease — Azerbaijan",
     "option.allRegions": "All regions",
     "regional.byYear": "By year",
