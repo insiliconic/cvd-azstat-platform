@@ -117,3 +117,14 @@
   splash images (`app/assets/`). `scripts/make_site_assets.py` and
   `app/scripts/make-icons.mjs` now draw this mark.
 
+### 2026-11-02
+- Fixed: after the download retries worked, the first live run (#55) failed with
+  `circulatory pattern not found in: 001_5_2-3en.xls (source layout changed?)`:
+  stat.gov.az now serves a different version of that workbook (449 536 bytes
+  instead of 418 816). `parser.py --download` now parses each downloaded file
+  and, if its layout is not recognised, restores the committed copy, reports it
+  through the same "download failed" warning e-mail, and lets the deploy run.
+  When a layout is not recognised it also prints each sheet's size and where
+  the word "circulat" occurs, so the change can be diagnosed from the log.
+  The parser itself still has to be taught the new layout of that file.
+

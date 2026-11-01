@@ -453,6 +453,25 @@ def download(raw_dir):
     return kept
 
 
+def _explain_layout(path):
+    """Print what a workbook contains, so a changed source layout can be
+    diagnosed from the run log alone."""
+    try:
+        wb = xlrd.open_workbook(str(path))
+    except Exception as err:  # noqa: BLE001 - diagnostics only
+        print(f"  [{path.name}] cannot open: {err}")
+        return
+    print(f"  [{path.name}] sheets: {wb.sheet_names()}")
+    for sh in wb.sheets():
+        hits = []
+        for r in range(sh.nrows):
+            for c, v in enumerate(sh.row_values(r)):
+                if "circulat" in str(v).lower():
+                    hits.append(f"r{r}c{c}={str(v).strip()[:60]!r}")
+        print(f"    sheet {sh.name!r}: {sh.nrows}x{sh.ncols}, "
+              f"'circulat' cells: {hits[:4] or 'none'}")
+
+
 def _report_download_failures(kept):
     """Expose the fallback to the GitHub Actions workflow (step outputs)."""
     out = os.environ.get("GITHUB_OUTPUT")
@@ -472,7 +491,22 @@ def main():
     raw_dir, out = Path(args.raw_dir), Path(args.out)
 
     if args.download:
+        # Remember the committed copies: a freshly downloaded file whose layout
+        # we can no longer read must not take the whole run (and the deploy)
+        # down -- it is swapped back for the committed copy and reported.
+        backups = {n: (raw_dir / n).read_bytes()
+                   for n in list(TARGET_LINKS) + [i["az_file"] for i in AZ_LABEL_SOURCE.values()]
+                   if (raw_dir / n).exists()}
         kept = download(raw_dir)
+        for name in TARGET_LINKS:
+            if name in kept or name not in backups:
+                continue
+            if not parse_file(raw_dir / name)["sheets"]:
+                _explain_layout(raw_dir / name)
+                (raw_dir / name).write_bytes(backups[name])
+                print(f"::warning::{name} was downloaded but its layout is not recognised; "
+                      "keeping the committed copy")
+                kept.append(name)
         _report_download_failures(kept)
         if kept:
             print(f"WARNING: {len(kept)} source file(s) not refreshed, using committed copies: "
@@ -480,6 +514,8 @@ def main():
     files = {name: parse_file(raw_dir / name) for name in TARGET_LINKS}
     broken = [name for name, f in files.items() if not f["sheets"]]
     if broken:
+        for name in broken:
+            _explain_layout(raw_dir / name)
         sys.exit(f"circulatory pattern not found in: {', '.join(broken)} "
                  "(source layout changed?)")
 
