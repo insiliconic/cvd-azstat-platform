@@ -60,6 +60,28 @@ AZ_LABEL_SOURCE = {
     },
 }
 
+# The 2025 edition of the source relabelled a few rows ("Karabakh" ->
+# "Garabakh/Garabagh economic region", "Nakhchivan Autonomous Republic" -> "Nakhchivan
+# economic region", "Agsu region" -> "Agsu district", ...) with the same data
+# and the same places. They are mapped back onto the keys used since 2019 so
+# the frontend, the map GeoJSON and every year's history keep matching; the
+# source's own new wording is still kept in name_en.
+LABEL_KEY_ALIASES = {
+    "garabakh economic region - total": "karabakh economic region - total",
+    "garabagh economic region - total": "karabakh economic region - total",
+    "nakhchivan economic region - total": "nakhchivan autonomous republic - total",
+}
+# The four district labels are aliased for 2019+ only: those sheets used
+# "... region" until the 2025 edition relabelled them, whereas 2015-2018
+# genuinely use "... district" and the frontend's KEY_ALIASES already folds
+# those onto the "... region" keys.
+DISTRICT_KEY_ALIASES = {
+    "agsu district": "agsu region",
+    "gobustan district": "gobustan region",
+    "ismayilli district": "ismayilli region",
+    "shamakhy district": "shamakhy region",
+}
+
 # The 14 economic regions from the 2021 reorganisation (see
 # scripts/build_region_geojson.py), as their normalised keys appear in
 # 001_5_2-3en.xls. parse_col_sheet recognises these while walking the sheet
@@ -86,7 +108,7 @@ XLS_MAGIC = b"\xd0\xcf\x11\xe0"  # OLE2 header of legacy .xls files
 
 # Patterns are compared after normalize(), so they must be normalized too.
 ROW_PATTERNS = {"diseases of the circulatory system"}
-COL_PATTERNS = {"circulatory system diseases"}
+COL_PATTERNS = {"circulatory system diseases", "diseases of the circulatory system"}
 
 COVID_YEARS = ("2020", "2021")
 COVID_BASELINE = "2019"          # last pre-pandemic year
@@ -265,6 +287,8 @@ def parse_col_sheet(sh, az_sheet=None):
     title, table_number = None, None
     unit, col, blocks, regions = "count", None, [], {}
     unit_labels = {}
+    ym = SHEET_YEAR.search(sh.name)
+    sheet_year = int(ym.group(0)) if ym else 0
     add_order = []          # region key added at each successful value, in file order
     current_region = None   # economic region a district row currently falls under
     for r in range(sh.nrows):
@@ -296,6 +320,9 @@ def parse_col_sheet(sh, az_sheet=None):
         if value is None:
             continue
         name, fn = split_footnote(label)
+        name = LABEL_KEY_ALIASES.get(name, name)
+        if sheet_year >= 2019:
+            name = DISTRICT_KEY_ALIASES.get(name, name)
         is_region = name in ECONOMIC_REGION_KEYS
         # The country-total row opens both the count and the per_10k block --
         # reset here, or a district row right after it would wrongly inherit

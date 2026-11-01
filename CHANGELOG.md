@@ -127,4 +127,12 @@
   When a layout is not recognised it also prints each sheet's size and where
   the word "circulat" occurs, so the change can be diagnosed from the log.
   The parser itself still has to be taught the new layout of that file.
-
+- Fixed: the 2025 edition of `001_5_2-3en.xls` renamed the circulatory column
+  header to "diseases of the circulatory system" (now also a recognised
+  `COL_PATTERNS` entry) and relabelled some rows with the same data
+  ("Karabakh"/"Garabakh economic region", "Nakhchivan economic region", and
+  Agsu, Gobustan, Ismayilli and Shamakhy "region" -> "district" in the 2019+ sheets).
+  `LABEL_KEY_ALIASES` / `DISTRICT_KEY_ALIASES` map them back onto the existing keys,
+  `name_en` keeps the source's wording. Checked: 2015-2024 values identical to the
+  previous file, 2025 adds the same 99 rows.
+- Changed: the "download failed" e-mail now also covers an unrecognised file layout.

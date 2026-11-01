@@ -80,8 +80,10 @@ jobs:
           to: ${{ env.NOTIFY_TO }}
           subject: "[cvd-azstat] stat.gov.az download failed, data NOT refreshed"
           body: |
-            stat.gov.az could not be reached after several attempts, so the data was
-            not refreshed. The site was still published with the last committed data.
+            Some source files from stat.gov.az could not be refreshed (the download
+            failed after several attempts, or the file's layout was not recognised), so
+            the committed copy of each was used instead. The site was still published.
+            The run log says which of the two happened for each file.
 
             Files kept from the committed copy: ${{ steps.parse.outputs.failed_files }}
 
