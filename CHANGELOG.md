@@ -150,3 +150,8 @@
   to the end dot. Nothing is stored, so it plays on every visit; it is skipped for
   `prefers-reduced-motion`.
 
+### 2026-11-02 (3)
+- Added: `robots.txt`, `sitemap.xml` (copied into the Pages build), a canonical link and
+  schema.org `Dataset` JSON-LD in `index.html`, so search engines can find and describe
+  cardiostatistics.com. Search Console still has to be set up by hand (TXT record in Cloudflare).
+
