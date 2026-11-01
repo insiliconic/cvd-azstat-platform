@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-27",
+  "generated": "2026-11-01",
   "patterns": {
     "row": [
       "diseases of the circulatory system"
@@ -46,7 +46,7 @@
           "year_footnotes": {},
           "year_range": [
             2000,
-            2024
+            2025
           ],
           "year_gaps": [
             2001,
@@ -189,6 +189,12 @@
               "per_10k": null,
               "per_100k": 326.3,
               "notes": []
+            },
+            "2025": {
+              "count": 33555.0,
+              "per_10k": null,
+              "per_100k": 327.6,
+              "notes": []
             }
           }
         }
@@ -206,8 +212,8 @@
           "layout": "row",
           "row_label": "diseases of the circulatory system",
           "row_label_raw": [
-            "diseases of the  circulatory system",
-            "diseases of the  circulatory system"
+            "diseases of the circulatory \nsystem",
+            "diseases of the circulatory \nsystem"
           ],
           "blocks": [
             {
@@ -227,7 +233,7 @@
           },
           "year_range": [
             1990,
-            2024
+            2025
           ],
           "year_gaps": [],
           "near_misses": [],
@@ -445,6 +451,12 @@
               "per_10k": 228.5,
               "per_100k": null,
               "notes": []
+            },
+            "2025": {
+              "count": 247019.0,
+              "per_10k": 241.1,
+              "per_100k": null,
+              "notes": []
             }
           }
         }
@@ -462,8 +474,8 @@
           "layout": "row",
           "row_label": "diseases of the circulatory system",
           "row_label_raw": [
-            "diseases of the  circulatory system",
-            "diseases of the  circulatory system"
+            "diseases of the circulatory \nsystem",
+            "diseases of the circulatory \nsystem"
           ],
           "blocks": [
             {
@@ -480,7 +492,7 @@
           "year_footnotes": {},
           "year_range": [
             2005,
-            2024
+            2025
           ],
           "year_gaps": [
             2006
@@ -604,6 +616,12 @@
               "per_10k": 73.2,
               "per_100k": null,
               "notes": []
+            },
+            "2025": {
+              "count": 15820.0,
+              "per_10k": 62.0,
+              "per_100k": null,
+              "notes": []
             }
           }
         }
@@ -621,8 +639,8 @@
           "layout": "row",
           "row_label": "diseases of the circulatory system",
           "row_label_raw": [
-            "diseases of the  circulatory system",
-            "diseases of the  circulatory system"
+            "diseases of the  circulatory \nsystem",
+            "diseases of the  circulatory \nsystem"
           ],
           "blocks": [
             {
@@ -639,7 +657,7 @@
           "year_footnotes": {},
           "year_range": [
             2007,
-            2024
+            2025
           ],
           "year_gaps": [],
           "near_misses": [],
@@ -755,6 +773,12 @@
               "per_10k": 66.9,
               "per_100k": null,
               "notes": []
+            },
+            "2025": {
+              "count": 9794.0,
+              "per_10k": 52.1,
+              "per_100k": null,
+              "notes": []
             }
           }
         }
@@ -772,8 +796,8 @@
           "layout": "row",
           "row_label": "diseases of the circulatory system",
           "row_label_raw": [
-            "diseases of the  circulatory system",
-            "diseases of the  circulatory system"
+            "diseases of the circulatory \nsystem",
+            "diseases of the circulatory \nsystem"
           ],
           "blocks": [
             {
@@ -790,7 +814,7 @@
           "year_footnotes": {},
           "year_range": [
             2007,
-            2024
+            2025
           ],
           "year_gaps": [],
           "near_misses": [],
@@ -902,6 +926,12 @@
               "per_10k": 172.3,
               "per_100k": null,
               "notes": []
+            },
+            "2025": {
+              "count": 39043.0,
+              "per_10k": 169.0,
+              "per_100k": null,
+              "notes": []
             }
           }
         }
@@ -919,8 +949,8 @@
           "layout": "row",
           "row_label": "diseases of the circulatory system",
           "row_label_raw": [
-            "diseases of the  circulatory system",
-            "diseases of the  circulatory system"
+            "diseases of the circulatory \nsystem",
+            "diseases of the circulatory \nsystem"
           ],
           "blocks": [
             {
@@ -937,7 +967,7 @@
           "year_footnotes": {},
           "year_range": [
             2007,
-            2024
+            2025
           ],
           "year_gaps": [],
           "near_misses": [],
@@ -1051,6 +1081,12 @@
             "2024": {
               "count": 180393.0,
               "per_10k": 303.0,
+              "per_100k": null,
+              "notes": []
+            },
+            "2025": {
+              "count": 198182.0,
+              "per_10k": 327.3,
               "per_100k": null,
               "notes": []
             }
@@ -1233,7 +1269,7 @@
               "notes": [],
               "name_en": "Nakhchivan Autonomous Republic - total",
               "economic_region": null,
-              "name_az": "Naxçıvan Muxtar Respublikası - cəmi"
+              "name_az": "Naxçıvan iqtisadi rayonu - cəmi"
             },
             "nakhchivan city": {
               "count": 1437.0,
@@ -1314,7 +1350,7 @@
               "notes": [],
               "name_en": "Absheron-Khizi economic region - total",
               "economic_region": null,
-              "name_az": "Abşeron–Xızı iqtisadi rayonu"
+              "name_az": "Abşeron–Xızı iqtisadi rayonu - cəmi"
             },
             "sumgayit city": {
               "count": 6657.0,
@@ -2155,7 +2191,7 @@
               "notes": [],
               "name_en": "Nakhchivan Autonomous Republic - total",
               "economic_region": null,
-              "name_az": "Naxçıvan Muxtar Respublikası - cəmi"
+              "name_az": "Naxçıvan iqtisadi rayonu - cəmi"
             },
             "nakhchivan city": {
               "count": 1307.0,
@@ -2236,7 +2272,7 @@
               "notes": [],
               "name_en": "Absheron-Khizi economic region - total",
               "economic_region": null,
-              "name_az": "Abşeron–Xızı iqtisadi rayonu"
+              "name_az": "Abşeron–Xızı iqtisadi rayonu - cəmi"
             },
             "sumgayit city": {
               "count": 7094.0,
@@ -3068,7 +3104,7 @@
               "notes": [],
               "name_en": "Nakhchivan Autonomous Republic - total",
               "economic_region": null,
-              "name_az": "Naxçıvan Muxtar Respublikası - cəmi"
+              "name_az": "Naxçıvan iqtisadi rayonu - cəmi"
             },
             "nakhchivan city": {
               "count": 1089.0,
@@ -3149,7 +3185,7 @@
               "notes": [],
               "name_en": "Absheron-Khizi economic region - total",
               "economic_region": null,
-              "name_az": "Abşeron–Xızı iqtisadi rayonu"
+              "name_az": "Abşeron–Xızı iqtisadi rayonu - cəmi"
             },
             "sumgayit city": {
               "count": 5911.0,
@@ -4029,7 +4065,7 @@
               "notes": [],
               "name_en": "Nakhchivan Autonomous Republic - total",
               "economic_region": null,
-              "name_az": "Naxçıvan Muxtar Respublikası - cəmi"
+              "name_az": "Naxçıvan iqtisadi rayonu - cəmi"
             },
             "nakhchivan city": {
               "count": 1104.0,
@@ -4140,7 +4176,7 @@
               ],
               "name_en": "Absheron-Khizi economic region - total",
               "economic_region": null,
-              "name_az": "Abşeron–Xızı iqtisadi rayonu",
+              "name_az": "Abşeron–Xızı iqtisadi rayonu - cəmi",
               "covid_change_vs_2019_pct": -22.5,
               "covid_change_basis": "count"
             },
@@ -5220,7 +5256,7 @@
               ],
               "name_en": "Nakhchivan Autonomous Republic - total",
               "economic_region": null,
-              "name_az": "Naxçıvan Muxtar Respublikası - cəmi",
+              "name_az": "Naxçıvan iqtisadi rayonu - cəmi",
               "covid_change_vs_2019_pct": 41.7,
               "covid_change_basis": "count"
             },
@@ -5329,7 +5365,7 @@
               ],
               "name_en": "Absheron-Khizi economic region - total",
               "economic_region": null,
-              "name_az": "Abşeron–Xızı iqtisadi rayonu",
+              "name_az": "Abşeron–Xızı iqtisadi rayonu - cəmi",
               "covid_change_vs_2019_pct": -10.8,
               "covid_change_basis": "count"
             },
@@ -6311,7 +6347,7 @@
               "notes": [],
               "name_en": "Nakhchivan Autonomous Republic - total",
               "economic_region": null,
-              "name_az": "Naxçıvan Muxtar Respublikası - cəmi"
+              "name_az": "Naxçıvan iqtisadi rayonu - cəmi"
             },
             "nakhchivan city": {
               "count": 1594.0,
@@ -7220,7 +7256,7 @@
               "notes": [],
               "name_en": "Nakhchivan Autonomous Republic - total",
               "economic_region": null,
-              "name_az": "Naxçıvan Muxtar Respublikası - cəmi"
+              "name_az": "Naxçıvan iqtisadi rayonu - cəmi"
             },
             "nakhchivan city": {
               "count": 1309.0,
@@ -8129,7 +8165,7 @@
               "notes": [],
               "name_en": "Nakhchivan Autonomous Republic - total",
               "economic_region": null,
-              "name_az": "Naxçıvan Muxtar Respublikası - cəmi"
+              "name_az": "Naxçıvan iqtisadi rayonu - cəmi"
             },
             "nakhchivan city": {
               "count": 1184.0,
@@ -9038,7 +9074,7 @@
               "notes": [],
               "name_en": "Nakhchivan Autonomous Republic - total",
               "economic_region": null,
-              "name_az": "Naxçıvan Muxtar Respublikası - cəmi"
+              "name_az": "Naxçıvan iqtisadi rayonu - cəmi"
             },
             "nakhchivan city": {
               "count": 1334.0,
@@ -9947,7 +9983,7 @@
               "notes": [],
               "name_en": "Nakhchivan Autonomous Republic - total",
               "economic_region": null,
-              "name_az": "Naxçıvan Muxtar Respublikası - cəmi"
+              "name_az": "Naxçıvan iqtisadi rayonu - cəmi"
             },
             "nakhchivan city": {
               "count": 1234.0,
