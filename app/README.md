@@ -146,3 +146,31 @@ node scripts/sync-geo.mjs
 ```
 
 Yoxlamalar: `npx tsc --noEmit`, `npx expo lint`, `npx expo-doctor`.
+
+## EAS Update (mağazasız JS yeniləmələri) — konfiqurasiya hazır, aktiv deyil
+
+`expo-updates` quraşdırılıb, `app.json`-da `runtimeVersion` siyasəti
+`fingerprint`-dir (native kod yoxdur — Continuous Native Generation,
+`android`/`ios` qovluqları yoxdur — ona görə native dəyişiklik avtomatik
+izlənilsin deyə `appVersion` əvəzinə bu seçildi). `npx expo-doctor` 20/20
+təmiz keçir bu konfiqurasiya ilə.
+
+**Qalan addım EAS hesabı tələb edir, ona görə buradan edilməyib**:
+`updates.url` və `extra.eas.projectId` yalnız real bir EAS layihəsinə
+bağlıdır — bunu yaratmaq `eas login`-dən keçir (OTP/brauzer
+avtorizasiyası), bu isə Claude-un özü üçün deyil, sənin özünün etməli
+olduğun addımdır. Layihə kökündə:
+
+```bash
+npm install --global eas-cli   # ya da npx eas-cli@latest
+eas login
+npx eas-cli@latest update:configure
+```
+
+Bu, `app.json`-a `updates.url`-u və `extra.eas.projectId`-ni özü yazacaq
+(və `eas.json` varsa, `preview`/`production` profillərinə `channel`
+əlavə edəcək). Bundan sonra `eas build --profile preview` ilə ilk native
+build-i yaradanda (hələ edilməyib — tapşırıq "yalnız konfiqurasiya"
+idi), `eas update` ilə JS dəyişikliklərini mağazasız göndərmək mümkün
+olacaq. `expo-updates`-in Updates API-sinin əksəriyyəti Expo Go-da
+işləmir (gözlənilən haldır) — real sınaq üçün bir build lazımdır.
