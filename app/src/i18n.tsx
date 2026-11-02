@@ -21,6 +21,9 @@ const APP_STRINGS: Record<Lang, Record<string, string>> = {
     "select.close": "Bağla",
     "select.choose": "Seçin",
     "col.rate.info": "10 000 əhaliyə görə hesablanmış göstərici. Bəzi illər/sıralar üçün mənbə əvəzinə 100 000 əhaliyə görə verir — Vahid sütunu hansının işlədiyini göstərir.",
+    "theme.system": "Sistem",
+    "theme.light": "Açıq",
+    "theme.dark": "Tünd",
   },
   en: {
     "app.name": "Cardiostatistics",
@@ -32,6 +35,9 @@ const APP_STRINGS: Record<Lang, Record<string, string>> = {
     "select.close": "Close",
     "select.choose": "Choose",
     "col.rate.info": "The figure per 10,000 population. For some years/rows the source gives it per 100,000 instead — the Unit column shows which.",
+    "theme.system": "System",
+    "theme.light": "Light",
+    "theme.dark": "Dark",
   },
 };
 

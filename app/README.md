@@ -35,8 +35,12 @@ App-in içində heç bir rəqəm saxlanmır.
   yadda qalır. Mətnlər saytın öz lüğətləridir (`../frontend/i18n/*.json`,
   bax `metro.config.js`). Yer adları EN-də Azstat-ın rəsmi ingiliscə
   adlarıdır.
-- Açıq/qaranlıq rejim telefonun ayarını izləyir. Aşağı çəkəndə data
-  yenilənir.
+- **Tema**: 🌓 düyməsi (dil dəyişənin yanında) Sistem → Açıq → Tünd →
+  Sistem sırası ilə dəyişir (susmaya görə Sistem — telefonun öz ayarını
+  izləyir); seçim telefonda yadda qalır. Bütün ekranlar, xəritə və
+  qrafiklər hər iki rejimdə eyni rəng tokenlərini (`src/theme.tsx`)
+  oxuyur, ona görə ikisi də oxunaqlıdır.
+- Aşağı çəkəndə data yenilənir.
 
 ## Expo Go ilə telefonda test
 
@@ -121,7 +125,7 @@ app ikonunu göstərir. Splash yalnız əsl build-də (məs. `eas build`) görü
 | `src/RegionMap.tsx`, `src/geo.ts` | Real sərhədli xəritə (react-native-svg + d3-geo proyeksiya), tooltip, swipe |
 | `src/geo/regions.json`, `src/geo/districts.json` | `frontend/az-*.geojson`-un köçürülmüş surəti (bax `scripts/sync-geo.mjs`) |
 | `src/components.tsx` | Seçim siyahısı, seqment düymələri, kart, nişanlar, sıralana bilən cədvəl (`SortableTable`) |
-| `src/theme.ts` | Saytla eyni rəng tokenləri (açıq/qaranlıq), heatmap rampası |
+| `src/theme.tsx` | Saytla eyni rəng tokenləri (açıq/qaranlıq), heatmap rampası, Sistem/Açıq/Tünd seçimi (`ThemeModeProvider`) |
 
 `src/geo/*.json` saytın `frontend/az-economic-regions.geojson` /
 `az-districts.geojson` fayllarının surətidir (Metro `.geojson`

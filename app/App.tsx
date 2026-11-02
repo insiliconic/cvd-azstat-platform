@@ -1,6 +1,7 @@
 // Cardiostatistics: the cvd-azstat-platform data on a phone. Fetches the public
-// dataset at start (and on pull-to-refresh), then shows the national and
-// regional views. Header: app name + AZ/EN switch; two tabs below it.
+// dataset at start (and on pull-to-refresh), then shows the national,
+// regional and all-indicators views. Header: app name + theme switch
+// (System/Light/Dark) + AZ/EN switch; three tabs below it.
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Linking, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -12,7 +13,7 @@ import { buildRegional, fetchDataset, type Dataset, type Lang } from "./src/data
 import { I18nProvider, useI18n } from "./src/i18n";
 import { NationalScreen } from "./src/NationalScreen";
 import { RegionalScreen } from "./src/RegionalScreen";
-import { useTheme } from "./src/theme";
+import { ThemeModeProvider, useTheme, useThemeMode, type ThemeMode } from "./src/theme";
 
 type Tab = "national" | "regional" | "all";
 
@@ -39,8 +40,31 @@ function LangSwitch() {
   );
 }
 
+// Cycles System -> Light -> Dark -> System on tap, same single-button idea
+// as the website's 🌓 toggle, with an explicit way back to "follow the
+// system" the website's plain binary toggle doesn't have.
+const THEME_ICON: Record<ThemeMode, string> = { system: "🌓", light: "☀️", dark: "🌙" };
+const THEME_NEXT: Record<ThemeMode, ThemeMode> = { system: "light", light: "dark", dark: "system" };
+
+function ThemeSwitch() {
+  const theme = useTheme();
+  const { t } = useI18n();
+  const { mode, setMode } = useThemeMode();
+  return (
+    <Pressable
+      onPress={() => setMode(THEME_NEXT[mode])}
+      accessibilityRole="button"
+      accessibilityLabel={`${t("header.themeToggle")}: ${t(`theme.${mode}`)}`}
+      style={[styles.themeBtn, { borderColor: theme.textPrimary, backgroundColor: theme.surface }]}
+    >
+      <Text style={styles.themeIcon}>{THEME_ICON[mode]}</Text>
+    </Pressable>
+  );
+}
+
 function Main() {
   const theme = useTheme();
+  const { resolved } = useThemeMode();
   const { t } = useI18n();
   const [dataset, setDataset] = useState<Dataset | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -68,13 +92,16 @@ function Main() {
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: theme.page }]} edges={["top", "left", "right"]}>
-      <StatusBar style="auto" />
+      <StatusBar style={resolved === "dark" ? "light" : "dark"} />
       <View style={styles.header}>
         <View style={{ flexShrink: 1 }}>
           <Text style={[styles.title, { color: theme.textPrimary }]}>{t("app.name")}</Text>
           <Text style={[styles.tagline, { color: theme.textSecondary }]}>{t("app.tagline")}</Text>
         </View>
-        <LangSwitch />
+        <View style={styles.headerSwitches}>
+          <ThemeSwitch />
+          <LangSwitch />
+        </View>
       </View>
       <View style={styles.tabs}>
         <Segmented
@@ -131,9 +158,11 @@ function Main() {
 export default function App() {
   return (
     <SafeAreaProvider>
-      <I18nProvider>
-        <Main />
-      </I18nProvider>
+      <ThemeModeProvider>
+        <I18nProvider>
+          <Main />
+        </I18nProvider>
+      </ThemeModeProvider>
     </SafeAreaProvider>
   );
 }
@@ -143,9 +172,12 @@ const styles = StyleSheet.create({
   header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, paddingHorizontal: 16, paddingTop: 8 },
   title: { fontSize: 24, fontWeight: "700" },
   tagline: { fontSize: 13 },
+  headerSwitches: { flexDirection: "row", alignItems: "center", gap: 8 },
   langSwitch: { flexDirection: "row", gap: 4 },
   langBtn: { width: 36, height: 36, borderRadius: 18, borderWidth: 1.5, alignItems: "center", justifyContent: "center" },
   langText: { fontSize: 11, fontWeight: "700" },
+  themeBtn: { width: 36, height: 36, borderRadius: 18, borderWidth: 1.5, alignItems: "center", justifyContent: "center" },
+  themeIcon: { fontSize: 16 },
   tabs: { paddingHorizontal: 16, paddingVertical: 12 },
   content: { paddingHorizontal: 16, paddingBottom: 40, gap: 16 },
   center: { alignItems: "center", gap: 8, paddingVertical: 40 },
