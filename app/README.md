@@ -40,6 +40,13 @@ App-in içində heç bir rəqəm saxlanmır.
   izləyir); seçim telefonda yadda qalır. Bütün ekranlar, xəritə və
   qrafiklər hər iki rejimdə eyni rəng tokenlərini (`src/theme.tsx`)
   oxuyur, ona görə ikisi də oxunaqlıdır.
+- **Giriş animasiyası**: statik native splash-dan (app ikonu) sonra, ~1.6
+  saniyəlik animasiyalı ekran — loqo kiçikdən böyüyür, nəbz xətti özü-özünü
+  çəkir (əsl ikonla eyni həndəsə, `scripts/make-icons.mjs`), sonra ad
+  görünür və ekran sönür (`react-native-reanimated`). Yalnız soyuq
+  başlanğıcda bir dəfə (yaddaşda, AsyncStorage-də deyil — hər yenidən
+  açılışda təkrar oynasın deyə), data yükləməsini bir an belə
+  gecikdirmədən (`Main()` eyni anda fetch başladır).
 - Aşağı çəkəndə data yenilənir.
 
 ## Expo Go ilə telefonda test
@@ -126,6 +133,7 @@ app ikonunu göstərir. Splash yalnız əsl build-də (məs. `eas build`) görü
 | `src/geo/regions.json`, `src/geo/districts.json` | `frontend/az-*.geojson`-un köçürülmüş surəti (bax `scripts/sync-geo.mjs`) |
 | `src/components.tsx` | Seçim siyahısı, seqment düymələri, kart, nişanlar, sıralana bilən cədvəl (`SortableTable`) |
 | `src/theme.tsx` | Saytla eyni rəng tokenləri (açıq/qaranlıq), heatmap rampası, Sistem/Açıq/Tünd seçimi (`ThemeModeProvider`) |
+| `src/SplashIntro.tsx` | Animasiyalı giriş ekranı (`react-native-reanimated`) |
 
 `src/geo/*.json` saytın `frontend/az-economic-regions.geojson` /
 `az-districts.geojson` fayllarının surətidir (Metro `.geojson`

@@ -13,6 +13,7 @@ import { buildRegional, fetchDataset, type Dataset, type Lang } from "./src/data
 import { I18nProvider, useI18n } from "./src/i18n";
 import { NationalScreen } from "./src/NationalScreen";
 import { RegionalScreen } from "./src/RegionalScreen";
+import { SplashIntro } from "./src/SplashIntro";
 import { ThemeModeProvider, useTheme, useThemeMode, type ThemeMode } from "./src/theme";
 
 type Tab = "national" | "regional" | "all";
@@ -70,6 +71,9 @@ function Main() {
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [tab, setTab] = useState<Tab>("national");
+  // In-memory, so it's "once per cold start": reset only when the whole JS
+  // context restarts, not on a background/foreground resume.
+  const [showIntro, setShowIntro] = useState(true);
 
   const load = useCallback(async () => {
     setError(null);
@@ -151,6 +155,7 @@ function Main() {
           </View>
         )}
       </ScrollView>
+      {showIntro && <SplashIntro onFinish={() => setShowIntro(false)} />}
     </SafeAreaView>
   );
 }
