@@ -1195,4 +1195,50 @@ one English name across the 2019 key change.
   export -p web` bundles all 403 modules with no errors (confirms the
   GeoJSON imports and `d3-geo` resolve and bundle correctly). **Not yet run
   in Expo Go on a physical phone** (next: owner tests, then stage 2).
+- **Stage 1 confirmed working in Expo Go** on a physical phone (owner
+  tested); stage 2 below followed.
+
+## 2026-11-02 (3) — App: "Bütün göstəricilər" (stage 2 of 3)
+
+- **Ported logic, not markup**: read the website's `renderNationalResult`,
+  `getVisibleTableRows`, `compareRows`/`nextSort`/`markSortedHeader`
+  (`frontend/app.js`) and reproduced the same rules in
+  `app/src/AllScreen.tsx` and a new reusable `SortableTable` component
+  (`app/src/components.tsx`): same-column tap flips sort direction, a new
+  column starts descending for numbers / ascending for text, empty values
+  sort last either way.
+- **Milli**: Ölüm, or any specific Xəstələnmə age band, shows every year
+  present in the source (not a continuous range -- gaps aren't padded with
+  empty rows, same as the website's `sortedYears()`) as a sortable table,
+  year descending by default. Xəstələnmə — ümumi əhali is the one
+  combination that stays a single-year card instead (same exception the
+  website makes, since that number already headlines the KPI row).
+- **Region**: İqtisadi region → Rayon. No district picked: the region's
+  own total row *plus* every one of its districts, for the selected year,
+  count descending by default -- this list includes the region's own row,
+  unlike the regional map/bar chart's ranking (`RegionalScreen.tsx`, stage
+  1), which deliberately doesn't since a region isn't a sibling of its own
+  districts there. A district picked: that one place's whole history,
+  newest year first, and the year select is replaced by an "all years"
+  note (`all.allYears`), both matching `getVisibleTableRows()` /
+  `syncTableYearControl()` exactly.
+- **"Nisbət" ⓘ**: the website has no such explanation anywhere (checked --
+  not a port). Added as a small separate ⓘ `Pressable` next to that column
+  header (its own hit target, so tapping it never also triggers a sort),
+  opening a native `Alert` with one sentence: it's per 10,000 population,
+  and some rows are per 100,000 instead, which the Unit column states.
+- **Columns simplified vs. the website's 7** (Ad, İl, Say, Nisbət, Vahid,
+  Dəyişim, Qeyd): `Dəyişim` and `Qeyd` share one cell, matching the by-year
+  table `RegionalScreen.tsx` already had since the original app build --
+  seven independent columns doesn't fit a phone width, and the note badges
+  were never independently sortable on the website either.
+- **React Compiler**: no new diagnostics from `npx expo lint` this time.
+- **Verified**: `npx tsc --noEmit` and `npx expo lint` clean; `npx expo
+  export -p web` bundles with no errors. Cross-checked the row-building
+  logic against the live dataset with a standalone Node script (not part
+  of the app) before trusting it in-app: death has 11 years (2015-2025),
+  under-18 morbidity 11 years, Quba-Xaçmaz's region-view lists 6 rows (the
+  region's own total + its 5 districts) for 2025, Quba district's history
+  lists all 11 years newest-first. **Not yet run in Expo Go on a physical
+  phone** (next: owner tests, then stage 3 -- Metodologiya).
 

@@ -1,7 +1,8 @@
 // Small shared UI pieces: segmented control, select (bottom-sheet list),
-// card, note badges and the delta line. Kept dependency-free (plain RN).
+// card, note badges, the delta line and a sortable table. Kept
+// dependency-free (plain RN).
 import { useState, type ReactNode } from "react";
-import { FlatList, Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, FlatList, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import type { Delta } from "./data";
@@ -129,6 +130,86 @@ export function NoteBadges({ notes }: { notes: string[] }) {
   );
 }
 
+// A table with tap-to-sort column headers (▲/▼ shows the active column and
+// direction) -- the same logic as the website's compareRows/nextSort
+// (frontend/app.js): tapping the active column flips direction, a new
+// column starts descending for numbers and ascending for text. A column
+// without sortValue just isn't pressable (e.g. "Vahid"). `info` adds a
+// small ⓘ next to a header that shows a short explanation on tap (its own
+// Pressable, so it never also triggers a sort).
+export type SortDir = "asc" | "desc";
+export type SortState = { key: string; dir: SortDir };
+
+export type TableColumn<T> = {
+  key: string;
+  label: string;
+  type: "num" | "text";
+  flex?: number;
+  align?: "left" | "right";
+  sortValue?: (row: T) => string | number | null;
+  render: (row: T) => ReactNode;
+  info?: { title: string; message: string };
+};
+
+export function nextSort(state: SortState, col: { key: string; type: "num" | "text" }): SortState {
+  if (state.key === col.key) return { key: col.key, dir: state.dir === "asc" ? "desc" : "asc" };
+  return { key: col.key, dir: col.type === "num" ? "desc" : "asc" };
+}
+
+function compareBy(a: string | number | null, b: string | number | null, dir: SortDir): number {
+  if (a == null && b == null) return 0;
+  if (a == null) return 1;
+  if (b == null) return -1;
+  const cmp = typeof a === "string" ? a.localeCompare(b as string, "az") : (a as number) - (b as number);
+  return dir === "asc" ? cmp : -cmp;
+}
+
+export function SortableTable<T>({ columns, rows, sort, onSort, keyOf }: {
+  columns: TableColumn<T>[];
+  rows: T[];
+  sort: SortState;
+  onSort: (s: SortState) => void;
+  keyOf: (row: T) => string | number;
+}) {
+  const theme = useTheme();
+  const sortCol = columns.find((c) => c.key === sort.key);
+  const sorted = sortCol?.sortValue
+    ? [...rows].sort((a, b) => compareBy(sortCol.sortValue!(a), sortCol.sortValue!(b), sort.dir))
+    : rows;
+  return (
+    <View>
+      <View style={[styles.tableRow, { borderBottomColor: theme.grid }]}>
+        {columns.map((c) => (
+          <View key={c.key} style={[{ flex: c.flex ?? 1, flexDirection: "row", alignItems: "center" }]}>
+            <Pressable
+              disabled={!c.sortValue}
+              onPress={() => c.sortValue && onSort(nextSort(sort, c))}
+              accessibilityRole={c.sortValue ? "button" : undefined}
+              accessibilityLabel={c.sortValue ? `${c.label}${sort.key === c.key ? `, ${sort.dir === "asc" ? "▲" : "▼"}` : ""}` : undefined}
+            >
+              <Text style={[styles.thText, { color: theme.textSecondary, textAlign: c.align ?? "left" }]}>
+                {c.label}{sort.key === c.key ? (sort.dir === "asc" ? " ▲" : " ▼") : ""}
+              </Text>
+            </Pressable>
+            {c.info && (
+              <Pressable onPress={() => Alert.alert(c.info!.title, c.info!.message)} hitSlop={8} accessibilityRole="button" accessibilityLabel={c.info.title}>
+                <Text style={{ color: theme.series, fontSize: 11 }}> ⓘ</Text>
+              </Pressable>
+            )}
+          </View>
+        ))}
+      </View>
+      {sorted.map((r) => (
+        <View key={keyOf(r)} style={[styles.tableRow, { borderBottomColor: theme.grid }]}>
+          {columns.map((c) => (
+            <View key={c.key} style={{ flex: c.flex ?? 1 }}>{c.render(r)}</View>
+          ))}
+        </View>
+      ))}
+    </View>
+  );
+}
+
 export function DeltaText({ delta, suffix, size = 14 }: { delta: Delta | null; suffix?: string; size?: number }) {
   const theme = useTheme();
   if (!delta) return <Text style={{ color: theme.textMuted, fontSize: size }}>—</Text>;
@@ -143,6 +224,8 @@ const styles = StyleSheet.create({
   card: { borderWidth: 1, borderRadius: 12, padding: 16, gap: 12 },
   sectionTitle: { fontSize: 18, fontWeight: "700" },
   muted: { fontSize: 13 },
+  tableRow: { flexDirection: "row", alignItems: "center", paddingVertical: 8, borderBottomWidth: StyleSheet.hairlineWidth, gap: 6 },
+  thText: { fontWeight: "600", fontSize: 11 },
   segmented: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
   segment: { borderWidth: 1, borderRadius: 999, paddingVertical: 7, paddingHorizontal: 14 },
   segmentText: { fontSize: 14 },

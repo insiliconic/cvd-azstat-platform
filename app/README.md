@@ -22,6 +22,15 @@ App-in içində heç bir rəqəm saxlanmır.
   bara toxunanda eyni yer seçilir (ikisi sinxrondur), qısa bir tooltip
   (ad + rəqəm) çıxır, xəritədə üfüqi sürüşdürmə (swipe) cari sıralamada
   növbəti/əvvəlki yerə keçir. Altda seçilmiş yerin illər üzrə cədvəli var.
+- **Bütün göstəricilər**: saytın eyniadlı bölməsi. Kəsim tab-ı — Milli:
+  Ölüm, ya da Xəstələnmə-nin hər konkret yaş aralığı bütün illəri (2015-ci
+  ildən) sıralana bilən cədvəldə göstərir (susmaya görə il azalan, 2024/ən
+  son il yuxarıda); Xəstələnmə — ümumi əhali təkcə bir illik kart qalır
+  (artıq KPI sətirində var). Region: İqtisadi region → Rayon seçimi —
+  rayon seçilməyəndə regionun öz cəmi + bütün rayonları seçilmiş il üçün
+  (ən çox say yuxarıda), rayon seçiləndə o yerin bütün illəri. Sütun
+  başlığına toxunub sıralamaq olur (▲/▼ işarəsi aktiv sütunu göstərir);
+  "Nisbət" başlığının yanındakı ⓘ-ə toxunanda qısa izah çıxır.
 - **AZ / EN**: yuxarı sağdakı dairələrlə dil dəyişir, seçim telefonda
   yadda qalır. Mətnlər saytın öz lüğətləridir (`../frontend/i18n/*.json`,
   bax `metro.config.js`). Yer adları EN-də Azstat-ın rəsmi ingiliscə
@@ -107,11 +116,11 @@ app ikonunu göstərir. Splash yalnız əsl build-də (məs. `eas build`) görü
 | `App.tsx` | Header (ad + AZ/EN), tablar, data yükləmə, xəta/yeniləmə |
 | `src/data.ts` | Fetch, saytın qaydaları: nisbət, dəyişim, açar aliasları, AZ/EN yer adları |
 | `src/i18n.tsx` | Dil konteksti; saytın lüğətləri + app-ə aid bir neçə mətn |
-| `src/NationalScreen.tsx`, `src/RegionalScreen.tsx` | İki əsas ekran |
+| `src/NationalScreen.tsx`, `src/RegionalScreen.tsx`, `src/AllScreen.tsx` | Üç əsas ekran |
 | `src/charts.tsx` | Trend xətti (react-native-svg) və heatmap bar chart |
 | `src/RegionMap.tsx`, `src/geo.ts` | Real sərhədli xəritə (react-native-svg + d3-geo proyeksiya), tooltip, swipe |
 | `src/geo/regions.json`, `src/geo/districts.json` | `frontend/az-*.geojson`-un köçürülmüş surəti (bax `scripts/sync-geo.mjs`) |
-| `src/components.tsx` | Seçim siyahısı, seqment düymələri, kart, nişanlar |
+| `src/components.tsx` | Seçim siyahısı, seqment düymələri, kart, nişanlar, sıralana bilən cədvəl (`SortableTable`) |
 | `src/theme.ts` | Saytla eyni rəng tokenləri (açıq/qaranlıq), heatmap rampası |
 
 `src/geo/*.json` saytın `frontend/az-economic-regions.geojson` /

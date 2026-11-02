@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Linking, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
+import { AllScreen } from "./src/AllScreen";
 import { Segmented } from "./src/components";
 import { buildRegional, fetchDataset, type Dataset, type Lang } from "./src/data";
 import { I18nProvider, useI18n } from "./src/i18n";
@@ -13,7 +14,7 @@ import { NationalScreen } from "./src/NationalScreen";
 import { RegionalScreen } from "./src/RegionalScreen";
 import { useTheme } from "./src/theme";
 
-type Tab = "national" | "regional";
+type Tab = "national" | "regional" | "all";
 
 function LangSwitch() {
   const theme = useTheme();
@@ -77,7 +78,11 @@ function Main() {
       </View>
       <View style={styles.tabs}>
         <Segmented
-          options={[{ value: "national" as Tab, label: t("scope.national") }, { value: "regional" as Tab, label: t("regional.heading") }]}
+          options={[
+            { value: "national" as Tab, label: t("scope.national") },
+            { value: "regional" as Tab, label: t("regional.heading") },
+            { value: "all" as Tab, label: t("all.heading") },
+          ]}
           value={tab}
           onChange={setTab}
         />
@@ -102,7 +107,9 @@ function Main() {
             </Pressable>
           </View>
         )}
-        {dataset && regional && (tab === "national" ? <NationalScreen dataset={dataset} /> : <RegionalScreen regional={regional} />)}
+        {dataset && regional && tab === "national" && <NationalScreen dataset={dataset} />}
+        {dataset && regional && tab === "regional" && <RegionalScreen regional={regional} />}
+        {dataset && regional && tab === "all" && <AllScreen dataset={dataset} regional={regional} />}
         {dataset && (
           <View style={styles.footer}>
             <Text style={[styles.footerText, { color: theme.textMuted }]}>
