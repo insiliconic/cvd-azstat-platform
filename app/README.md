@@ -3,7 +3,7 @@
 Expo (React Native) app. Saytdakı ürək-damar xəstəlikləri statistikasını
 telefonda göstərir. Datanı hər açılışda saytın istifadə etdiyi eyni ictimai
 ünvandan oxuyur:
-<https://insiliconic.github.io/cvd-azstat-platform/data/circulatory_data.json>.
+<https://cardiostatistics.com/data/circulatory_data.json>.
 App-in içində heç bir rəqəm saxlanmır.
 
 ## Nə var

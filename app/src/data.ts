@@ -4,7 +4,7 @@
 // one name per place, and the official AZ / EN place names.
 // Website counterparts: frontend/app.js and frontend/region-map.js.
 
-export const DATA_URL = "https://insiliconic.github.io/cvd-azstat-platform/data/circulatory_data.json";
+export const DATA_URL = "https://cardiostatistics.com/data/circulatory_data.json";
 
 export type Lang = "az" | "en";
 
