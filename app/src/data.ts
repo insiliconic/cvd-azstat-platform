@@ -185,6 +185,20 @@ export function districtOptions(regional: Regional, regionKey: string, lang: Lan
     .sort((a, b) => a.name.localeCompare(b.name, lang));
 }
 
+// The economic region a place belongs to (null for a region/the country
+// itself). Used by the map: tapping a district shape shown in the full
+// "Rayon" view (no region picked yet) needs to know which region select
+// value to jump to.
+export function economicRegionOf(regional: Regional, key: string): string | null {
+  return regional.rows.find((r) => r.key === key)?.economicRegion ?? null;
+}
+
+// One year's rows, keyed by place -- built once per year instead of
+// re-filtering regional.rows for every map shape / bar on each render.
+export function rowsForYear(regional: Regional, year: number): Map<string, RegionalRow> {
+  return new Map(regional.rows.filter((r) => r.year === year).map((r) => [r.key, r]));
+}
+
 // ---- formatting ---------------------------------------------------------------------
 
 // Same digits as the website in both languages (1,234 / 12.3); done by hand

@@ -40,15 +40,12 @@ export function NationalScreen({ dataset }: { dataset: Dataset }) {
   const rate = entry ? rateOf(entry) : null;
   const delta = entry ? deltaInfo(rate, prev ? rateOf(prev) : null) : null;
 
-  const points = useMemo(() => {
-    const [minY, maxY] = sheet.year_range;
-    const out = [];
-    for (let y = minY; y <= maxY; y++) {
-      const e = sheet.series[String(y)];
-      out.push({ year: y, value: e ? rateOf(e) : null });
-    }
-    return out;
-  }, [sheet]);
+  const points: { year: number; value: number | null }[] = [];
+  const [pointsMinY, pointsMaxY] = sheet.year_range;
+  for (let y = pointsMinY; y <= pointsMaxY; y++) {
+    const e = sheet.series[String(y)];
+    points.push({ year: y, value: e ? rateOf(e) : null });
+  }
 
   const onMeasure = (m: MeasureKey) => {
     if (measure === "morbidity") setLastMorbidityAge(age);

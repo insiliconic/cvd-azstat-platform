@@ -1133,4 +1133,66 @@ one English name across the 2019 key change.
   with a near-black mark), and the app icon, Android adaptive layers, splash
   (light and dark) and favicon. The same geometry is in
   `scripts/make_site_assets.py` (Pillow) and `app/scripts/make-icons.mjs` (sharp).
+- `app/`: the custom domain's `data/circulatory_data.json` was confirmed live
+  (curl, HTTP 200, same GitHub Pages deployment under `cardiostatistics.com`),
+  so `app/src/data.ts`'s `DATA_URL` now points there directly instead of the
+  `insiliconic.github.io` fallback; name/icon/splash/in-app text were already
+  Cardiostatistics-branded from the 2026-11-01 rename.
+
+## 2026-11-02 (2) — App: real map (stage 1 of 3 toward site parity)
+
+- **Goal**: bring `app/` to feature parity with the website in three stages
+  (map, then the full indicator table, then methodology); this entry is
+  stage 1. Stages 2 and 3 are not done yet.
+- **Map data**: the two GeoJSON files the website already uses
+  (`frontend/az-economic-regions.geojson`, `az-districts.geojson` --
+  geoBoundaries-derived, see the 2026-09-25 entry for sourcing, the
+  name-matching, and the district-level ring-winding fix) are copied into
+  `app/src/geo/{regions,districts}.json` as `.json` (Metro doesn't resolve
+  `.geojson`); `app/scripts/sync-geo.mjs` re-copies them after either
+  `build_*_geojson.py` script regenerates a source file. `frontend/` itself
+  was not touched.
+- **Rendering**: `app/src/geo.ts` wraps `d3-geo` (`geoMercator` +
+  `geoPath`, pure JS -- no DOM/canvas, so it runs in Expo Go) to turn a
+  feature set into an SVG path string plus a centroid per feature;
+  `app/src/RegionMap.tsx` draws them with `react-native-svg`, re-fit to the
+  visible set on every render (same as the website's `renderMap()`). Fill
+  colour reuses `theme.heatColor()` (already identical to the website's
+  ramp -- same hex tokens) rather than adding `d3-scale-chromatic` as a
+  second implementation of the same one-hue ramp.
+- **Interaction**: `RegionalScreen.tsx` gained an "İqtisadi region / Rayon"
+  tab (`level.region`/`level.district`, already in the website's i18n
+  dictionaries) that picks which resolution the *unfiltered* map/bar chart
+  show, on top of the existing region → district `Select` cascade. A tap on
+  either the map or the bar chart drives one shared `onPlace(key)` handler
+  (so they always select the same place), a short tooltip (name + value)
+  shows at the tapped shape's centroid for 3 s, and a horizontal swipe on
+  the map steps to the next/previous place in whatever ranking is currently
+  shown (`PanResponder`, direction chosen by `|dx| > 12` and `|dx| >
+  |dy|*1.5`, matching the website's swipe heuristic in `region-map.js`).
+- **Baku, again**: same gap as the website -- its 12 city districts have no
+  polygon at this resolution. Tapping Baku's own single shape from the
+  unfiltered "Rayon" view (or picking "Bakı şəhəri" from the region select)
+  shows its 12 wards in the bar chart and the by-year table; the map falls
+  back to Baku's one region-level shape. This is a deliberate small
+  simplification versus the website's current `region-map.js`, which now
+  ignores a tap on that fallback shape at the top "Rayon" view (added after
+  this app's first map prototype, during the same work on the site) --
+  the app instead always promotes it to showing the 12 wards, since a dead
+  tap is worse UX on a phone than on a page with a region dropdown next to
+  the map.
+- **React Compiler**: this was the project's first `npx expo lint` run (no
+  ESLint config existed before); it auto-installed `eslint-config-expo` and
+  surfaced two pre-existing/new compiler diagnostics, fixed here --
+  `NationalScreen.tsx`'s trend-points `useMemo` (compiler couldn't prove the
+  dependency was stable; replaced with a plain computation, letting the
+  compiler auto-memoize the component) and `RegionMap.tsx`'s `PanResponder`
+  (reading a ref inside the gesture handlers it's told to flag even though
+  `PanResponder` only calls them from the native gesture system, never
+  during render -- a known false positive for this pattern, disabled for
+  that one block with a comment explaining why).
+- **Verified**: `npx tsc --noEmit` and `npx expo lint` clean; `npx expo
+  export -p web` bundles all 403 modules with no errors (confirms the
+  GeoJSON imports and `d3-geo` resolve and bundle correctly). **Not yet run
+  in Expo Go on a physical phone** (next: owner tests, then stage 2).
 

@@ -12,17 +12,22 @@ App-in içində heç bir rəqəm saxlanmır.
   (Xəstələnmə üçün) və İl seçimləri var. Nəticə kartı nisbəti, ötən ilə
   görə dəyişimi (▲ qırmızı / ▼ yaşıl) və sayı göstərir. Altda trend
   qrafiki var, nöqtəyə toxunanda həmin il seçilir.
-- **Regional göstəricilər**: İqtisadi region → Rayon (kaskad) seçimi,
-  Say / 10 000 nəfərə görə və İl. Heatmap rəngli bar chart göstərir: bütün
-  regionlar, ya da seçilmiş regionun rayonları. Bar-a toxunanda o yer
-  seçilir. Altda seçilmiş yerin illər üzrə cədvəli var.
+- **Regional göstəricilər**: real sərhədli Azərbaycan xəritəsi (saytın
+  geoBoundaries mənbəli GeoJSON-u, bax aşağı), İqtisadi region → Rayon
+  (kaskad) seçimi, Say / 10 000 nəfərə görə və İl. "İqtisadi region /
+  Rayon" tab-ı xəritənin/bar chart-ın susmaya görə hansı səviyyədə
+  göründüyünü seçir (14 region, ya da bütün 73 rayon — Bakı orada da tək
+  fiqur kimi qalır, 12 daxili rayonunun ayrıca sərhədi yoxdur, nəticələri
+  isə regiona toxunanda bar chart-da və cədvəldə görünür). Xəritəyə və ya
+  bara toxunanda eyni yer seçilir (ikisi sinxrondur), qısa bir tooltip
+  (ad + rəqəm) çıxır, xəritədə üfüqi sürüşdürmə (swipe) cari sıralamada
+  növbəti/əvvəlki yerə keçir. Altda seçilmiş yerin illər üzrə cədvəli var.
 - **AZ / EN**: yuxarı sağdakı dairələrlə dil dəyişir, seçim telefonda
   yadda qalır. Mətnlər saytın öz lüğətləridir (`../frontend/i18n/*.json`,
   bax `metro.config.js`). Yer adları EN-də Azstat-ın rəsmi ingiliscə
   adlarıdır.
 - Açıq/qaranlıq rejim telefonun ayarını izləyir. Aşağı çəkəndə data
   yenilənir.
-- Xəritə hələ yoxdur, növbəti iterasiyadadır.
 
 ## Expo Go ilə telefonda test
 
@@ -104,7 +109,19 @@ app ikonunu göstərir. Splash yalnız əsl build-də (məs. `eas build`) görü
 | `src/i18n.tsx` | Dil konteksti; saytın lüğətləri + app-ə aid bir neçə mətn |
 | `src/NationalScreen.tsx`, `src/RegionalScreen.tsx` | İki əsas ekran |
 | `src/charts.tsx` | Trend xətti (react-native-svg) və heatmap bar chart |
+| `src/RegionMap.tsx`, `src/geo.ts` | Real sərhədli xəritə (react-native-svg + d3-geo proyeksiya), tooltip, swipe |
+| `src/geo/regions.json`, `src/geo/districts.json` | `frontend/az-*.geojson`-un köçürülmüş surəti (bax `scripts/sync-geo.mjs`) |
 | `src/components.tsx` | Seçim siyahısı, seqment düymələri, kart, nişanlar |
 | `src/theme.ts` | Saytla eyni rəng tokenləri (açıq/qaranlıq), heatmap rampası |
 
-Yoxlamalar: `npx tsc --noEmit`, `npx expo-doctor`.
+`src/geo/*.json` saytın `frontend/az-economic-regions.geojson` /
+`az-districts.geojson` fayllarının surətidir (Metro `.geojson`
+uzantısını tanımır, ona görə `.json` kimi saxlanılıb). Mənbə
+dəyişəndə (`scripts/build_region_geojson.py` / `build_district_geojson.py`
+yenidən işlədiləndə) yeniləmək üçün:
+
+```bash
+node scripts/sync-geo.mjs
+```
+
+Yoxlamalar: `npx tsc --noEmit`, `npx expo lint`, `npx expo-doctor`.

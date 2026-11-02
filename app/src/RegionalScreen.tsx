@@ -1,53 +1,145 @@
-// Regional indicators: economic region -> district (cascade), Say / per
-// 10 000 and year -> a heat-coloured bar chart (all regions, or the chosen
-// region's districts) and a by-year table for the selected place.
-// The map is a later iteration; the bars already carry the same heat scale.
-import { useMemo, useState } from "react";
+// Regional indicators: a real choropleth map (RegionMap, geoBoundaries data
+// ported from frontend/ -- see scripts/sync-geo.mjs) plus the same heat bar
+// chart, economic region -> district cascade, Say / 10 000 and year. The
+// İqtisadi region / Rayon tab picks which resolution the *unfiltered* map
+// and bar chart show (14 regions, or all 73 districts with Baku as one
+// combined shape -- it has no ward-level polygon, same gap as the website);
+// tapping a shape or a bar drills the same way on both (one shared
+// region/district selection), and a horizontal swipe on the map steps
+// through whatever ranking is currently on screen.
+import { useCallback, useMemo, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-import { BarChart } from "./charts";
+import { type Bar, BarChart } from "./charts";
 import { Card, DeltaText, Muted, NoteBadges, Segmented, Select } from "./components";
 import {
-  COUNTRY_KEY, districtOptions, formatInt, formatRate, placeName, regionOptions,
+  COUNTRY_KEY, districtOptions, economicRegionOf, formatInt, formatRate, placeName, regionOptions, rowsForYear,
   type Regional,
 } from "./data";
+import { type GeoFeatureCollection } from "./geo";
+import districtsGeoJson from "./geo/districts.json";
+import regionsGeoJson from "./geo/regions.json";
 import { useI18n } from "./i18n";
+import { RegionMap } from "./RegionMap";
 import { useTheme } from "./theme";
 
 type Table = "count" | "rate";
+type Level = "region" | "district";
+
+const regionFeatures = (regionsGeoJson as unknown as GeoFeatureCollection).features;
+const districtFeatures = (districtsGeoJson as unknown as GeoFeatureCollection).features;
 
 export function RegionalScreen({ regional }: { regional: Regional }) {
   const theme = useTheme();
   const { t, lang } = useI18n();
-  const [region, setRegion] = useState<string>(""); // "" = all regions
-  const [district, setDistrict] = useState<string>(""); // "" = all districts of the region
+  const [topLevel, setTopLevel] = useState<Level>("region");
+  const [region, setRegion] = useState<string>(""); // "" = none picked
+  const [district, setDistrict] = useState<string>(""); // "" = none picked
   const [table, setTable] = useState<Table>("count");
   const [year, setYear] = useState<number>(regional.years[0]);
 
   const regions = useMemo(() => regionOptions(regional, lang), [regional, lang]);
   const districts = useMemo(() => (region ? districtOptions(regional, region, lang) : []), [regional, region, lang]);
+  const yearRows = useMemo(() => rowsForYear(regional, year), [regional, year]);
 
-  // Bars for the chosen year: the 14 regions, or the chosen region's districts.
-  const bars = useMemo(() => {
-    const inYear = regional.rows.filter((r) => r.year === year);
-    const pick = region ? inYear.filter((r) => r.economicRegion === region) : inYear.filter((r) => r.economicRegion === null && r.key !== COUNTRY_KEY);
-    return pick
-      .map((r) => ({ key: r.key, label: placeName(regional, r.key, lang), value: table === "count" ? r.count : r.rate }))
-      .filter((b): b is { key: string; label: string; value: number } => b.value != null);
-  }, [regional, region, year, table, lang]);
+  const rowFor = useCallback(
+    (key: string): { key: string; label: string; value: number | null } => {
+      const r = yearRows.get(key);
+      return { key, label: placeName(regional, key, lang), value: r ? (table === "count" ? r.count : r.rate) : null };
+    },
+    [yearRows, table, regional, lang],
+  );
+  const withValue = (r: { key: string; label: string; value: number | null }): r is Bar => r.value != null;
+
+  // The 14 economic regions, independent of the İqtisadi region/Rayon tab --
+  // the sibling list swiping steps through once one region is drilled into.
+  const regionLevelBars = useMemo(
+    () => regionFeatures.map((f) => rowFor(f.properties.key)).filter(withValue),
+    [rowFor],
+  );
+
+  // The tab's own top-level ranking: 14 regions, or all 73 districts (Baku
+  // counted once -- its 12 wards only appear once Baku itself is drilled
+  // into, via regionBars below, same as the website).
+  const topBars = useMemo(
+    () => (topLevel === "region" ? regionFeatures : districtFeatures).map((f) => rowFor(f.properties.key)).filter(withValue),
+    [topLevel, rowFor],
+  );
+
+  // The drilled-into region's own districts (data-only -- shows even where,
+  // like Baku, none of them have a map shape).
+  const regionBars = useMemo(() => {
+    if (!region) return [];
+    return [...yearRows.values()].filter((r) => r.economicRegion === region).map((r) => rowFor(r.key)).filter(withValue);
+  }, [region, yearRows, rowFor]);
+
+  const bars: Bar[] = district
+    ? [rowFor(district)].filter(withValue)
+    : region ? regionBars : topBars;
+
+  // The map's visible shapes. A region or district can have no shape of its
+  // own at this resolution (Baku's wards have none at all) -- fall back to
+  // the parent region's shape so the map never renders nothing.
+  const mapFeatures = useMemo(() => {
+    if (district) {
+      const matches = districtFeatures.filter((f) => f.properties.key === district);
+      if (matches.length) return matches;
+      const parent = region || economicRegionOf(regional, district);
+      return parent ? regionFeatures.filter((f) => f.properties.key === parent) : [];
+    }
+    if (region) {
+      const matches = districtFeatures.filter((f) => economicRegionOf(regional, f.properties.key) === region);
+      if (matches.length) return matches;
+      return regionFeatures.filter((f) => f.properties.key === region);
+    }
+    return topLevel === "region" ? regionFeatures : districtFeatures;
+  }, [district, region, topLevel, regional]);
 
   // The place the by-year table is about: district, else region, else the country.
   const placeKey = district || region || COUNTRY_KEY;
-  const history = useMemo(() => regional.rows.filter((r) => r.key === placeKey), [regional, placeKey]); // newest first
+  const history = useMemo(() => regional.rows.filter((r) => r.key === placeKey), [regional, placeKey]);
 
-  const onBar = (key: string) => {
-    if (!region) { setRegion(key); setDistrict(""); }
-    else setDistrict(key === district ? "" : key);
+  // Shared by the map's tap and the bar chart's tap.
+  const onPlace = (key: string) => {
+    if (!region) {
+      if (topLevel === "region") {
+        setRegion(key);
+        setDistrict("");
+      } else {
+        const parent = economicRegionOf(regional, key);
+        if (parent == null) { setRegion(key); setDistrict(""); } // Baku itself: show its wards
+        else { setRegion(parent); setDistrict(key); } // a real district: go straight to it
+      }
+      return;
+    }
+    setDistrict(key === district ? "" : key);
   };
+
+  const onSwipe = (dir: 1 | -1) => {
+    if (district) {
+      const list = [...regionBars].sort((a, b) => b.value - a.value);
+      const idx = list.findIndex((r) => r.key === district);
+      if (idx < 0 || list.length < 2) return;
+      setDistrict(list[(idx + dir + list.length) % list.length].key);
+    } else if (region) {
+      const list = [...regionLevelBars].sort((a, b) => b.value - a.value);
+      const idx = list.findIndex((r) => r.key === region);
+      if (idx < 0 || list.length < 2) return;
+      setRegion(list[(idx + dir + list.length) % list.length].key);
+    }
+  };
+
+  const format = table === "count" ? "count" : "rate";
 
   return (
     <View style={styles.stack}>
       <Card>
+        <Muted>{t("regional.levelLabel")}</Muted>
+        <Segmented
+          options={[{ value: "region" as Level, label: t("level.region") }, { value: "district" as Level, label: t("level.district") }]}
+          value={topLevel}
+          onChange={(v) => { setTopLevel(v); setRegion(""); setDistrict(""); }}
+        />
         <View style={styles.row}>
           <Select
             label={t("label.economicRegion")}
@@ -77,10 +169,19 @@ export function RegionalScreen({ regional }: { regional: Regional }) {
 
       <Card>
         <Text style={[styles.cardTitle, { color: theme.textPrimary }]}>
-          {region ? placeName(regional, region, lang) : t("option.allRegions")} · {year}
+          {district || region ? placeName(regional, district || region, lang) : t(topLevel === "region" ? "option.allRegions" : "option.allDistricts")} · {year}
         </Text>
         <Muted>{t("regional.subtitle")}</Muted>
-        <BarChart bars={bars} selectedKey={district || null} onSelect={onBar} format={table === "count" ? "count" : "rate"} />
+        <RegionMap
+          features={mapFeatures}
+          valueFor={(key) => { const r = yearRows.get(key); return r ? (table === "count" ? r.count : r.rate) : null; }}
+          labelFor={(key) => placeName(regional, key, lang)}
+          selectedKey={district || null}
+          onSelect={onPlace}
+          onSwipe={onSwipe}
+          format={format}
+        />
+        <BarChart bars={bars} selectedKey={district || null} onSelect={onPlace} format={format} />
         <Muted>{t("regional.tapHint")}</Muted>
       </Card>
 
