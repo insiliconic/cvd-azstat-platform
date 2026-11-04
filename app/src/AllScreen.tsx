@@ -253,7 +253,7 @@ export function AllScreen({ dataset, regional }: { dataset: Dataset; regional: R
   return (
     <View style={styles.stack}>
       <Segmented
-        options={[{ value: "national" as Scope, label: t("all.scope.national") }, { value: "region" as Scope, label: t("scope.region") }]}
+        options={[{ value: "national" as Scope, label: t("scope.national") }, { value: "region" as Scope, label: t("regional.heading") }]}
         value={scope}
         onChange={setScope}
       />
