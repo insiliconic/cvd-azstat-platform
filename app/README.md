@@ -47,6 +47,16 @@ App-in içində heç bir rəqəm saxlanmır.
   başlanğıcda bir dəfə (yaddaşda, AsyncStorage-də deyil — hər yenidən
   açılışda təkrar oynasın deyə), data yükləməsini bir an belə
   gecikdirmədən (`Main()` eyni anda fetch başladır).
+- **Metodologiya**: hər üç tab-ın altında, həmişə görünən kart. Mənbə
+  (Azstat, kliklənən link), son yenilənmə tarixi (dataset-in öz
+  `generated` sahəsi), xam data linki, layihə (GitHub + `methodology_log`
+  qeydi) — hamısı saytın öz lüğətlərindən (`methodology.*`), sözbəsöz,
+  təzədən yazılmayıb. "Qeydlərin izahı" açılıb-bağlanan siyahıda saytın
+  Nisbət/Dəyişim/COVID/təxmini izahları var, üstəlik saytda olmayan bir
+  qeyd: Abşeron-Xızı regionunun 2019-cu ildəki nisbət düşməsi (səbəbi
+  `docs/methodology_log.md`-də — əhali bazası kəskin artıb, niyəsi
+  yoxlanılmayıb; "tərkib dəyişikliyi" versiyası orada artıq səhv kimi
+  düzəldilib, buna görə o deyil, düzəldilmiş izah işlədilib).
 - Aşağı çəkəndə data yenilənir.
 
 ## Expo Go ilə telefonda test
@@ -134,6 +144,7 @@ app ikonunu göstərir. Splash yalnız əsl build-də (məs. `eas build`) görü
 | `src/components.tsx` | Seçim siyahısı, seqment düymələri, kart, nişanlar, sıralana bilən cədvəl (`SortableTable`) |
 | `src/theme.tsx` | Saytla eyni rəng tokenləri (açıq/qaranlıq), heatmap rampası, Sistem/Açıq/Tünd seçimi (`ThemeModeProvider`) |
 | `src/SplashIntro.tsx` | Animasiyalı giriş ekranı (`react-native-reanimated`) |
+| `src/MethodologyCard.tsx` | Metodologiya kartı, saytın `methodology.*`/`notes.*` i18n mətnlərindən |
 
 `src/geo/*.json` saytın `frontend/az-economic-regions.geojson` /
 `az-districts.geojson` fayllarının surətidir (Metro `.geojson`

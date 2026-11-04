@@ -1241,4 +1241,48 @@ one English name across the 2019 key change.
   region's own total + its 5 districts) for 2025, Quba district's history
   lists all 11 years newest-first. **Not yet run in Expo Go on a physical
   phone** (next: owner tests, then stage 3 -- Metodologiya).
+- Stage 1 and 2 confirmed working in Expo Go. Between this and stage 3
+  (separate commits, not re-logged in detail here -- see git log): the app
+  was upgraded from Expo SDK 57 to 58, gained a System/Light/Dark theme
+  switch (`ThemeModeProvider`, `theme.tsx`), a ~1.6s animated intro
+  (`SplashIntro.tsx`, `react-native-reanimated`), and `expo-updates` +
+  `runtimeVersion: { policy: "fingerprint" }` for a future EAS Update
+  rollout (not built or published -- `updates.url`/`projectId` still need
+  `eas login`, an account step).
+
+## 2026-11-04 — App: Metodologiya (stage 3 of 3)
+
+- **Ported word-for-word, not rewritten**: `app/src/MethodologyCard.tsx`
+  reads the same `methodology.*`/`notes.*` keys from `frontend/i18n/*.json`
+  the website's own methodology card (`frontend/index.html`) uses --
+  Mənbə (linked), Son yenilənmə (`dataset.generated`), Xam data (linked),
+  Layihə, and an expandable "Qeydlərin izahı" with the Nisbət/Dəyişim/
+  COVID/təxmini explanations. A small inline-HTML token parser (`<strong>`,
+  `<code>`, `<a href>`, the badge and delta-arrow spans -- the five tags
+  those keys actually use, not a general HTML parser) renders them as
+  nested RN `Text`, verified against all five live strings with a
+  standalone Node script before trusting it in the app: the parse was
+  exact, token-for-token, for every one of them.
+- **Caught before writing anything**: the user's brief for this stage
+  asked for two notes that turned out not to match the current site --
+  (1) an "Abşeron-Xızı: composition change" explanation, which is
+  specifically the guess this log's 2026-09-26 entry already flagged as
+  "wrong, and unverified"; (2) a note about Baku's missing district
+  polygons, which isn't published anywhere on the live site's
+  methodology or regional section (checked `frontend/index.html`
+  directly -- no such text exists there to port). Flagged both back to
+  the user rather than silently inventing text or repeating an already-
+  retracted claim ("Saytdakı mətnləri sözbəsöz təkrarla, öz mətn uydurma"
+  was the explicit instruction, which cuts both ways). Resolved: use the
+  *verified* Abşeron-Xızı explanation (population denominator jumped
+  from ~570k to ~866k while the case count barely moved; cause not
+  stated by the source, not verified -- quoted from this log, not the
+  retracted guess), and drop the Baku note entirely rather than invent
+  site text that doesn't exist.
+- **Abşeron-Xızı note** (`notes.absheron.*`, app-only i18n strings, both
+  languages) is the one addition beyond the site's own four notes,
+  added at the end of the same expandable list.
+- **Verified**: the token-parser check above; `npx tsc --noEmit` and
+  `npx expo lint` clean; `npx expo export -p web` bundles with no
+  errors. Not yet confirmed in Expo Go.
 

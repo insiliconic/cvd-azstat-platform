@@ -4,13 +4,14 @@
 // (System/Light/Dark) + AZ/EN switch; three tabs below it.
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Linking, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 import { AllScreen } from "./src/AllScreen";
 import { Segmented } from "./src/components";
 import { buildRegional, fetchDataset, type Dataset, type Lang } from "./src/data";
 import { I18nProvider, useI18n } from "./src/i18n";
+import { MethodologyCard } from "./src/MethodologyCard";
 import { NationalScreen } from "./src/NationalScreen";
 import { RegionalScreen } from "./src/RegionalScreen";
 import { SplashIntro } from "./src/SplashIntro";
@@ -141,19 +142,7 @@ function Main() {
         {dataset && regional && tab === "national" && <NationalScreen dataset={dataset} />}
         {dataset && regional && tab === "regional" && <RegionalScreen regional={regional} />}
         {dataset && regional && tab === "all" && <AllScreen dataset={dataset} regional={regional} />}
-        {dataset && (
-          <View style={styles.footer}>
-            <Text style={[styles.footerText, { color: theme.textMuted }]}>
-              {t("methodology.source")}:{" "}
-              <Text style={{ color: theme.series }} onPress={() => Linking.openURL("https://www.stat.gov.az/source/healthcare/?lang=en")}>
-                {t("methodology.sourceName")}
-              </Text>
-            </Text>
-            {dataset.generated ? (
-              <Text style={[styles.footerText, { color: theme.textMuted }]}>{t("methodology.lastUpdated")}: {dataset.generated}</Text>
-            ) : null}
-          </View>
-        )}
+        {dataset && <MethodologyCard dataset={dataset} />}
       </ScrollView>
       {showIntro && <SplashIntro onFinish={() => setShowIntro(false)} />}
     </SafeAreaView>
@@ -189,6 +178,4 @@ const styles = StyleSheet.create({
   errorBox: { borderWidth: 1, borderRadius: 12, padding: 16 },
   errorTitle: { fontSize: 16, fontWeight: "700" },
   retry: { borderWidth: 1, borderRadius: 8, paddingVertical: 8, paddingHorizontal: 16, marginTop: 4 },
-  footer: { gap: 4, paddingTop: 8 },
-  footerText: { fontSize: 12 },
 });
