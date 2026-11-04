@@ -26,6 +26,15 @@ const light = {
   estFg: "#52514e",
   heatLow: "#cde2fb",
   heatHigh: "#0d366b",
+  // The trend chart's area-fill color (charts.tsx's seriesWash), but solid
+  // rather than a 10%-alpha overlay: composited onto the page background,
+  // seriesWash's actual rgba computes to ~#e4ecf4 here (barely off-white --
+  // too faint for a 2px border) and, in dark mode, to ~#111923 (nearly
+  // black against a bright fill -- the wrong direction entirely, since the
+  // dark page it's composited onto swamps a 10%-alpha light tint). Used
+  // only for the selected top-level tab's border (App.tsx's size="lg"
+  // Segmented); every other selected border still reads `series` directly.
+  accentLight: "#cde2fb", // = heatLow: already a clean, clearly-light blue
 };
 
 const dark: typeof light = {
@@ -46,6 +55,7 @@ const dark: typeof light = {
   estFg: "#c3c2b7",
   heatLow: "#1e3a5f",
   heatHigh: "#6fb1f0",
+  accentLight: "#6fb1f0", // = heatHigh: dark mode's own light-blue accent (also make-icons.mjs's splash LIGHT_BLUE) -- heatLow is a dark navy here, the wrong direction
 };
 
 export type Theme = typeof light;

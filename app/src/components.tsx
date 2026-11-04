@@ -27,9 +27,11 @@ export function Muted({ children }: { children: ReactNode }) {
 // size="lg" is the three top-level tabs (App.tsx) only -- a thicker (~2px)
 // border on every button, selected or not, so they read as a heavier
 // weight class than every other Segmented in the app (measure, Kəsim,
-// level, Say/10 000 -- all stay the default 1px). Selected already uses
-// theme.series for both fill and border (the same token the trend line
-// uses in charts.tsx); size="lg" only changes the width, not the color.
+// level, Say/10 000 -- all stay the default 1px, and their selected
+// border stays theme.series as before). Selected keeps its solid
+// theme.series fill either way; only size="lg"'s selected border reads
+// theme.accentLight instead (the trend chart's area-fill color, solidified
+// -- see theme.tsx for why it isn't the raw seriesWash alpha value).
 export function Segmented<T extends string>({ options, value, onChange, size = "default" }: {
   options: { value: T; label: string }[];
   value: T;
@@ -42,13 +44,14 @@ export function Segmented<T extends string>({ options, value, onChange, size = "
     <View style={styles.segmented} accessibilityRole="tablist">
       {options.map((o) => {
         const active = o.value === value;
+        const activeBorder = size === "lg" ? theme.accentLight : theme.series;
         return (
           <Pressable
             key={o.value}
             onPress={() => onChange(o.value)}
             accessibilityRole="tab"
             accessibilityState={{ selected: active }}
-            style={[styles.segment, { borderWidth, borderColor: active ? theme.series : theme.border, backgroundColor: active ? theme.series : theme.page }]}
+            style={[styles.segment, { borderWidth, borderColor: active ? activeBorder : theme.border, backgroundColor: active ? theme.series : theme.page }]}
           >
             <Text style={[styles.segmentText, { color: active ? "#ffffff" : theme.textSecondary, fontWeight: active ? "600" : "400" }]}>{o.label}</Text>
           </Pressable>
