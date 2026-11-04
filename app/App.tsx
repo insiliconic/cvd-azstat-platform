@@ -117,6 +117,7 @@ function Main() {
           ]}
           value={tab}
           onChange={setTab}
+          size="lg"
         />
       </View>
 

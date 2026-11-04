@@ -24,12 +24,20 @@ export function Muted({ children }: { children: ReactNode }) {
   return <Text style={[styles.muted, { color: theme.textSecondary }]}>{children}</Text>;
 }
 
-export function Segmented<T extends string>({ options, value, onChange }: {
+// size="lg" is the three top-level tabs (App.tsx) only -- a thicker (~2px)
+// border on every button, selected or not, so they read as a heavier
+// weight class than every other Segmented in the app (measure, Kəsim,
+// level, Say/10 000 -- all stay the default 1px). Selected already uses
+// theme.series for both fill and border (the same token the trend line
+// uses in charts.tsx); size="lg" only changes the width, not the color.
+export function Segmented<T extends string>({ options, value, onChange, size = "default" }: {
   options: { value: T; label: string }[];
   value: T;
   onChange: (v: T) => void;
+  size?: "default" | "lg";
 }) {
   const theme = useTheme();
+  const borderWidth = size === "lg" ? 2 : 1;
   return (
     <View style={styles.segmented} accessibilityRole="tablist">
       {options.map((o) => {
@@ -40,7 +48,7 @@ export function Segmented<T extends string>({ options, value, onChange }: {
             onPress={() => onChange(o.value)}
             accessibilityRole="tab"
             accessibilityState={{ selected: active }}
-            style={[styles.segment, { borderColor: active ? theme.series : theme.border, backgroundColor: active ? theme.series : theme.page }]}
+            style={[styles.segment, { borderWidth, borderColor: active ? theme.series : theme.border, backgroundColor: active ? theme.series : theme.page }]}
           >
             <Text style={[styles.segmentText, { color: active ? "#ffffff" : theme.textSecondary, fontWeight: active ? "600" : "400" }]}>{o.label}</Text>
           </Pressable>
@@ -227,7 +235,7 @@ const styles = StyleSheet.create({
   tableRow: { flexDirection: "row", alignItems: "center", paddingVertical: 8, borderBottomWidth: StyleSheet.hairlineWidth, gap: 6 },
   thText: { fontWeight: "600", fontSize: 11 },
   segmented: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
-  segment: { borderWidth: 1, borderRadius: 999, paddingVertical: 7, paddingHorizontal: 14 },
+  segment: { borderRadius: 999, paddingVertical: 7, paddingHorizontal: 14 },
   segmentText: { fontSize: 14 },
   field: { gap: 4, flexGrow: 1, flexBasis: 140 },
   fieldLabel: { fontSize: 13 },
