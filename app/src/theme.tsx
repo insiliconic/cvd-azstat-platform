@@ -32,8 +32,10 @@ const light = {
   // too faint for a 2px border) and, in dark mode, to ~#111923 (nearly
   // black against a bright fill -- the wrong direction entirely, since the
   // dark page it's composited onto swamps a 10%-alpha light tint). Used
-  // only for the selected top-level tab's border (App.tsx's size="lg"
-  // Segmented); every other selected border still reads `series` directly.
+  // only for the selected top-level tab's border -- TopTabs.tsx's legacy
+  // size="lg" Segmented (src/config.ts's USE_BOTTOM_NAV=false); every other
+  // selected border still reads `series` directly, and BottomNav.tsx (the
+  // USE_BOTTOM_NAV=true default) doesn't use Segmented, so never reads it.
   accentLight: "#cde2fb", // = heatLow: already a clean, clearly-light blue
 };
 

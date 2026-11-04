@@ -24,14 +24,17 @@ export function Muted({ children }: { children: ReactNode }) {
   return <Text style={[styles.muted, { color: theme.textSecondary }]}>{children}</Text>;
 }
 
-// size="lg" is the three top-level tabs (App.tsx) only -- a thicker (~2px)
-// border on every button, selected or not, so they read as a heavier
-// weight class than every other Segmented in the app (measure, Kəsim,
-// level, Say/10 000 -- all stay the default 1px, and their selected
-// border stays theme.series as before). Selected keeps its solid
-// theme.series fill either way; only size="lg"'s selected border reads
-// theme.accentLight instead (the trend chart's area-fill color, solidified
-// -- see theme.tsx for why it isn't the raw seriesWash alpha value).
+// size="lg" is TopTabs.tsx only -- the legacy top-level tab bar
+// (src/config.ts's USE_BOTTOM_NAV=false), not BottomNav.tsx, which doesn't
+// use Segmented at all. A thicker (~2px) border on every button, selected
+// or not, so they read as a heavier weight class than every other
+// Segmented in the app (measure, Kəsim, level, Say/10 000 -- all stay the
+// default 1px, and their selected border stays theme.series as before).
+// Selected keeps its solid theme.series fill either way; only size="lg"'s
+// selected border reads theme.accentLight instead (the trend chart's
+// area-fill color, solidified -- see theme.tsx for why it isn't the raw
+// seriesWash alpha value). So this light-blue border is scoped to the
+// legacy top tabs by construction, not by a special case here.
 export function Segmented<T extends string>({ options, value, onChange, size = "default" }: {
   options: { value: T; label: string }[];
   value: T;
