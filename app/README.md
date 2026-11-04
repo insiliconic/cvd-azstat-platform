@@ -40,13 +40,18 @@ App-in içində heç bir rəqəm saxlanmır.
   izləyir); seçim telefonda yadda qalır. Bütün ekranlar, xəritə və
   qrafiklər hər iki rejimdə eyni rəng tokenlərini (`src/theme.tsx`)
   oxuyur, ona görə ikisi də oxunaqlıdır.
-- **Giriş animasiyası**: statik native splash-dan (app ikonu) sonra, ~1.6
-  saniyəlik animasiyalı ekran — loqo kiçikdən böyüyür, nəbz xətti özü-özünü
-  çəkir (əsl ikonla eyni həndəsə, `scripts/make-icons.mjs`), sonra ad
-  görünür və ekran sönür (`react-native-reanimated`). Yalnız soyuq
-  başlanğıcda bir dəfə (yaddaşda, AsyncStorage-də deyil — hər yenidən
-  açılışda təkrar oynasın deyə), data yükləməsini bir an belə
-  gecikdirmədən (`Main()` eyni anda fetch başladır).
+- **Giriş animasiyası**: statik native splash-dan (app ikonu) sonra, ~3.5
+  saniyəlik animasiyalı ekran, bir xətt üç mərhələdə (`react-native-svg` +
+  `react-native-reanimated`, `strokeDashoffset` və nöqtə-bə-nöqtə
+  interpolyasiya): 0–1.3 s EKQ (ürək kardioqramı) xətti soldan sağa
+  çəkilir; 1.3–2.6 s eyni xətt yumşaq şəkildə artan statistik trend
+  xəttinə çevrilir (eyni mavi, bir neçə nöqtə əlavə olunur); 2.6–3.3 s
+  "Cardiostatistics" adı yuxarı sürüşərək görünür, sonra ekran sönür.
+  Toxunanda keçmək (skip) olar. Yalnız soyuq başlanğıcda bir dəfə
+  (yaddaşda, AsyncStorage-də deyil — hər yenidən açılışda təkrar oynasın
+  deyə), data yükləməsini bir an belə gecikdirmədən (`Main()` eyni anda
+  fetch başladır; data artıq hazırdırsa, animasiya bitən kimi əsas ekran
+  görünür).
 - **Metodologiya**: hər üç tab-ın altında, həmişə görünən kart. Mənbə
   (Azstat, kliklənən link), son yenilənmə tarixi (dataset-in öz
   `generated` sahəsi), xam data linki, layihə (GitHub + `methodology_log`
@@ -143,7 +148,7 @@ app ikonunu göstərir. Splash yalnız əsl build-də (məs. `eas build`) görü
 | `src/geo/regions.json`, `src/geo/districts.json` | `frontend/az-*.geojson`-un köçürülmüş surəti (bax `scripts/sync-geo.mjs`) |
 | `src/components.tsx` | Seçim siyahısı, seqment düymələri, kart, nişanlar, sıralana bilən cədvəl (`SortableTable`) |
 | `src/theme.tsx` | Saytla eyni rəng tokenləri (açıq/qaranlıq), heatmap rampası, Sistem/Açıq/Tünd seçimi (`ThemeModeProvider`) |
-| `src/SplashIntro.tsx` | Animasiyalı giriş ekranı (`react-native-reanimated`) |
+| `src/SplashIntro.tsx` | Animasiyalı giriş ekranı: EKQ → trend xətti → ad (`react-native-svg` + `react-native-reanimated`) |
 | `src/MethodologyCard.tsx` | Metodologiya kartı, saytın `methodology.*`/`notes.*` i18n mətnlərindən |
 
 `src/geo/*.json` saytın `frontend/az-economic-regions.geojson` /
