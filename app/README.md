@@ -40,21 +40,13 @@ App-in içində heç bir rəqəm saxlanmır.
   izləyir); seçim telefonda yadda qalır. Bütün ekranlar, xəritə və
   qrafiklər hər iki rejimdə eyni rəng tokenlərini (`src/theme.tsx`)
   oxuyur, ona görə ikisi də oxunaqlıdır.
-- **Giriş animasiyası**: statik native splash-dan (app ikonu) sonra, ~3.5
-  saniyəlik animasiyalı ekran (`react-native-svg` + `react-native-reanimated`,
-  `strokeDashoffset`). Susmaya görə (`INTRO_VARIANT = "logo"`): əsl
-  Cardiostatistics loqosu (mavi yumru künclü kvadrat + ağ nəbz xətti, app
-  ikonu ilə eyni fayl/nöqtələr) özü-özünü 0–1.6 s-də təkrarlanan bir
-  kardioqram kimi çəkir, 1.6–2.3 s-də bu dekorativ xətt loqonun əsl,
-  tək-keçidli xəttinə keçir (sürətli, ease-out — "artım oxu" sürətlə
-  qalxır), 2.3–3.0 s loqo tam formasında qalır, 3.0–3.4 s "Cardiostatistics"
-  adı yuxarı sürüşərək görünür, sonra qısa sönmə. Toxunanda keçmək (skip)
-  olar. Yalnız soyuq başlanğıcda bir dəfə (yaddaşda, AsyncStorage-də deyil —
-  hər yenidən açılışda təkrar oynasın deyə), data yükləməsini bir an belə
-  gecikdirmədən (`Main()` eyni anda fetch başladır; data artıq hazırdırsa,
-  animasiya bitən kimi əsas ekran görünür). Əvvəlki EKQ→trend-xətti
-  animasiyası silinməyib, `INTRO_VARIANT = "ecg-trend"` ilə aktivləşir
-  (bax aşağı "UI flags").
+- **Giriş animasiyası**: statik native splash-dan (app ikonu) sonra, ~1.6
+  saniyəlik animasiyalı ekran — loqo kiçikdən böyüyür, nəbz xətti özü-özünü
+  çəkir (əsl ikonla eyni həndəsə, `scripts/make-icons.mjs`), sonra ad
+  görünür və ekran sönür (`react-native-reanimated`). Yalnız soyuq
+  başlanğıcda bir dəfə (yaddaşda, AsyncStorage-də deyil — hər yenidən
+  açılışda təkrar oynasın deyə), data yükləməsini bir an belə
+  gecikdirmədən (`Main()` eyni anda fetch başladır).
 - **Metodologiya**: hər üç tab-ın altında, həmişə görünən kart. Mənbə
   (Azstat, kliklənən link), son yenilənmə tarixi (dataset-in öz
   `generated` sahəsi), xam data linki, layihə (GitHub + `methodology_log`
@@ -65,10 +57,6 @@ App-in içində heç bir rəqəm saxlanmır.
   `docs/methodology_log.md`-də — əhali bazası kəskin artıb, niyəsi
   yoxlanılmayıb; "tərkib dəyişikliyi" versiyası orada artıq səhv kimi
   düzəldilib, buna görə o deyil, düzəldilmiş izah işlədilib).
-- **Naviqasiya**: Milli / Regional / Bütün göstəricilər aşağıda, ikonlu bir
-  tab panelində (📈 / 🗺️ / 📋), tema ilə uyğun. Kartların içindəki alt
-  seçimlər (Ölüm/Xəstələnmə, Milli/Region, yaş aralığı, Say/10 000, İl)
-  dəyişməyib — nazik (1 px) seqment düymələri olaraq qalır.
 - Aşağı çəkəndə data yenilənir.
 
 ## Expo Go ilə telefonda test
@@ -155,12 +143,7 @@ app ikonunu göstərir. Splash yalnız əsl build-də (məs. `eas build`) görü
 | `src/geo/regions.json`, `src/geo/districts.json` | `frontend/az-*.geojson`-un köçürülmüş surəti (bax `scripts/sync-geo.mjs`) |
 | `src/components.tsx` | Seçim siyahısı, seqment düymələri, kart, nişanlar, sıralana bilən cədvəl (`SortableTable`) |
 | `src/theme.tsx` | Saytla eyni rəng tokenləri (açıq/qaranlıq), heatmap rampası, Sistem/Açıq/Tünd seçimi (`ThemeModeProvider`) |
-| `src/config.ts` | UI flag-ları: `USE_BOTTOM_NAV`, `INTRO_VARIANT` (bax aşağı "UI flags") |
-| `src/TopTabs.tsx` | Köhnə üst tab paneli (`USE_BOTTOM_NAV=false`) |
-| `src/BottomNav.tsx` | Yeni alt ikonlu naviqasiya paneli (`USE_BOTTOM_NAV=true`, susmaya görə) |
-| `src/SplashIntro.tsx` | `INTRO_VARIANT`-a görə giriş animasiyasını seçir |
-| `src/IntroAnimationLogo.tsx` | Giriş animasiyası: loqo → kardioqram → əsl forma → ad (susmaya görə) |
-| `src/IntroAnimationEcgTrend.tsx` | Əvvəlki giriş animasiyası: EKQ → trend xətti → ad (`INTRO_VARIANT="ecg-trend"`) |
+| `src/SplashIntro.tsx` | Animasiyalı giriş ekranı (`react-native-reanimated`) |
 | `src/MethodologyCard.tsx` | Metodologiya kartı, saytın `methodology.*`/`notes.*` i18n mətnlərindən |
 
 `src/geo/*.json` saytın `frontend/az-economic-regions.geojson` /
@@ -174,29 +157,6 @@ node scripts/sync-geo.mjs
 ```
 
 Yoxlamalar: `npx tsc --noEmit`, `npx expo lint`, `npx expo-doctor`.
-
-## UI flags
-
-`src/config.ts`-dəki flag-lar, hər biri geri qaytarıla bilən, köhnə kodu
-silmədən:
-
-- **`USE_BOTTOM_NAV`** (susmaya görə `true`): 3 əsas bölmə ekranın altında,
-  ikonlu panel (`src/BottomNav.tsx`). `false` edəndə köhnə üst yumru tablar
-  qayıdır (`src/TopTabs.tsx`) — kod silinməyib, sadəcə `App.tsx` hansını
-  göstərəcəyini bu flag-a görə seçir.
-- **`INTRO_VARIANT`** (susmaya görə `"logo"`): əsl loqo əsaslı giriş
-  animasiyası (`src/IntroAnimationLogo.tsx`). `"ecg-trend"` edəndə əvvəlki
-  EKQ→trend-xətti animasiyası qayıdır (`src/IntroAnimationEcgTrend.tsx`) —
-  o da silinməyib. `src/SplashIntro.tsx` seçimi bu flag-a görə edir.
-
-Daha geriyə qayıtmaq üçün git tag-lar (bu iki flag-ın əlavə olunduğu
-batch-dan əvvəlki vəziyyət):
-
-```bash
-git diff pre-ui-v2 -- app/   # bu batch-ın bütün dəyişikliklərinə baxmaq
-git checkout pre-ui-v2 -- app/   # (lazım olarsa) bütün batch-ı geri almaq
-git diff intro-v1 -- app/src/IntroAnimationEcgTrend.tsx   # əvvəlki animasiyanın öz tarixçəsi
-```
 
 ## EAS Update (mağazasız JS yeniləmələri) — konfiqurasiya hazır, aktiv deyil
 

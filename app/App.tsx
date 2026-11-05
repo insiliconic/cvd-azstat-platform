@@ -8,8 +8,7 @@ import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, T
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 import { AllScreen } from "./src/AllScreen";
-import { BottomNav } from "./src/BottomNav";
-import { USE_BOTTOM_NAV } from "./src/config";
+import { Segmented } from "./src/components";
 import { buildRegional, fetchDataset, type Dataset, type Lang } from "./src/data";
 import { I18nProvider, useI18n } from "./src/i18n";
 import { MethodologyCard } from "./src/MethodologyCard";
@@ -17,7 +16,8 @@ import { NationalScreen } from "./src/NationalScreen";
 import { RegionalScreen } from "./src/RegionalScreen";
 import { SplashIntro } from "./src/SplashIntro";
 import { ThemeModeProvider, useTheme, useThemeMode, type ThemeMode } from "./src/theme";
-import { TopTabs, type Tab } from "./src/TopTabs";
+
+type Tab = "national" | "regional" | "all";
 
 function LangSwitch() {
   const theme = useTheme();
@@ -108,10 +108,19 @@ function Main() {
           <LangSwitch />
         </View>
       </View>
-      {!USE_BOTTOM_NAV && <TopTabs value={tab} onChange={setTab} />}
+      <View style={styles.tabs}>
+        <Segmented
+          options={[
+            { value: "national" as Tab, label: t("scope.national") },
+            { value: "regional" as Tab, label: t("regional.heading") },
+            { value: "all" as Tab, label: t("all.heading") },
+          ]}
+          value={tab}
+          onChange={setTab}
+        />
+      </View>
 
       <ScrollView
-        style={styles.scroll}
         contentContainerStyle={styles.content}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.series} />}
       >
@@ -135,7 +144,6 @@ function Main() {
         {dataset && regional && tab === "all" && <AllScreen dataset={dataset} regional={regional} />}
         {dataset && <MethodologyCard dataset={dataset} />}
       </ScrollView>
-      {USE_BOTTOM_NAV && <BottomNav value={tab} onChange={setTab} />}
       {showIntro && <SplashIntro onFinish={() => setShowIntro(false)} />}
     </SafeAreaView>
   );
@@ -164,7 +172,7 @@ const styles = StyleSheet.create({
   langText: { fontSize: 11, fontWeight: "700" },
   themeBtn: { width: 36, height: 36, borderRadius: 18, borderWidth: 1.5, alignItems: "center", justifyContent: "center" },
   themeIcon: { fontSize: 16 },
-  scroll: { flex: 1 },
+  tabs: { paddingHorizontal: 16, paddingVertical: 12 },
   content: { paddingHorizontal: 16, paddingBottom: 40, gap: 16 },
   center: { alignItems: "center", gap: 8, paddingVertical: 40 },
   errorBox: { borderWidth: 1, borderRadius: 12, padding: 16 },
