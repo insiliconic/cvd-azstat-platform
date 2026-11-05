@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
   thText: { fontWeight: "600", fontSize: 11 },
   segmented: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
   segment: { borderWidth: 1, borderRadius: 999, paddingVertical: 7, paddingHorizontal: 14 },
-  segmentText: { fontSize: 14 },
+  segmentText: { fontSize: 14, textAlign: "center" },
   field: { gap: 4, flexGrow: 1, flexBasis: 140 },
   fieldLabel: { fontSize: 13 },
   selectBox: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8, borderWidth: 1, borderRadius: 8, paddingVertical: 10, paddingHorizontal: 12 },

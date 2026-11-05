@@ -113,7 +113,7 @@ function Main() {
           options={[
             { value: "national" as Tab, label: t("scope.national") },
             { value: "regional" as Tab, label: t("regional.heading") },
-            { value: "all" as Tab, label: t("all.heading") },
+            { value: "all" as Tab, label: t("tab.allFigures") },
           ]}
           value={tab}
           onChange={setTab}

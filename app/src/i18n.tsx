@@ -26,6 +26,11 @@ const APP_STRINGS: Record<Lang, Record<string, string>> = {
     "theme.dark": "Tünd",
     "notes.absheron.term": "Abşeron–Xızı (2019)",
     "notes.absheron.body": "Nisbət 2019-cu ildə 179.0-dan 116.4-ə düşür (10 000 nəfərə görə), halbuki say demək olar dəyişmir (10 206 → 10 077). Səbəb nisbətin hesablandığı əhali bazasının kəskin artmasıdır (~570 000-dən ~866 000-ə) — bunun niyə baş verdiyi mənbə tərəfindən açıqlanmayıb və yoxlanılmayıb.",
+    // A literal line break, not auto-wrap: the top-level tab label is longer
+    // than the website's "all.heading" it's based on, so it needs a
+    // predictable two-line break rather than depending on how much width
+    // this particular device happens to give the pill-shaped tab button.
+    "tab.allFigures": "Bütün göstəricilər\n(Rəqəmlərlə)",
   },
   en: {
     "app.name": "Cardiostatistics",
@@ -42,6 +47,7 @@ const APP_STRINGS: Record<Lang, Record<string, string>> = {
     "theme.dark": "Dark",
     "notes.absheron.term": "Abşeron–Xızı (2019)",
     "notes.absheron.body": "The rate drops from 179.0 to 116.4 per 10,000 in 2019, even though the case count barely moves (10,206 → 10,077). The cause is a sharp jump in the population the rate is computed on (~570,000 to ~866,000) — why that happened is not stated by the source and hasn't been verified.",
+    "tab.allFigures": "All indicators\n(Figures)",
   },
 };
 
