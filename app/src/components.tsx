@@ -24,10 +24,16 @@ export function Muted({ children }: { children: ReactNode }) {
   return <Text style={[styles.muted, { color: theme.textSecondary }]}>{children}</Text>;
 }
 
-export function Segmented<T extends string>({ options, value, onChange }: {
+export function Segmented<T extends string>({ options, value, onChange, bold }: {
   options: { value: T; label: string }[];
   value: T;
   onChange: (v: T) => void;
+  // Top-level tabs only -- keeps sub-tabs/filters (Ölüm/Xəstələnmə, Milli/
+  // Regional, yaş aralığı, Say/10 000 ...) at their normal weight so the
+  // two levels stay visually distinct. One point smaller than the regular
+  // label, since bold text at the same size runs wider and this label set
+  // includes the longest one ("Bütün göstəricilər (Rəqəmlərlə)").
+  bold?: boolean;
 }) {
   const theme = useTheme();
   return (
@@ -42,7 +48,16 @@ export function Segmented<T extends string>({ options, value, onChange }: {
             accessibilityState={{ selected: active }}
             style={[styles.segment, { borderColor: active ? theme.series : theme.border, backgroundColor: active ? theme.series : theme.page }]}
           >
-            <Text numberOfLines={1} style={[styles.segmentText, { color: active ? "#ffffff" : theme.textSecondary, fontWeight: active ? "600" : "400" }]}>{o.label}</Text>
+            <Text
+              numberOfLines={1}
+              style={[
+                styles.segmentText,
+                bold && styles.segmentTextBold,
+                { color: active ? "#ffffff" : theme.textSecondary, fontWeight: bold ? "700" : active ? "600" : "400" },
+              ]}
+            >
+              {o.label}
+            </Text>
           </Pressable>
         );
       })}
@@ -229,6 +244,7 @@ const styles = StyleSheet.create({
   segmented: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
   segment: { borderWidth: 1, borderRadius: 999, paddingVertical: 7, paddingHorizontal: 14 },
   segmentText: { fontSize: 14 },
+  segmentTextBold: { fontSize: 13 },
   field: { gap: 4, flexGrow: 1, flexBasis: 140 },
   fieldLabel: { fontSize: 13 },
   selectBox: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8, borderWidth: 1, borderRadius: 8, paddingVertical: 10, paddingHorizontal: 12 },

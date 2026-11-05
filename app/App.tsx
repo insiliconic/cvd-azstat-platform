@@ -117,6 +117,7 @@ function Main() {
           text from ever breaking onto a second text line. */}
       <View style={styles.tabs}>
         <Segmented
+          bold
           options={[
             { value: "national" as Tab, label: t("scope.national") },
             { value: "regional" as Tab, label: t("regional.heading") },
