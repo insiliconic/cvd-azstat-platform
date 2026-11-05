@@ -27,8 +27,9 @@ const APP_STRINGS: Record<Lang, Record<string, string>> = {
     "notes.absheron.term": "Abşeron–Xızı (2019)",
     "notes.absheron.body": "Nisbət 2019-cu ildə 179.0-dan 116.4-ə düşür (10 000 nəfərə görə), halbuki say demək olar dəyişmir (10 206 → 10 077). Səbəb nisbətin hesablandığı əhali bazasının kəskin artmasıdır (~570 000-dən ~866 000-ə) — bunun niyə baş verdiyi mənbə tərəfindən açıqlanmayıb və yoxlanılmayıb.",
     // Longer than the website's "all.heading" it's based on -- single line,
-    // forced via Segmented's numberOfLines={1}; App.tsx scrolls the top tab
-    // row horizontally so this never has to wrap or get clipped.
+    // forced via Segmented's numberOfLines={1}; App.tsx wraps the top tab
+    // row (flexWrap) so an overflowing button drops to its own line
+    // instead of this text ever breaking or getting clipped.
     "tab.allFigures": "Bütün göstəricilər (Rəqəmlərlə)",
   },
   en: {
