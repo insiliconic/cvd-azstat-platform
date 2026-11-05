@@ -10,9 +10,11 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.cardiostatistics.app"
     },
     "android": {
+      "package": "com.cardiostatistics.app",
       "adaptiveIcon": {
         "backgroundColor": "#2a78d6",
         "foregroundImage": "./assets/android-icon-foreground.png",

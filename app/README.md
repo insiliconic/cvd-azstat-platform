@@ -185,3 +185,24 @@ build-i yaradanda (hələ edilməyib — tapşırıq "yalnız konfiqurasiya"
 idi), `eas update` ilə JS dəyişikliklərini mağazasız göndərmək mümkün
 olacaq. `expo-updates`-in Updates API-sinin əksəriyyəti Expo Go-da
 işləmir (gözlənilən haldır) — real sınaq üçün bir build lazımdır.
+
+## Build checklist
+
+`app.json`: `android.package` / `ios.bundleIdentifier` = `com.cardiostatistics.app`
+(dərc olunduqdan sonra dəyişməz). `eas.json`: `preview` profili (daxili
+paylama, APK), `production` profili (`app-bundle`, `autoIncrement`
+aktiv), `cli.appVersionSource: "remote"` (versiya nömrəsini EAS özü
+izləyir, lokal `app.json`-u əl ilə artırmağa ehtiyac yoxdur).
+
+İlk `eas build`-dən sonra, hər dəfə təkrarlanmayan bir dəfəlik addımlar:
+
+1. `eas credentials` ilə Android keystore-u (upload key) yükləyin və
+   **ehtiyat nüsxəsini repo-dan kənar, təhlükəsiz bir yerdə** saxlayın
+   (parol meneceri, şirkət seyfi və s.) — bu açar itərsə, eyni tətbiqin
+   gələcək yeniləmələrini Play Store-a yükləmək mümkün olmur.
+2. Google Play Console-da **Play App Signing**-in aktiv olduğunu təsdiq
+   edin (EAS-ın yaratdığı upload key yalnız Google-a göndərmək üçündür,
+   son imzalamanı Google öz saxladığı açarla edir — upload key itsə belə
+   tətbiqi bərpa etmək mümkün qalır).
+3. `app.json`-dakı `extra.eas.projectId` yalnız `eas init`/`eas build`
+   ilk işə salınanda avtomatik yazılır — əl ilə əlavə edilməyib.
