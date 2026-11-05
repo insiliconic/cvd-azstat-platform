@@ -108,7 +108,13 @@ function Main() {
           <LangSwitch />
         </View>
       </View>
-      <View style={styles.tabs}>
+      {/* Horizontal scroll, not wrap -- "Bütün göstəricilər (Rəqəmlərlə)" is
+          long enough that a 3-up single row rarely fits a phone's width, and
+          it must never break onto a second text line (see Segmented's
+          numberOfLines={1}) or wrap the row onto a second button line
+          either, so a side-scrolling single row is the one layout that
+          guarantees both at every screen width. */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabs}>
         <Segmented
           options={[
             { value: "national" as Tab, label: t("scope.national") },
@@ -118,7 +124,7 @@ function Main() {
           value={tab}
           onChange={setTab}
         />
-      </View>
+      </ScrollView>
 
       <ScrollView
         contentContainerStyle={styles.content}

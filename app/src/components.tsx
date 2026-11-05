@@ -42,7 +42,7 @@ export function Segmented<T extends string>({ options, value, onChange }: {
             accessibilityState={{ selected: active }}
             style={[styles.segment, { borderColor: active ? theme.series : theme.border, backgroundColor: active ? theme.series : theme.page }]}
           >
-            <Text style={[styles.segmentText, { color: active ? "#ffffff" : theme.textSecondary, fontWeight: active ? "600" : "400" }]}>{o.label}</Text>
+            <Text numberOfLines={1} style={[styles.segmentText, { color: active ? "#ffffff" : theme.textSecondary, fontWeight: active ? "600" : "400" }]}>{o.label}</Text>
           </Pressable>
         );
       })}
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
   thText: { fontWeight: "600", fontSize: 11 },
   segmented: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
   segment: { borderWidth: 1, borderRadius: 999, paddingVertical: 7, paddingHorizontal: 14 },
-  segmentText: { fontSize: 14, textAlign: "center" },
+  segmentText: { fontSize: 14 },
   field: { gap: 4, flexGrow: 1, flexBasis: 140 },
   fieldLabel: { fontSize: 13 },
   selectBox: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8, borderWidth: 1, borderRadius: 8, paddingVertical: 10, paddingHorizontal: 12 },
