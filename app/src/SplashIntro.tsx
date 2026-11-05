@@ -1,5 +1,5 @@
-// A ~1.6s branded intro shown once per cold start, as an overlay on top of
-// the app -- Main() mounts and starts fetching data the same instant this
+// A branded intro shown once per cold start, as an overlay on top of the
+// app -- Main() mounts and starts fetching data the same instant this
 // does, so the intro never delays data loading, it just covers the screen
 // while that fetch is already in flight. The native splash (app.json,
 // expo-splash-screen) stays a static image; this is the animated follow-up
@@ -8,6 +8,11 @@
 // in, draws itself along the heartbeat line (stroke-dashoffset, exact
 // length from the polyline's own segments -- no DOM measurement needed),
 // then the app name fades in, then the whole thing fades out.
+//
+// Every duration/delay below is the original (phase-3) one times
+// ANIM_SPEED, so the sequence, shapes and colors are exactly as they were
+// -- only the overall pace changes. ANIM_SPEED=1 reproduces the original
+// ~1.6s intro; at the current 1.6, total runtime is ~2.6s.
 import { useEffect } from "react";
 import { StyleSheet } from "react-native";
 import Animated, {
@@ -31,13 +36,17 @@ const LINE_LENGTH = POINTS.slice(1).reduce((sum, [x, y], i) => {
 }, 0);
 const PATH_D = POINTS.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x},${y}`).join(" ");
 
-const SCALE_MS = 380;
-const DRAW_DELAY_MS = 250;
-const DRAW_MS = 650;
-const NAME_DELAY_MS = DRAW_DELAY_MS + DRAW_MS - 150;
-const NAME_MS = 350;
-const HOLD_MS = 250;
-const FADE_OUT_MS = 250;
+// Single speed knob -- raise/lower this one number to retime the whole
+// intro without touching the sequence itself. 1 = the original pace.
+const ANIM_SPEED = 1.6;
+
+const SCALE_MS = 380 * ANIM_SPEED;
+const DRAW_DELAY_MS = 250 * ANIM_SPEED;
+const DRAW_MS = 650 * ANIM_SPEED;
+const NAME_DELAY_MS = DRAW_DELAY_MS + DRAW_MS - 150 * ANIM_SPEED;
+const NAME_MS = 350 * ANIM_SPEED;
+const HOLD_MS = 250 * ANIM_SPEED;
+const FADE_OUT_MS = 250 * ANIM_SPEED;
 const FADE_OUT_AT_MS = NAME_DELAY_MS + NAME_MS + HOLD_MS;
 const TOTAL_MS = FADE_OUT_AT_MS + FADE_OUT_MS;
 
@@ -53,13 +62,13 @@ export function SplashIntro({ onFinish }: { onFinish: () => void }) {
   const nameOpacity = useSharedValue(0);
 
   useEffect(() => {
-    markOpacity.value = withTiming(1, { duration: 150 });
+    markOpacity.value = withTiming(1, { duration: 150 * ANIM_SPEED });
     scale.value = withSequence(
       withTiming(1.08, { duration: SCALE_MS, easing: Easing.out(Easing.cubic) }),
-      withTiming(1, { duration: 120 }),
+      withTiming(1, { duration: 120 * ANIM_SPEED }),
     );
     drawProgress.value = withDelay(DRAW_DELAY_MS, withTiming(1, { duration: DRAW_MS, easing: Easing.inOut(Easing.cubic) }));
-    dotScale.value = withDelay(DRAW_DELAY_MS + DRAW_MS - 80, withTiming(1, { duration: 160 }));
+    dotScale.value = withDelay(DRAW_DELAY_MS + DRAW_MS - 80 * ANIM_SPEED, withTiming(1, { duration: 160 * ANIM_SPEED }));
     nameOpacity.value = withDelay(NAME_DELAY_MS, withTiming(1, { duration: NAME_MS }));
     containerOpacity.value = withDelay(FADE_OUT_AT_MS, withTiming(0, { duration: FADE_OUT_MS }));
 
