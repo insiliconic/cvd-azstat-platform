@@ -21,7 +21,6 @@ import Animated, {
 import { Circle, Path, Svg } from "react-native-svg";
 
 import { useI18n } from "./i18n";
-import { useTheme } from "./theme";
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
@@ -30,6 +29,13 @@ const POINTS: [number, number][] = [[15, 58], [31, 58], [38, 46], [46, 72], [56,
 const END_DOT = { x: 83, y: 32, r: 7.4 };
 const STROKE = 7.5;
 
+// Fixed, not theme-derived: the intro is always a white screen with the
+// light-mode brand colors, even if the device is in dark mode -- it's the
+// launch moment, before the user has seen (or chosen) any in-app theme.
+const INTRO_BG = "#ffffff";
+const INTRO_MARK_COLOR = "#2a78d6";
+const INTRO_TEXT_COLOR = "#0b0b0b";
+
 const LINE_LENGTH = POINTS.slice(1).reduce((sum, [x, y], i) => {
   const [px, py] = POINTS[i];
   return sum + Math.hypot(x - px, y - py);
@@ -37,8 +43,9 @@ const LINE_LENGTH = POINTS.slice(1).reduce((sum, [x, y], i) => {
 const PATH_D = POINTS.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x},${y}`).join(" ");
 
 // Single speed knob -- raise/lower this one number to retime the whole
-// intro without touching the sequence itself. 1 = the original pace.
-const ANIM_SPEED = 1.6;
+// intro without touching the sequence itself. 1 = the original pace,
+// i.e. exactly the storyboard timings below.
+const ANIM_SPEED = 1.0;
 
 const SCALE_MS = 380 * ANIM_SPEED;
 
@@ -78,7 +85,6 @@ const FADE_OUT_AT_MS = NAME_DELAY_MS + NAME_MS + HOLD_MS;
 const TOTAL_MS = Math.max(FADE_OUT_AT_MS + FADE_OUT_MS, LINE_TOTAL_MS, DOT.settleMs);
 
 export function SplashIntro({ onFinish }: { onFinish: () => void }) {
-  const theme = useTheme();
   const { t } = useI18n();
 
   const containerOpacity = useSharedValue(1);
@@ -123,13 +129,13 @@ export function SplashIntro({ onFinish }: { onFinish: () => void }) {
   return (
     <Animated.View
       pointerEvents="none"
-      style={[StyleSheet.absoluteFill, styles.container, { backgroundColor: theme.page }, containerStyle]}
+      style={[StyleSheet.absoluteFill, styles.container, { backgroundColor: INTRO_BG }, containerStyle]}
     >
       <Animated.View style={markWrapStyle}>
         <Svg width={120} height={120} viewBox="0 0 100 100">
           <AnimatedPath
             d={PATH_D}
-            stroke={theme.series}
+            stroke={INTRO_MARK_COLOR}
             strokeWidth={STROKE}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -137,10 +143,10 @@ export function SplashIntro({ onFinish }: { onFinish: () => void }) {
             strokeDasharray={[LINE_LENGTH, LINE_LENGTH]}
             animatedProps={lineProps}
           />
-          <AnimatedCircle cx={END_DOT.x} cy={END_DOT.y} fill={theme.series} animatedProps={dotProps} />
+          <AnimatedCircle cx={END_DOT.x} cy={END_DOT.y} fill={INTRO_MARK_COLOR} animatedProps={dotProps} />
         </Svg>
       </Animated.View>
-      <Animated.Text style={[styles.name, nameStyle, { color: theme.textPrimary }]}>{t("app.name")}</Animated.Text>
+      <Animated.Text style={[styles.name, nameStyle, { color: INTRO_TEXT_COLOR }]}>{t("app.name")}</Animated.Text>
     </Animated.View>
   );
 }

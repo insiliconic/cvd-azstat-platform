@@ -95,9 +95,14 @@ function Main() {
 
   const regional = useMemo(() => (dataset ? buildRegional(dataset) : null), [dataset]);
 
+  // While the intro overlay is up, the real (possibly dark) theme is never
+  // applied -- background and status-bar icons stay fixed to the intro's
+  // own white/light look, so when the intro fades out there's nothing dark
+  // underneath to bleed through. The real theme only takes over the instant
+  // showIntro flips false (intro is already invisible by then).
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: theme.page }]} edges={["top", "left", "right"]}>
-      <StatusBar style={resolved === "dark" ? "light" : "dark"} />
+    <SafeAreaView style={[styles.safe, { backgroundColor: showIntro ? "#ffffff" : theme.page }]} edges={["top", "left", "right"]}>
+      <StatusBar style={showIntro ? "dark" : resolved === "dark" ? "light" : "dark"} />
       <View style={styles.header}>
         <View style={{ flexShrink: 1 }}>
           <Text style={[styles.title, { color: theme.textPrimary }]}>{t("app.name")}</Text>
