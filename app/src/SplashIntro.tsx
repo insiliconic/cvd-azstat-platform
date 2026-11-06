@@ -9,10 +9,10 @@
 // length from the polyline's own segments -- no DOM measurement needed),
 // then the app name fades in, then the whole thing fades out.
 //
-// Every duration/delay below is the original (phase-3) one times
-// ANIM_SPEED, so the sequence, shapes and colors are exactly as they were
-// -- only the overall pace changes. ANIM_SPEED=1 reproduces the original
-// ~1.6s intro; at the current 1.6, total runtime is ~2.6s.
+// Every duration/delay below is the storyboarded (phase-4) one times
+// ANIM_SPEED, so the sequence, shapes and colors stay exactly as specced
+// -- only the overall pace changes. ANIM_SPEED=1 reproduces the ~2.2s
+// storyboard; at the current 1.6, the line finishes drawing around 3.1s.
 import { useEffect } from "react";
 import { StyleSheet } from "react-native";
 import Animated, {
@@ -41,14 +41,41 @@ const PATH_D = POINTS.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x},${y}`).join
 const ANIM_SPEED = 1.6;
 
 const SCALE_MS = 380 * ANIM_SPEED;
-const DRAW_DELAY_MS = 250 * ANIM_SPEED;
-const DRAW_MS = 650 * ANIM_SPEED;
-const NAME_DELAY_MS = DRAW_DELAY_MS + DRAW_MS - 150 * ANIM_SPEED;
+
+// The heartbeat line's draw is a fixed storyboard (seconds, at ANIM_SPEED=1):
+// 0.00 invisible -> 0.01 starts -> 0.01-0.30 flat baseline (10% of length) ->
+// 0.30-0.70 small bump (25%) -> 0.70-0.95 pause -> 0.95-1.50 tall peak (46%,
+// the longest leg) -> 1.50-1.75 pause -> 1.75-1.93 fast final rise (19%,
+// ease-in) -> 1.93-2.20 fully drawn, holds. `progress` is the cumulative
+// fraction of LINE_LENGTH reached by the end of that leg; pauses repeat the
+// previous value so drawProgress just holds for their duration.
+const LINE = {
+  startDelayMs: 10 * ANIM_SPEED,
+  baseline: { ms: 290 * ANIM_SPEED, progress: 0.1 },
+  bump: { ms: 400 * ANIM_SPEED, progress: 0.35 },
+  pause1Ms: 250 * ANIM_SPEED,
+  peak: { ms: 550 * ANIM_SPEED, progress: 0.81 },
+  pause2Ms: 250 * ANIM_SPEED,
+  finalRise: { ms: 180 * ANIM_SPEED, progress: 1 },
+  settleMs: 270 * ANIM_SPEED,
+};
+// When the path is fully drawn (end of finalRise) vs. when its hold ends --
+// the name-fade timing below anchors to the former.
+const LINE_DRAW_END_MS = LINE.startDelayMs + LINE.baseline.ms + LINE.bump.ms
+  + LINE.pause1Ms + LINE.peak.ms + LINE.pause2Ms + LINE.finalRise.ms;
+const LINE_TOTAL_MS = LINE_DRAW_END_MS + LINE.settleMs;
+
+// The end-dot's overshoot is on its own absolute clock (same t=0 as the
+// line, not relative to it): grows from 0 to a 1.35x pop, then settles to
+// its real size (1.0x).
+const DOT = { startMs: 1900 * ANIM_SPEED, peakMs: 2090 * ANIM_SPEED, settleMs: 2220 * ANIM_SPEED };
+
+const NAME_DELAY_MS = LINE_DRAW_END_MS - 150 * ANIM_SPEED;
 const NAME_MS = 350 * ANIM_SPEED;
 const HOLD_MS = 250 * ANIM_SPEED;
 const FADE_OUT_MS = 250 * ANIM_SPEED;
 const FADE_OUT_AT_MS = NAME_DELAY_MS + NAME_MS + HOLD_MS;
-const TOTAL_MS = FADE_OUT_AT_MS + FADE_OUT_MS;
+const TOTAL_MS = Math.max(FADE_OUT_AT_MS + FADE_OUT_MS, LINE_TOTAL_MS, DOT.settleMs);
 
 export function SplashIntro({ onFinish }: { onFinish: () => void }) {
   const theme = useTheme();
@@ -67,8 +94,18 @@ export function SplashIntro({ onFinish }: { onFinish: () => void }) {
       withTiming(1.08, { duration: SCALE_MS, easing: Easing.out(Easing.cubic) }),
       withTiming(1, { duration: 120 * ANIM_SPEED }),
     );
-    drawProgress.value = withDelay(DRAW_DELAY_MS, withTiming(1, { duration: DRAW_MS, easing: Easing.inOut(Easing.cubic) }));
-    dotScale.value = withDelay(DRAW_DELAY_MS + DRAW_MS - 80 * ANIM_SPEED, withTiming(1, { duration: 160 * ANIM_SPEED }));
+    drawProgress.value = withDelay(LINE.startDelayMs, withSequence(
+      withTiming(LINE.baseline.progress, { duration: LINE.baseline.ms, easing: Easing.linear }),
+      withTiming(LINE.bump.progress, { duration: LINE.bump.ms, easing: Easing.linear }),
+      withTiming(LINE.bump.progress, { duration: LINE.pause1Ms }),
+      withTiming(LINE.peak.progress, { duration: LINE.peak.ms, easing: Easing.linear }),
+      withTiming(LINE.peak.progress, { duration: LINE.pause2Ms }),
+      withTiming(LINE.finalRise.progress, { duration: LINE.finalRise.ms, easing: Easing.in(Easing.cubic) }),
+    ));
+    dotScale.value = withDelay(DOT.startMs, withSequence(
+      withTiming(1.35, { duration: DOT.peakMs - DOT.startMs }),
+      withTiming(1, { duration: DOT.settleMs - DOT.peakMs }),
+    ));
     nameOpacity.value = withDelay(NAME_DELAY_MS, withTiming(1, { duration: NAME_MS }));
     containerOpacity.value = withDelay(FADE_OUT_AT_MS, withTiming(0, { duration: FADE_OUT_MS }));
 
