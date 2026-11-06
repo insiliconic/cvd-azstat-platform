@@ -107,9 +107,37 @@
   "error.message": "Could not read data from {url} ({error}). Check your internet connection or try again in a moment.",
 
   "footer.html": "Data source: <a href=\"https://www.stat.gov.az/source/healthcare/?lang=en\" target=\"_blank\" rel=\"noopener\">stat.gov.az</a> · Static HTML + Chart.js site; the data is read from GitHub Pages on every page load, not at build time.",
+  "footer.privacyLink": "Privacy Policy",
 
   "about.heading": "About the project",
   "about.p1": "<strong>Cardiostatistics</strong> is an open website that brings together cardiovascular disease statistics for Azerbaijan. It presents death and morbidity indicators for diseases of the circulatory system (ICD-10 I00–I99) by year, age group, economic region and district.",
   "about.p2": "The site shows the latest year's key indicators, trend charts over the years, a map of Azerbaijan by economic region and district, and a sortable table of all indicators. It is available in Azerbaijani and English.",
-  "about.p3": "The data comes from the official health tables of the State Statistical Committee of the Republic of Azerbaijan (Azstat); the source is checked every day and the site is updated when new data is published. It is intended for researchers, physicians, students and journalists."
+  "about.p3": "The data comes from the official health tables of the State Statistical Committee of the Republic of Azerbaijan (Azstat); the source is checked every day and the site is updated when new data is published. It is intended for researchers, physicians, students and journalists.",
+
+  "privacy.meta.title": "Cardiostatistics — Privacy Policy",
+  "privacy.meta.description": "Privacy policy for the Cardiostatistics website and mobile app: what personal data we don't collect, our data source, and hosting.",
+  "privacy.heading": "Privacy Policy",
+  "privacy.subtitle": "Short version: we don't collect personal data.",
+  "privacy.intro": "Cardiostatistics (website and mobile app) is a simple way to view public statistics. It does not collect personal data about its users, does not require an account, and keeps no profile.",
+  "privacy.noDataHeading": "We don't collect personal data",
+  "privacy.noDataBody": "The site and the app never ask for, store, or share any of the following with a third party:",
+  "privacy.noData.account": "An account or registration",
+  "privacy.noData.name": "Name",
+  "privacy.noData.email": "Email address",
+  "privacy.noData.location": "Location (GPS)",
+  "privacy.noData.contacts": "Contact list",
+  "privacy.noData.camera": "Camera or microphone",
+  "privacy.noData.adid": "Advertising identifier",
+  "privacy.sourceHeading": "Data source",
+  "privacy.sourceBody": "Every figure shown comes from the open tables of the State Statistical Committee of the Republic of Azerbaijan (Azstat), checked and updated daily. This is public source data, not data collected from how you use the site or app.",
+  "privacy.prefsHeading": "Language and theme preference",
+  "privacy.prefsBody": "Your chosen language (AZ/EN) and appearance (light/dark) are saved only on your own device — in the browser's localStorage on the website, and in AsyncStorage in the mobile app. This choice is never sent to us; it stays on that device only.",
+  "privacy.hostingHeading": "Hosting",
+  "privacy.hostingBody": "The site is hosted on GitHub Pages. Like any web server, the hosting provider (GitHub) may keep standard technical access logs on its own side for a short time (e.g. IP address, browser type, page requested) — this is the hosting provider's ordinary technical log, not something Cardiostatistics itself collects.",
+  "privacy.disclaimerHeading": "Medical disclaimer",
+  "privacy.disclaimerBody": "All information on the site and in the app is statistical in nature and is not medical advice. Please consult a doctor for personal health matters.",
+  "privacy.contactHeading": "Contact",
+  "privacy.contactHtml": "Questions about this policy: <a href=\"mailto:insiliconic@gmail.com\">insiliconic@gmail.com</a>",
+  "privacy.lastUpdated": "Last updated: November 6, 2026",
+  "privacy.backLink": "← Back to home"
 }

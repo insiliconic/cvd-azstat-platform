@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="az" data-i18n-page="privacy">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cardiostatistics — Məxfilik siyasəti</title>
+<meta name="description" content="Cardiostatistics veb sayt və mobil tətbiqinin məxfilik siyasəti: hansı şəxsi məlumatları toplamadığımız, data mənbəyi və hosting.">
+<link rel="canonical" href="https://cardiostatistics.com/privacy/">
+<meta name="theme-color" content="#2a78d6">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<!-- Link previews (crawlers do not run JS, so these stay in Azerbaijani, the default language). -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Cardiostatistics">
+<meta property="og:title" content="Cardiostatistics — Məxfilik siyasəti">
+<meta property="og:description" content="Cardiostatistics veb sayt və mobil tətbiqinin məxfilik siyasəti: hansı şəxsi məlumatları toplamadığımız, data mənbəyi və hosting.">
+<meta property="og:url" content="https://cardiostatistics.com/privacy/">
+<meta property="og:image" content="https://cardiostatistics.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="az_AZ">
+<meta property="og:locale:alternate" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<!-- Same flash-prevention as index.html: theme before first paint, hide the
+     page while a saved non-default language loads. -->
+<script>
+  (function () {
+    var saved = null, lang = null;
+    try { saved = localStorage.getItem("cvd-theme"); lang = localStorage.getItem("cvd-lang"); } catch (e) {}
+    if (saved === "light" || saved === "dark") {
+      document.documentElement.setAttribute("data-theme", saved);
+    }
+    if (lang === "en") {
+      document.documentElement.lang = "en";
+      document.documentElement.className += " i18n-pending";
+    }
+  })();
+</script>
+<link rel="stylesheet" href="/style.css">
+<script src="/i18n.js" defer></script>
+<script src="privacy.js" defer></script>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="brand" href="/" aria-label="Cardiostatistics">
+    <svg class="brand__mark" viewBox="0 0 100 100" width="40" height="40" aria-hidden="true" focusable="false">
+      <rect width="100" height="100" rx="22" fill="currentColor"/>
+      <polyline class="brand__line" pathLength="100" points="15,58 31,58 38,46 46,72 56,27 63,56 73,44 83,32" fill="none" stroke="#fff" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle class="brand__dot" cx="83" cy="32" r="7.4" fill="#fff"/>
+    </svg>
+    <span class="brand__name">Cardiostatistics</span>
+  </a>
+</div>
+
+<header class="site-header">
+  <div class="site-header__row">
+    <h1 id="privacy-heading" data-i18n="privacy.heading">Məxfilik siyasəti</h1>
+    <div class="header-actions">
+      <div class="lang-switch" role="group" aria-label="Dil" data-i18n-attr="aria-label:header.langSwitch">
+        <button type="button" class="lang-btn" data-lang="az" lang="az" aria-pressed="true">AZ</button>
+        <button type="button" class="lang-btn" data-lang="en" lang="en" aria-pressed="false">EN</button>
+      </div>
+      <button id="theme-toggle" type="button" aria-label="İşıqlı/qaranlıq rejimi dəyiş" data-i18n-attr="aria-label:header.themeToggle">
+        <span aria-hidden="true">🌓</span>
+      </button>
+    </div>
+  </div>
+  <p class="subtitle" data-i18n="privacy.subtitle">Qısaca: şəxsi məlumat toplamırıq.</p>
+</header>
+
+<main>
+  <section class="card privacy" aria-labelledby="privacy-heading">
+    <p data-i18n="privacy.intro">Cardiostatistics (veb sayt və mobil tətbiq) ictimai statistika göstərən sadə bir vasitədir. İstifadəçi haqqında şəxsi məlumat toplamır, hesab tələb etmir və profil saxlamır.</p>
+
+    <h2 data-i18n="privacy.noDataHeading">Şəxsi məlumat toplamırıq</h2>
+    <p data-i18n="privacy.noDataBody">Sayt və app aşağıdakılardan heç birini soruşmur, saxlamır və ya üçüncü tərəfə ötürmür:</p>
+    <ul>
+      <li data-i18n="privacy.noData.account">Hesab və ya qeydiyyat</li>
+      <li data-i18n="privacy.noData.name">Ad, soyad</li>
+      <li data-i18n="privacy.noData.email">E-poçt ünvanı</li>
+      <li data-i18n="privacy.noData.location">Məkan (GPS)</li>
+      <li data-i18n="privacy.noData.contacts">Kontakt siyahısı</li>
+      <li data-i18n="privacy.noData.camera">Kamera və ya mikrofon</li>
+      <li data-i18n="privacy.noData.adid">Reklam identifikatoru</li>
+    </ul>
+
+    <h2 data-i18n="privacy.sourceHeading">Data mənbəyi</h2>
+    <p data-i18n="privacy.sourceBody">Göstərdiyimiz bütün rəqəmlər Azərbaycan Respublikasının Dövlət Statistika Komitəsinin (Azstat) açıq cədvəllərindən götürülür və hər gün yoxlanılıb yenilənir. Bu, istifadəçi fəaliyyətindən toplanan data deyil, ictimai mənbədən oxunan statistikadır.</p>
+
+    <h2 data-i18n="privacy.prefsHeading">Dil və tema seçimi</h2>
+    <p data-i18n="privacy.prefsBody">Seçdiyiniz dil (AZ/EN) və görünüş rejimi (açıq/tünd) yalnız öz cihazınızda saxlanılır — veb saytda brauzerin localStorage-ında, mobil tətbiqdə isə AsyncStorage-də. Bu seçim bizə heç vaxt göndərilmir və yalnız sizin həmin cihazınızda qalır.</p>
+
+    <h2 data-i18n="privacy.hostingHeading">Hosting</h2>
+    <p data-i18n="privacy.hostingBody">Sayt GitHub Pages-də yerləşir. Hər veb server kimi, hosting provayderi (GitHub) texniki giriş loglarını (məsələn, IP ünvanı, brauzer növü, baxılan səhifə) öz tərəfində qısa müddət saxlaya bilər — bu, Cardiostatistics-in özünün topladığı deyil, hostinqin standart texniki jurnalıdır.</p>
+
+    <h2 data-i18n="privacy.disclaimerHeading">Tibbi xəbərdarlıq</h2>
+    <p data-i18n="privacy.disclaimerBody">Saytdakı və tətbiqdəki bütün məlumatlar statistik xarakter daşıyır və tibbi məsləhət deyil. Şəxsi sağlamlıq məsələlərində mütləq həkimə müraciət edin.</p>
+
+    <h2 data-i18n="privacy.contactHeading">Əlaqə</h2>
+    <p data-i18n-html="privacy.contactHtml">Bu siyasətlə bağlı sualınız varsa: <a href="mailto:insiliconic@gmail.com">insiliconic@gmail.com</a></p>
+
+    <p class="muted" data-i18n="privacy.lastUpdated">Son yenilənmə: 6 noyabr 2026</p>
+  </section>
+</main>
+
+<footer>
+  <p><a href="/" data-i18n="privacy.backLink">← Ana səhifəyə qayıt</a></p>
+</footer>
+
+</body>
+</html>

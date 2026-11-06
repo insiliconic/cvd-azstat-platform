@@ -440,6 +440,13 @@ html { scroll-padding-top: calc(var(--topbar-h) + 8px); } /* in-page jumps stop 
 
 .about p { margin: 8px 0 0; color: var(--text-secondary); font-size: 0.95rem; max-width: 70ch; }
 
+/* Privacy policy page */
+.privacy p { margin: 8px 0 0; color: var(--text-secondary); font-size: 0.95rem; max-width: 70ch; }
+.privacy ul { margin: 8px 0 0; padding-left: 20px; color: var(--text-secondary); font-size: 0.95rem; }
+.privacy h2 { margin: 20px 0 0; font-size: 1.05rem; }
+.privacy h2:first-of-type { margin-top: 4px; }
+.privacy .muted { margin-top: 20px; }
+
 /* Table */
 .table-wrap { overflow-x: auto; }
 .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
@@ -504,6 +511,9 @@ footer {
   color: var(--text-muted);
   font-size: 0.8rem;
 }
+.footer-links { margin: 6px 0 0; }
+.footer-links a { color: var(--text-muted); }
+.footer-links a:hover { color: var(--series-1); }
 
 @media (max-width: 560px) {
   :root { --head-size: 1.25rem; --topbar-h: 56px; }

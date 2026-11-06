@@ -16,7 +16,9 @@ const i18n = { lang: I18N_DEFAULT, dicts: {}, listeners: [] };
 
 async function loadDict(lang) {
   if (i18n.dicts[lang]) return i18n.dicts[lang];
-  const res = await fetch(`i18n/${lang}.json`, { cache: "no-store" });
+  // Root-absolute, not relative: this file is shared by pages at different
+  // depths (/, /privacy/), and the dictionaries always live at site root.
+  const res = await fetch(`/i18n/${lang}.json`, { cache: "no-store" });
   if (!res.ok) throw new Error(`i18n/${lang}.json: HTTP ${res.status}`);
   i18n.dicts[lang] = await res.json();
   return i18n.dicts[lang];
@@ -35,9 +37,14 @@ function t(key, vars) {
 
 function applyStaticTranslations() {
   document.documentElement.lang = i18n.lang;
-  document.title = t("meta.title");
+  // A secondary page (e.g. <html data-i18n-page="privacy">) gets its own
+  // title/description keys ("privacy.meta.title" etc.) instead of the
+  // main site's, which would otherwise overwrite them on every language
+  // switch.
+  const page = document.documentElement.dataset.i18nPage;
+  document.title = t(page ? `${page}.meta.title` : "meta.title");
   const meta = document.querySelector('meta[name="description"]');
-  if (meta) meta.setAttribute("content", t("meta.description"));
+  if (meta) meta.setAttribute("content", t(page ? `${page}.meta.description` : "meta.description"));
   for (const el of document.querySelectorAll("[data-i18n]")) el.textContent = t(el.dataset.i18n);
   for (const el of document.querySelectorAll("[data-i18n-html]")) el.innerHTML = t(el.dataset.i18nHtml);
   for (const el of document.querySelectorAll("[data-i18n-attr]")) {

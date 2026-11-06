@@ -107,9 +107,37 @@
   "error.message": "{url} ünvanından data oxunmadı ({error}). İnternet bağlantınızı yoxlayın və ya bir az sonra yenidən cəhd edin.",
 
   "footer.html": "Data mənbəyi: <a href=\"https://www.stat.gov.az/source/healthcare/?lang=en\" target=\"_blank\" rel=\"noopener\">stat.gov.az</a> · Sayt statik HTML + Chart.js ilə qurulub, data build zamanı deyil, hər səhifə yüklənişində GitHub Pages-dən oxunur.",
+  "footer.privacyLink": "Məxfilik siyasəti",
 
   "about.heading": "Layihə haqqında",
   "about.p1": "<strong>Cardiostatistics</strong> — Azərbaycanda ürək-damar xəstəlikləri statistikasını bir yerdə göstərən açıq saytdır. Qan dövranı sistemi xəstəlikləri (ICD-10 I00–I99) üzrə ölüm və xəstələnmə göstəriciləri illər, yaş qrupları, iqtisadi regionlar və rayonlar üzrə təqdim olunur.",
   "about.p2": "Saytda ən son ilin əsas göstəriciləri, illər üzrə tendensiya qrafikləri, Azərbaycanın iqtisadi region və rayonlar üzrə xəritəsi və bütün göstəricilərin sıralana bilən cədvəli var. Sayt Azərbaycan və ingilis dillərindədir.",
-  "about.p3": "Məlumatlar Azərbaycan Respublikasının Dövlət Statistika Komitəsinin (Azstat) rəsmi səhiyyə cədvəllərindən götürülür; mənbə hər gün yoxlanılır və yeni məlumat dərc olunduqda saytda yenilənir. Sayt tədqiqatçılar, həkimlər, tələbələr və jurnalistlər üçün nəzərdə tutulub."
+  "about.p3": "Məlumatlar Azərbaycan Respublikasının Dövlət Statistika Komitəsinin (Azstat) rəsmi səhiyyə cədvəllərindən götürülür; mənbə hər gün yoxlanılır və yeni məlumat dərc olunduqda saytda yenilənir. Sayt tədqiqatçılar, həkimlər, tələbələr və jurnalistlər üçün nəzərdə tutulub.",
+
+  "privacy.meta.title": "Cardiostatistics — Məxfilik siyasəti",
+  "privacy.meta.description": "Cardiostatistics veb sayt və mobil tətbiqinin məxfilik siyasəti: hansı şəxsi məlumatları toplamadığımız, data mənbəyi və hosting.",
+  "privacy.heading": "Məxfilik siyasəti",
+  "privacy.subtitle": "Qısaca: şəxsi məlumat toplamırıq.",
+  "privacy.intro": "Cardiostatistics (veb sayt və mobil tətbiq) ictimai statistika göstərən sadə bir vasitədir. İstifadəçi haqqında şəxsi məlumat toplamır, hesab tələb etmir və profil saxlamır.",
+  "privacy.noDataHeading": "Şəxsi məlumat toplamırıq",
+  "privacy.noDataBody": "Sayt və app aşağıdakılardan heç birini soruşmur, saxlamır və ya üçüncü tərəfə ötürmür:",
+  "privacy.noData.account": "Hesab və ya qeydiyyat",
+  "privacy.noData.name": "Ad, soyad",
+  "privacy.noData.email": "E-poçt ünvanı",
+  "privacy.noData.location": "Məkan (GPS)",
+  "privacy.noData.contacts": "Kontakt siyahısı",
+  "privacy.noData.camera": "Kamera və ya mikrofon",
+  "privacy.noData.adid": "Reklam identifikatoru",
+  "privacy.sourceHeading": "Data mənbəyi",
+  "privacy.sourceBody": "Göstərdiyimiz bütün rəqəmlər Azərbaycan Respublikasının Dövlət Statistika Komitəsinin (Azstat) açıq cədvəllərindən götürülür və hər gün yoxlanılıb yenilənir. Bu, istifadəçi fəaliyyətindən toplanan data deyil, ictimai mənbədən oxunan statistikadır.",
+  "privacy.prefsHeading": "Dil və tema seçimi",
+  "privacy.prefsBody": "Seçdiyiniz dil (AZ/EN) və görünüş rejimi (açıq/tünd) yalnız öz cihazınızda saxlanılır — veb saytda brauzerin localStorage-ında, mobil tətbiqdə isə AsyncStorage-də. Bu seçim bizə heç vaxt göndərilmir və yalnız sizin həmin cihazınızda qalır.",
+  "privacy.hostingHeading": "Hosting",
+  "privacy.hostingBody": "Sayt GitHub Pages-də yerləşir. Hər veb server kimi, hosting provayderi (GitHub) texniki giriş loglarını (məsələn, IP ünvanı, brauzer növü, baxılan səhifə) öz tərəfində qısa müddət saxlaya bilər — bu, Cardiostatistics-in özünün topladığı deyil, hostinqin standart texniki jurnalıdır.",
+  "privacy.disclaimerHeading": "Tibbi xəbərdarlıq",
+  "privacy.disclaimerBody": "Saytdakı və tətbiqdəki bütün məlumatlar statistik xarakter daşıyır və tibbi məsləhət deyil. Şəxsi sağlamlıq məsələlərində mütləq həkimə müraciət edin.",
+  "privacy.contactHeading": "Əlaqə",
+  "privacy.contactHtml": "Bu siyasətlə bağlı sualınız varsa: <a href=\"mailto:insiliconic@gmail.com\">insiliconic@gmail.com</a>",
+  "privacy.lastUpdated": "Son yenilənmə: 6 noyabr 2026",
+  "privacy.backLink": "← Ana səhifəyə qayıt"
 }
