@@ -40,6 +40,12 @@
         }
       ],
       "expo-status-bar"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "240d78ef-80db-4f3b-8319-cd64b587ba29"
+      }
+    },
+    "owner": "insiliconic"
   }
 }
